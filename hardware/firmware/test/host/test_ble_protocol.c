@@ -73,6 +73,26 @@ static void assert_clock_fixture_roundtrips(const char *name)
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
 }
 
+static void assert_speed_heading_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t                  flags = 0xFF;
+    ble_speed_heading_data_t decoded_body;
+    const ble_result_t       decoded =
+        ble_decode_speed_heading(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_speed_heading(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
 static void assert_nav_fixture_roundtrips(const char *name)
 {
     fixture_blob_t blob;
@@ -116,6 +136,21 @@ static void test_nav_arrive_roundtrip(void)
     assert_nav_fixture_roundtrips("nav_arrive");
 }
 
+static void test_speed_urban_45_roundtrip(void)
+{
+    assert_speed_heading_fixture_roundtrips("speed_urban_45kmh");
+}
+
+static void test_speed_highway_120_roundtrip(void)
+{
+    assert_speed_heading_fixture_roundtrips("speed_highway_120kmh");
+}
+
+static void test_speed_stationary_roundtrip(void)
+{
+    assert_speed_heading_fixture_roundtrips("speed_stationary");
+}
+
 /* ------------------------------------------------------------------------- */
 /*                  invalid fixtures — each case fails cleanly               */
 /* ------------------------------------------------------------------------- */
@@ -138,6 +173,21 @@ static const invalid_case_t INVALID_CASES[] = {
     {"truncated_body",       BLE_ERR_TRUNCATED_BODY},
     {"reserved_flags_set",   BLE_ERR_RESERVED_FLAGS_SET},
 };
+
+/*
+ * speed_heading_out_of_range carries a valid header but an out-of-range
+ * speed value; ble_decode_header can't catch that, so we dispatch through
+ * the speed-heading decoder to exercise the VALUE_OUT_OF_RANGE path.
+ */
+static void test_speed_heading_out_of_range_fixture_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "speed_heading_out_of_range", &blob));
+    ble_speed_heading_data_t body;
+    const ble_result_t       result =
+        ble_decode_speed_heading(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
 
 static void test_invalid_fixtures_are_rejected(void)
 {
@@ -167,6 +217,10 @@ int main(void)
     RUN_TEST(test_nav_straight_roundtrip);
     RUN_TEST(test_nav_sharp_left_roundtrip);
     RUN_TEST(test_nav_arrive_roundtrip);
+    RUN_TEST(test_speed_urban_45_roundtrip);
+    RUN_TEST(test_speed_highway_120_roundtrip);
+    RUN_TEST(test_speed_stationary_roundtrip);
     RUN_TEST(test_invalid_fixtures_are_rejected);
+    RUN_TEST(test_speed_heading_out_of_range_fixture_rejected);
     return UNITY_END();
 }

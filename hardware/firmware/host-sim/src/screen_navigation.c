@@ -89,14 +89,16 @@ static void draw_arrow_horizontal(host_sim_canvas_t *canvas, int cx, int cy,
                                   int dir, /* -1 = left, +1 = right */
                                   uint8_t r, uint8_t g, uint8_t b)
 {
-    /* Horizontal shaft. */
-    fill_rect(canvas, cx - dir * 40 - 12, cy - 12, 80, 24, r, g, b);
-    /* Stepped triangle head on the leading side. */
+    /* Horizontal shaft centred on (cx, cy): 80 wide, 24 tall. */
+    fill_rect(canvas, cx - 40, cy - 12, 80, 24, r, g, b);
+    /* Stepped triangle head on the leading side: widest adjacent to the
+     * shaft, narrowing to a single pixel column at the tip. 10 columns
+     * of 2px each → 20px-long head, height 60 → 12. */
     for (int i = 0; i < 10; ++i) {
-        const int h = 12 + i * 6;
+        const int h = 60 - i * 6;
         const int x = (dir > 0)
-            ? (cx + 40 - i * 2)
-            : (cx - 40 + i * 2 - 2);
+            ? (cx + 40 + i * 2)
+            : (cx - 40 - (i + 1) * 2);
         fill_rect(canvas, x, cy - h, 2, h * 2, r, g, b);
     }
 }

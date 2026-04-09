@@ -1,0 +1,161 @@
+
+<h2 class="sr-only">Round motorcycle display mockups for ESP32-S3 1.75 inch AMOLED showing navigation, speed, compass, weather, trip stats, music, campervan, and idle screens</h2>
+<style>
+.wrap{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;padding:1rem 0}
+.card{display:flex;flex-direction:column;align-items:center;gap:8px}
+.label{font-size:13px;color:var(--color-text-secondary);font-weight:500}
+.screen{width:200px;height:200px;border-radius:50%;background:#0a0a0a;position:relative;overflow:hidden;border:3px solid #222}
+.screen *{font-family:var(--font-sans)}
+.screen svg{width:100%;height:100%}
+.t-w{fill:#fff}.t-m{fill:#999}.t-a{fill:#4dd88a}.t-b{fill:#5bacf5}.t-o{fill:#f5a623}.t-r{fill:#e24b4a}
+</style>
+
+<div class="wrap">
+
+<div class="card">
+<div class="label">Navigation</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<path d="M100 30 L120 90 L100 75 L80 90 Z" fill="#4dd88a" opacity="0.9"/>
+<text x="100" y="120" text-anchor="middle" font-size="11" class="t-m">Bundesstrasse 3</text>
+<text x="100" y="142" text-anchor="middle" font-size="28" font-weight="500" class="t-w">340m</text>
+<text x="100" y="162" text-anchor="middle" font-size="11" class="t-a">Links abbiegen</text>
+<text x="100" y="185" text-anchor="middle" font-size="10" class="t-m">ETA 14:32 — 12.4 km</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Speed + heading</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<circle cx="100" cy="100" r="70" fill="none" stroke="#222" stroke-width="4"/>
+<circle cx="100" cy="100" r="70" fill="none" stroke="#4dd88a" stroke-width="4" stroke-dasharray="110 330" stroke-dashoffset="-55" stroke-linecap="round"/>
+<text x="100" y="90" text-anchor="middle" font-size="42" font-weight="500" class="t-w">67</text>
+<text x="100" y="108" text-anchor="middle" font-size="12" class="t-m">km/h</text>
+<text x="100" y="135" text-anchor="middle" font-size="14" font-weight="500" class="t-b">NE 042°</text>
+<text x="60" y="170" text-anchor="middle" font-size="10" class="t-m">612m</text>
+<text x="140" y="170" text-anchor="middle" font-size="10" class="t-m">18°C</text>
+<circle cx="60" cy="162" r="1.5" fill="#999"/>
+<circle cx="140" cy="162" r="1.5" fill="#999"/>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Compass</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<circle cx="100" cy="100" r="75" fill="none" stroke="#222" stroke-width="1"/>
+<text x="100" y="35" text-anchor="middle" font-size="14" font-weight="500" class="t-r">N</text>
+<text x="175" y="104" text-anchor="middle" font-size="12" class="t-m">E</text>
+<text x="100" y="180" text-anchor="middle" font-size="12" class="t-m">S</text>
+<text x="25" y="104" text-anchor="middle" font-size="12" class="t-m">W</text>
+<line x1="100" y1="45" x2="100" y2="55" stroke="#333" stroke-width="1"/>
+<line x1="100" y1="145" x2="100" y2="155" stroke="#333" stroke-width="1"/>
+<line x1="45" y1="100" x2="55" y2="100" stroke="#333" stroke-width="1"/>
+<line x1="145" y1="100" x2="155" y2="100" stroke="#333" stroke-width="1"/>
+<path d="M100 60 L106 100 L100 95 L94 100 Z" fill="#e24b4a"/>
+<path d="M100 140 L106 100 L100 105 L94 100 Z" fill="#444"/>
+<text x="100" y="86" text-anchor="middle" font-size="10" font-weight="500" class="t-w">042°</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Weather</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<circle cx="90" cy="65" r="18" fill="#f5a623" opacity="0.9"/>
+<circle cx="90" cy="65" r="12" fill="#0a0a0a"/>
+<path d="M98 58 Q115 45 120 60 Q135 55 132 70 Q140 78 128 82 L72 82 Q58 80 62 70 Q58 58 75 60 Q78 48 98 58Z" fill="#5bacf5" opacity="0.7"/>
+<text x="100" y="118" text-anchor="middle" font-size="36" font-weight="500" class="t-w">18°</text>
+<text x="100" y="140" text-anchor="middle" font-size="11" class="t-b">teilweise bewölkt</text>
+<text x="60" y="165" text-anchor="middle" font-size="10" class="t-m">H: 22°</text>
+<text x="140" y="165" text-anchor="middle" font-size="10" class="t-m">L: 11°</text>
+<text x="100" y="182" text-anchor="middle" font-size="10" class="t-o">Basel, CH</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Trip stats</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<text x="100" y="42" text-anchor="middle" font-size="10" font-weight="500" class="t-a">AKTIVE FAHRT</text>
+<text x="100" y="72" text-anchor="middle" font-size="30" font-weight="500" class="t-w">1:42h</text>
+<text x="100" y="90" text-anchor="middle" font-size="10" class="t-m">Fahrzeit</text>
+<line x1="40" y1="100" x2="160" y2="100" stroke="#222" stroke-width="0.5"/>
+<text x="65" y="122" text-anchor="middle" font-size="18" font-weight="500" class="t-w">87.3</text>
+<text x="65" y="136" text-anchor="middle" font-size="9" class="t-m">km</text>
+<text x="135" y="122" text-anchor="middle" font-size="18" font-weight="500" class="t-w">51</text>
+<text x="135" y="136" text-anchor="middle" font-size="9" class="t-m">avg km/h</text>
+<line x1="100" y1="106" x2="100" y2="140" stroke="#222" stroke-width="0.5"/>
+<text x="65" y="162" text-anchor="middle" font-size="14" font-weight="500" class="t-o">1420m</text>
+<text x="65" y="174" text-anchor="middle" font-size="9" class="t-m">Höhenmeter</text>
+<text x="135" y="162" text-anchor="middle" font-size="14" font-weight="500" class="t-b">94</text>
+<text x="135" y="174" text-anchor="middle" font-size="9" class="t-m">max km/h</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Music</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<rect x="70" y="40" width="60" height="60" rx="8" fill="#333"/>
+<text x="100" y="75" text-anchor="middle" font-size="20">♫</text>
+<text x="100" y="120" text-anchor="middle" font-size="13" font-weight="500" class="t-w">Riders on the Storm</text>
+<text x="100" y="136" text-anchor="middle" font-size="11" class="t-m">The Doors</text>
+<rect x="40" y="152" width="120" height="3" rx="1.5" fill="#222"/>
+<rect x="40" y="152" width="78" height="3" rx="1.5" fill="#4dd88a"/>
+<circle cx="118" cy="153.5" r="5" fill="#4dd88a"/>
+<text x="40" y="168" font-size="9" class="t-m">4:12</text>
+<text x="160" y="168" text-anchor="end" font-size="9" class="t-m">7:14</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Campervan (Victron)</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<text x="100" y="38" text-anchor="middle" font-size="10" font-weight="500" class="t-m">VW LT 35</text>
+<circle cx="100" cy="85" r="35" fill="none" stroke="#222" stroke-width="5"/>
+<circle cx="100" cy="85" r="35" fill="none" stroke="#4dd88a" stroke-width="5" stroke-dasharray="165 55" stroke-dashoffset="-27" stroke-linecap="round"/>
+<text x="100" y="82" text-anchor="middle" font-size="24" font-weight="500" class="t-w">78%</text>
+<text x="100" y="96" text-anchor="middle" font-size="9" class="t-a">SOC</text>
+<text x="55" y="142" text-anchor="middle" font-size="12" font-weight="500" class="t-w">12.8V</text>
+<text x="55" y="154" text-anchor="middle" font-size="9" class="t-m">Batterie</text>
+<text x="145" y="142" text-anchor="middle" font-size="12" font-weight="500" class="t-o">+142W</text>
+<text x="145" y="154" text-anchor="middle" font-size="9" class="t-m">Solar</text>
+<text x="100" y="175" text-anchor="middle" font-size="11" class="t-b">21.3°C — 52% rH</text>
+<text x="100" y="189" text-anchor="middle" font-size="9" class="t-m">Innenraum</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Idle / clock</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<text x="100" y="70" text-anchor="middle" font-size="11" font-weight="500" class="t-m">MI, 9. APRIL</text>
+<text x="100" y="110" text-anchor="middle" font-size="44" font-weight="500" class="t-w">14:32</text>
+<text x="100" y="135" text-anchor="middle" font-size="11" class="t-m">Basel — 18°C</text>
+<circle cx="85" cy="158" r="4" fill="#4dd88a"/>
+<text x="100" y="162" text-anchor="start" font-size="10" class="t-m">BLE</text>
+<circle cx="130" cy="158" r="4" fill="#5bacf5"/>
+<text x="145" y="162" text-anchor="start" font-size="10" class="t-m">WiFi</text>
+</svg>
+</div>
+</div>
+
+</div>

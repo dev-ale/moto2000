@@ -1,0 +1,147 @@
+
+<h2 class="sr-only">Additional round motorcycle display mockups showing lean angle, radar warnings, fuel estimate, altitude profile, incoming call, and calendar screens</h2>
+<style>
+.wrap{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;padding:1rem 0}
+.card{display:flex;flex-direction:column;align-items:center;gap:8px}
+.label{font-size:13px;color:var(--color-text-secondary);font-weight:500}
+.screen{width:200px;height:200px;border-radius:50%;background:#0a0a0a;position:relative;overflow:hidden;border:3px solid #222}
+.screen *{font-family:var(--font-sans)}
+.screen svg{width:100%;height:100%}
+.t-w{fill:#fff}.t-m{fill:#999}.t-a{fill:#4dd88a}.t-b{fill:#5bacf5}.t-o{fill:#f5a623}.t-r{fill:#e24b4a}.t-p{fill:#c084fc}
+</style>
+
+<div class="wrap">
+
+<div class="card">
+<div class="label">Lean angle</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<path d="M30 140 A80 80 0 0 1 170 140" fill="none" stroke="#222" stroke-width="4"/>
+<path d="M30 140 A80 80 0 0 1 50 90" fill="none" stroke="#4dd88a" stroke-width="4" stroke-linecap="round"/>
+<path d="M170 140 A80 80 0 0 0 150 90" fill="none" stroke="#4dd88a" stroke-width="4" stroke-linecap="round"/>
+<path d="M30 140 A80 80 0 0 1 38 118" fill="none" stroke="#f5a623" stroke-width="4" stroke-linecap="round"/>
+<path d="M170 140 A80 80 0 0 0 162 118" fill="none" stroke="#f5a623" stroke-width="4" stroke-linecap="round"/>
+<line x1="100" y1="140" x2="68" y2="78" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="100" cy="140" r="5" fill="#333"/>
+<circle cx="100" cy="140" r="2.5" fill="#fff"/>
+<text x="100" y="55" text-anchor="middle" font-size="10" font-weight="500" class="t-m">NEIGUNG</text>
+<text x="28" y="155" text-anchor="middle" font-size="9" class="t-o">45°</text>
+<text x="172" y="155" text-anchor="middle" font-size="9" class="t-o">45°</text>
+<text x="100" y="172" text-anchor="middle" font-size="28" font-weight="500" class="t-w">24°</text>
+<text x="100" y="190" text-anchor="middle" font-size="10" class="t-a">links</text>
+<text x="55" y="190" text-anchor="middle" font-size="9" class="t-m">max 38°</text>
+<text x="145" y="190" text-anchor="middle" font-size="9" class="t-m">max 35°</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Radar / Blitzer</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<circle cx="100" cy="100" r="85" fill="none" stroke="#e24b4a" stroke-width="2" opacity="0.3"/>
+<circle cx="100" cy="100" r="60" fill="none" stroke="#e24b4a" stroke-width="1" opacity="0.15"/>
+<circle cx="100" cy="100" r="35" fill="none" stroke="#e24b4a" stroke-width="1" opacity="0.1"/>
+<circle cx="100" cy="72" r="14" fill="none" stroke="#e24b4a" stroke-width="2.5"/>
+<text x="100" y="77" text-anchor="middle" font-size="14" font-weight="500" class="t-r">50</text>
+<text x="100" y="42" text-anchor="middle" font-size="10" font-weight="500" class="t-r">BLITZER VORAUS</text>
+<text x="100" y="108" text-anchor="middle" font-size="32" font-weight="500" class="t-w">380m</text>
+<text x="100" y="126" text-anchor="middle" font-size="11" class="t-m">Feste Kamera</text>
+<rect x="55" y="140" width="90" height="22" rx="11" fill="#e24b4a" opacity="0.15"/>
+<text x="100" y="155" text-anchor="middle" font-size="12" font-weight="500" class="t-r">Tempo 67 → 50</text>
+<text x="100" y="180" text-anchor="middle" font-size="10" class="t-m">Steinenring, Basel</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Fuel estimate</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<text x="100" y="38" text-anchor="middle" font-size="10" font-weight="500" class="t-m">KRAFTSTOFF</text>
+<rect x="75" y="48" width="50" height="70" rx="6" fill="none" stroke="#333" stroke-width="2"/>
+<rect x="85" y="53" width="8" height="6" rx="2" fill="#333"/>
+<rect x="78" y="78" width="44" height="37" rx="3" fill="#f5a623" opacity="0.8"/>
+<text x="100" y="100" text-anchor="middle" font-size="11" font-weight="500" fill="#0a0a0a">52%</text>
+<text x="100" y="140" text-anchor="middle" font-size="24" font-weight="500" class="t-w">148km</text>
+<text x="100" y="156" text-anchor="middle" font-size="10" class="t-m">Reichweite</text>
+<line x1="45" y1="168" x2="155" y2="168" stroke="#222" stroke-width="0.5"/>
+<text x="65" y="184" text-anchor="middle" font-size="11" font-weight="500" class="t-o">3.2L</text>
+<text x="65" y="194" text-anchor="middle" font-size="8" class="t-m">/100km</text>
+<text x="135" y="184" text-anchor="middle" font-size="11" font-weight="500" class="t-b">7.8L</text>
+<text x="135" y="194" text-anchor="middle" font-size="8" class="t-m">im Tank</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Altitude profile</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<text x="100" y="38" text-anchor="middle" font-size="10" font-weight="500" class="t-m">HÖHENPROFIL</text>
+<text x="100" y="62" text-anchor="middle" font-size="22" font-weight="500" class="t-w">1'248m</text>
+<text x="100" y="78" text-anchor="middle" font-size="10" class="t-a">↑ 86m zum Pass</text>
+<path d="M30 145 Q45 142 55 138 Q65 130 75 128 Q85 120 92 112 Q100 108 108 105 Q115 108 125 115 Q135 125 145 130 Q155 135 170 138" fill="none" stroke="#333" stroke-width="1.5"/>
+<path d="M30 145 Q45 142 55 138 Q65 130 75 128 Q85 120 92 112 Q100 108 108 105" fill="none" stroke="#4dd88a" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="108" cy="105" r="4" fill="#4dd88a"/>
+<circle cx="108" cy="105" r="2" fill="#0a0a0a"/>
+<line x1="108" y1="105" x2="108" y2="150" stroke="#4dd88a" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text x="30" y="158" font-size="8" class="t-m">0km</text>
+<text x="100" y="158" text-anchor="middle" font-size="8" class="t-a">32km</text>
+<text x="170" y="158" text-anchor="end" font-size="8" class="t-m">58km</text>
+<text x="65" y="180" text-anchor="middle" font-size="11" font-weight="500" class="t-o">↑ 1'420m</text>
+<text x="65" y="192" text-anchor="middle" font-size="8" class="t-m">Aufstieg</text>
+<text x="135" y="180" text-anchor="middle" font-size="11" font-weight="500" class="t-b">↓ 890m</text>
+<text x="135" y="192" text-anchor="middle" font-size="8" class="t-m">Abstieg</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Incoming call</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<circle cx="100" cy="100" r="95" fill="none" stroke="#4dd88a" stroke-width="1.5" opacity="0.3">
+<animate attributeName="r" values="80;95;80" dur="2s" repeatCount="indefinite"/>
+<animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+</circle>
+<circle cx="100" cy="60" r="22" fill="#333"/>
+<text x="100" y="66" text-anchor="middle" font-size="20" font-weight="500" class="t-w">M</text>
+<text x="100" y="100" text-anchor="middle" font-size="14" font-weight="500" class="t-w">Michelle</text>
+<text x="100" y="116" text-anchor="middle" font-size="11" class="t-a">Eingehender Anruf</text>
+<circle cx="70" cy="150" r="18" fill="#4dd88a" opacity="0.9"/>
+<text x="70" y="155" text-anchor="middle" font-size="16" fill="#0a0a0a">✓</text>
+<circle cx="130" cy="150" r="18" fill="#e24b4a" opacity="0.9"/>
+<text x="130" y="156" text-anchor="middle" font-size="18" fill="#fff">×</text>
+<text x="70" y="178" text-anchor="middle" font-size="8" class="t-m">Annehmen</text>
+<text x="130" y="178" text-anchor="middle" font-size="8" class="t-m">Ablehnen</text>
+</svg>
+</div>
+</div>
+
+<div class="card">
+<div class="label">Next appointment</div>
+<div class="screen">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+<text x="100" y="40" text-anchor="middle" font-size="10" font-weight="500" class="t-m">NÄCHSTER TERMIN</text>
+<rect x="35" y="52" width="130" height="56" rx="8" fill="#1a1a2e" stroke="#5bacf5" stroke-width="1"/>
+<rect x="35" y="52" width="4" height="56" rx="2" fill="#5bacf5"/>
+<text x="50" y="70" font-size="12" font-weight="500" class="t-w">Sprint Review</text>
+<text x="50" y="85" font-size="10" class="t-b">15:00 — 15:30</text>
+<text x="50" y="100" font-size="9" class="t-m">Teams · HIVE Team</text>
+<text x="100" y="128" text-anchor="middle" font-size="18" font-weight="500" class="t-o">in 42 min</text>
+<rect x="35" y="142" width="130" height="38" rx="8" fill="#111" stroke="#333" stroke-width="0.5"/>
+<rect x="35" y="142" width="4" height="38" rx="2" fill="#c084fc"/>
+<text x="50" y="158" font-size="10" font-weight="500" class="t-w">Retro</text>
+<text x="50" y="172" font-size="9" class="t-m">16:00 — 16:45</text>
+</svg>
+</div>
+</div>
+
+</div>

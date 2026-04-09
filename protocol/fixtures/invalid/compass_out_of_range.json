@@ -1,0 +1,5 @@
+{
+  "description": "Compass body with magnetic_heading_deg_x10=3600 (> 3599 max)",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "0103000008000000 100e 0000 0000 0000"
+}

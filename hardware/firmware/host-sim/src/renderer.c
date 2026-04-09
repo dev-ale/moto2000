@@ -90,6 +90,22 @@ int host_sim_render_payload(host_sim_canvas_t *canvas,
         return 2;
     }
     switch (header.screen_id) {
+        case BLE_SCREEN_COMPASS: {
+            ble_compass_data_t compass;
+            uint8_t            flags = 0;
+            const ble_result_t res =
+                ble_decode_compass(payload, length, &flags, &compass);
+            if (res != BLE_OK) {
+                fprintf(stderr,
+                        "host-sim: failed to decode compass body: %s\n",
+                        ble_result_name(res));
+                host_sim_canvas_fill(canvas, 200, 0, 0);
+                host_sim_canvas_apply_round_mask(canvas);
+                return 3;
+            }
+            host_sim_render_compass(canvas, &compass, flags);
+            return 0;
+        }
         case BLE_SCREEN_CLOCK: {
             ble_clock_data_t clock;
             uint8_t          flags = 0;

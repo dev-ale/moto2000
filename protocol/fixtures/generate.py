@@ -77,6 +77,10 @@ FLAG_BITS = {
 NAV_BODY_SIZE = 56
 CLOCK_BODY_SIZE = 12
 SPEED_HEADING_BODY_SIZE = 8
+COMPASS_BODY_SIZE = 8
+
+COMPASS_FLAG_USE_TRUE_HEADING = 1 << 0
+COMPASS_TRUE_HEADING_UNKNOWN = 0xFFFF
 
 
 def encode_flags(flags: list[str]) -> int:
@@ -157,10 +161,38 @@ def encode_speed_heading_body(spec: dict) -> bytes:
     return body
 
 
+def encode_compass_body(spec: dict) -> bytes:
+    magnetic_x10 = int(round(spec["magnetic_heading_deg"] * 10))
+    if "true_heading_deg_raw" in spec:
+        true_x10 = int(spec["true_heading_deg_raw"])
+    elif "true_heading_deg" in spec:
+        true_x10 = int(round(spec["true_heading_deg"] * 10))
+    else:
+        true_x10 = COMPASS_TRUE_HEADING_UNKNOWN
+    accuracy_x10 = int(round(spec["heading_accuracy_deg"] * 10))
+    compass_flags = 0
+    if spec.get("use_true_heading", False):
+        compass_flags |= COMPASS_FLAG_USE_TRUE_HEADING
+    # <HHHBB: u16 magnetic, u16 true, u16 accuracy, u8 flags, u8 reserved
+    body = struct.pack(
+        "<HHHBB",
+        magnetic_x10,
+        true_x10,
+        accuracy_x10,
+        compass_flags,
+        0,
+    )
+    assert len(body) == COMPASS_BODY_SIZE, (
+        f"compass body is {len(body)} bytes, expected {COMPASS_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
     "speedHeading": encode_speed_heading_body,
+    "compass": encode_compass_body,
 }
 
 

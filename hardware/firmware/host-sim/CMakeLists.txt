@@ -74,6 +74,8 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_clock.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_nav.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_speed_heading.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_compass.c"
 )
 target_include_directories(ble_protocol
     PUBLIC  "${BLE_PROTOCOL_ROOT}/include"
@@ -87,7 +89,9 @@ add_executable(scramscreen-host-sim
     src/main.c
     src/renderer.c
     src/screen_clock.c
+    src/screen_compass.c
     src/screen_placeholder.c
+    src/compass_layout.c
     src/png_writer.c
     src/text_draw.c
     src/time_format.c
@@ -125,6 +129,9 @@ endfunction()
 
 add_snapshot_test(clock_basel_winter clock_basel_winter.bin)
 add_snapshot_test(clock_night_mode   clock_night_mode.bin)
+add_snapshot_test(compass_north_magnetic         compass_north_magnetic.bin)
+add_snapshot_test(compass_east_true              compass_east_true.bin)
+add_snapshot_test(compass_southwest_unknown_true compass_southwest_unknown_true.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
@@ -143,3 +150,12 @@ add_executable(test_host_sim_logic
 target_include_directories(test_host_sim_logic PRIVATE include)
 target_link_libraries(test_host_sim_logic PRIVATE unity)
 add_test(NAME host_sim_logic COMMAND test_host_sim_logic)
+
+add_executable(test_compass_layout
+    tests/test_compass_layout.c
+    src/compass_layout.c
+)
+target_include_directories(test_compass_layout PRIVATE include src)
+target_link_libraries(test_compass_layout PRIVATE unity ble_protocol)
+target_link_libraries(test_compass_layout PRIVATE m)
+add_test(NAME compass_layout COMMAND test_compass_layout)

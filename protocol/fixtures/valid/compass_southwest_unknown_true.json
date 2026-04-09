@@ -1,0 +1,11 @@
+{
+  "description": "Compass: magnetic 225° SW, true heading unknown (0xFFFF), 3.5° accuracy",
+  "screen": "compass",
+  "flags": [],
+  "body": {
+    "magnetic_heading_deg": 225.0,
+    "true_heading_deg_raw": 65535,
+    "heading_accuracy_deg": 3.5,
+    "use_true_heading": false
+  }
+}

@@ -75,7 +75,7 @@ clock screen that sends only the body below — still non-empty).
 |---|---|---|---|---|
 | `0x01` | `navigation`    | Navigation        | 6   | `nav_data_t` |
 | `0x02` | `speedHeading`  | Speed + Heading   | 3   | TBD |
-| `0x03` | `compass`       | Compass           | 4   | TBD |
+| `0x03` | `compass`       | Compass           | 4   | `compass_data_t` |
 | `0x04` | `weather`       | Weather           | 7   | TBD |
 | `0x05` | `tripStats`     | Trip Stats        | 9   | TBD |
 | `0x06` | `music`         | Music             | 8   | TBD |
@@ -112,6 +112,20 @@ Body size: **12 bytes**
 | 8 | `tz_offset_minutes` | `int16` | Local timezone offset from UTC, in minutes. Range `-720..=840`. |
 | 10 | `flags` | `uint8` | Bit 0: 24-hour format. Other bits reserved. |
 | 11 | `reserved` | `uint8` | Must be `0x00`. |
+
+### `compass_data_t` (screen `0x03`)
+
+Body size: **8 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `magnetic_heading_deg_x10` | `uint16` | Magnetic heading × 10. Range `0..=3599`. |
+| 2 | `true_heading_deg_x10` | `uint16` | True heading × 10. Range `0..=3599`, or `0xFFFF` if the heading fix is unavailable (e.g. no GPS lock yet). |
+| 4 | `heading_accuracy_deg_x10` | `uint16` | Reported heading accuracy × 10 in degrees. Range `0..=3599`. |
+| 6 | `compass_flags` | `uint8` | Bit 0: `USE_TRUE_HEADING`. If set, the screen renders the true heading; otherwise magnetic. Bits 1..7 reserved, must be `0`. |
+| 7 | `reserved` | `uint8` | Must be `0x00`. |
+
+If `USE_TRUE_HEADING` is set but `true_heading_deg_x10 == 0xFFFF`, the renderer falls back to the magnetic reading and displays a `MAG` label instead of `TRU`.
 
 ### `nav_data_t` (screen `0x01`)
 

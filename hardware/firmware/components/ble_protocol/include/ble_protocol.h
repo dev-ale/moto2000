@@ -22,6 +22,14 @@ extern "C" {
 #define BLE_PROTOCOL_NAV_BODY_SIZE ((size_t)56)
 #define BLE_PROTOCOL_CLOCK_BODY_SIZE ((size_t)12)
 #define BLE_PROTOCOL_SPEED_HEADING_BODY_SIZE ((size_t)8)
+#define BLE_PROTOCOL_COMPASS_BODY_SIZE ((size_t)8)
+
+/* Flag bits carried in the compass body flags byte. */
+#define BLE_COMPASS_FLAG_USE_TRUE_HEADING (1U << 0)
+#define BLE_COMPASS_FLAG_RESERVED_MASK    0xFEU
+
+/* Sentinel value for true heading when the iOS heading fix is unavailable. */
+#define BLE_COMPASS_TRUE_HEADING_UNKNOWN ((uint16_t)0xFFFFU)
 
 /* Flag bits carried in the header flags byte. */
 #define BLE_FLAG_ALERT      (1U << 0)
@@ -95,6 +103,13 @@ typedef struct {
 } ble_speed_heading_data_t;
 
 typedef struct {
+    uint16_t magnetic_heading_deg_x10;
+    uint16_t true_heading_deg_x10;       /* 0xFFFF = unknown */
+    uint16_t heading_accuracy_deg_x10;
+    uint8_t  compass_flags;              /* bit 0 = BLE_COMPASS_FLAG_USE_TRUE_HEADING */
+} ble_compass_data_t;
+
+typedef struct {
     int32_t        latitude_e7;
     int32_t        longitude_e7;
     uint16_t       speed_kmh_x10;
@@ -162,6 +177,17 @@ ble_result_t ble_encode_speed_heading(const ble_speed_heading_data_t *in,
                                       uint8_t                        *out_buf,
                                       size_t                          out_cap,
                                       size_t                         *out_written);
+
+ble_result_t ble_decode_compass(const uint8_t      *data,
+                                size_t              length,
+                                uint8_t            *out_flags,
+                                ble_compass_data_t *out_compass);
+
+ble_result_t ble_encode_compass(const ble_compass_data_t *in,
+                                uint8_t                   flags,
+                                uint8_t                  *out_buf,
+                                size_t                    out_cap,
+                                size_t                   *out_written);
 
 #ifdef __cplusplus
 }

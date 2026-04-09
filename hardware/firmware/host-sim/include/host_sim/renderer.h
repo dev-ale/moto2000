@@ -66,6 +66,10 @@ void host_sim_render_navigation(host_sim_canvas_t    *canvas,
                                 const ble_nav_data_t *nav,
                                 uint8_t               flags);
 
+void host_sim_render_trip_stats(host_sim_canvas_t           *canvas,
+                                const ble_trip_stats_data_t *data,
+                                uint8_t                      flags);
+
 /* Placeholder for screens that have not been implemented yet. Draws a
  * "screen 0xNN pending" message on a dark background. */
 void host_sim_render_placeholder(host_sim_canvas_t *canvas, uint8_t screen_id);

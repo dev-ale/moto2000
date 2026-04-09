@@ -93,9 +93,11 @@ add_executable(scramscreen-host-sim
     src/screen_compass.c
     src/screen_speed.c
     src/screen_navigation.c
+    src/screen_trip_stats.c
     src/screen_placeholder.c
     src/compass_layout.c
     src/speed_layout.c
+    src/trip_stats_layout.c
     src/png_writer.c
     src/text_draw.c
     src/time_format.c
@@ -187,3 +189,11 @@ target_include_directories(test_host_sim_navigation_layout PRIVATE include)
 target_link_libraries(test_host_sim_navigation_layout PRIVATE unity ble_protocol)
 add_test(NAME host_sim_navigation_layout
          COMMAND test_host_sim_navigation_layout)
+
+add_executable(test_trip_stats_layout
+    tests/test_trip_stats_layout.c
+    src/trip_stats_layout.c
+)
+target_include_directories(test_trip_stats_layout PRIVATE include)
+target_link_libraries(test_trip_stats_layout PRIVATE unity)
+add_test(NAME trip_stats_layout COMMAND test_trip_stats_layout)

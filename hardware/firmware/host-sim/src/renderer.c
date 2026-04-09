@@ -138,6 +138,22 @@ int host_sim_render_payload(host_sim_canvas_t *canvas,
             host_sim_render_speed(canvas, &speed, flags);
             return 0;
         }
+        case BLE_SCREEN_TRIP_STATS: {
+            ble_trip_stats_data_t stats;
+            uint8_t            flags = 0;
+            const ble_result_t res =
+                ble_decode_trip_stats(payload, length, &flags, &stats);
+            if (res != BLE_OK) {
+                fprintf(stderr,
+                        "host-sim: failed to decode trip stats body: %s\n",
+                        ble_result_name(res));
+                host_sim_canvas_fill(canvas, 200, 0, 0);
+                host_sim_canvas_apply_round_mask(canvas);
+                return 3;
+            }
+            host_sim_render_trip_stats(canvas, &stats, flags);
+            return 0;
+        }
         case BLE_SCREEN_NAVIGATION: {
             ble_nav_data_t nav;
             uint8_t        flags = 0;

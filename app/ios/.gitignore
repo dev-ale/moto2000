@@ -1,0 +1,14 @@
+# Tuist generated artifacts
+Derived/
+*.xcodeproj/
+*.xcworkspace/
+.tuist/
+
+# Xcode
+xcuserdata/
+DerivedData/
+build/
+*.xcuserstate
+
+# Secrets — Team ID and similar developer-local config
+.env.tuist

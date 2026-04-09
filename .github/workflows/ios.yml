@@ -1,0 +1,68 @@
+name: iOS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/ios/**"
+      - ".swiftlint.yml"
+      - ".swift-format"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "app/ios/**"
+      - ".swiftlint.yml"
+      - ".swift-format"
+      - ".github/workflows/ios.yml"
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (SwiftLint + swift-format)
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: swift-format --lint
+        working-directory: app/ios
+        run: |
+          swift-format lint --configuration ../../.swift-format --recursive Sources Tests UITests
+
+      - name: SwiftLint
+        run: swiftlint --strict --config .swiftlint.yml
+
+  test:
+    name: Build & test
+    runs-on: [self-hosted, macOS]
+    needs: lint
+    env:
+      TUIST_DEVELOPMENT_TEAM: ${{ secrets.TUIST_DEVELOPMENT_TEAM }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tuist version
+        run: tuist version
+
+      - name: Tuist install
+        working-directory: app/ios
+        run: tuist install
+
+      - name: Tuist generate
+        working-directory: app/ios
+        run: tuist generate --no-open
+
+      - name: xcodebuild test
+        working-directory: app/ios
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace ScramScreen.xcworkspace \
+            -scheme ScramScreen \
+            -configuration Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -enableCodeCoverage YES \
+            CODE_SIGNING_ALLOWED=NO \
+            test | xcpretty

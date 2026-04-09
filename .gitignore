@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python / pre-commit caches
+.venv/
+__pycache__/
+*.pyc
+
+# Build artifacts
+build/
+Derived/
+DerivedData/
+
+# Secrets
+.env
+.env.local

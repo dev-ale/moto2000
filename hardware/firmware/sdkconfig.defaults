@@ -1,0 +1,30 @@
+# ScramScreen default sdkconfig
+# Values here are applied on first build; edit via `idf.py menuconfig` afterward.
+
+CONFIG_IDF_TARGET="esp32s3"
+
+# Flash and PSRAM — Waveshare board ships with 16MB flash + 8MB PSRAM
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="16MB"
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+
+# Partition table — custom to reserve space for OTA + factory + NVS
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# FreeRTOS
+CONFIG_FREERTOS_HZ=1000
+
+# Bluetooth — NimBLE stack, BLE only
+CONFIG_BT_ENABLED=y
+CONFIG_BT_NIMBLE_ENABLED=y
+CONFIG_BT_CONTROLLER_ENABLED=y
+
+# Logging
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+
+# Compiler
+CONFIG_COMPILER_WARN_WRITE_STRINGS=y
+CONFIG_COMPILER_OPTIMIZATION_SIZE=y

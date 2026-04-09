@@ -68,12 +68,14 @@ See [`scram-display-prd.md`](scram-display-prd.md) for full struct definitions a
 ## Software
 
 **ESP32 firmware**
-- ESP-IDF (preferred for BLE stability) or Arduino
-- LVGL v9 for UI — round display support, partial redraws, smooth anims
+- ESP-IDF v5.3 targeting `esp32s3` ([ADR-0001](docs/adr/0001-esp-idf-over-arduino.md))
+- LVGL v9.2 for UI — round display support, partial redraws, smooth anims ([ADR-0003](docs/adr/0003-lvgl-v9.md))
+- Unity host-test harness runs core firmware logic on Linux CI with no hardware
 - Simple FSM per screen; OTA updates via WiFi when available
 
 **iOS companion app**
-- Swift, iOS 17+
+- Swift 6, iOS 18+ minimum ([ADR-0005](docs/adr/0005-ios-18-minimum.md))
+- Project generated with Tuist, no `.xcodeproj` in git ([ADR-0002](docs/adr/0002-tuist-and-swiftpm.md))
 - No server, no accounts — pure local app
 - `CoreBluetooth`, `CoreLocation`, `CoreMotion`, `WeatherKit`, `CallKit`, `EventKit`, `MediaPlayer`, `MapKit`
 - Runs in background with `bluetooth-central` + location background modes to keep pushing data during rides
@@ -116,11 +118,24 @@ Legal in Switzerland (Bundesgericht ruling, 2024) for passive proximity warnings
 
 ```
 .
-├── app/        # iOS companion app (Swift)
-├── hardware/   # ESP32-S3 firmware, enclosure CAD, wiring
-└── docs/       # PRD, mockups, protocol specs
+├── app/ios/              # SwiftUI companion app (Tuist + XCTest)
+├── hardware/
+│   ├── firmware/         # ESP-IDF project for ESP32-S3 + Unity host tests
+│   └── cad/              # Enclosure CAD and 3D print files
+├── protocol/
+│   └── fixtures/         # Shared binary fixtures for BLE codec round-trip tests
+├── docs/
+│   ├── prd.md            # Product requirements doc
+│   ├── ble-protocol.md   # BLE wire format spec
+│   ├── contributing.md   # Dev setup, commit style, branch protection
+│   └── adr/              # Architecture decision records
+└── .github/workflows/    # iOS, firmware, commit-lint CI
 ```
 
+Start here:
+
 - [`docs/prd.md`](docs/prd.md) — Full product requirements doc
+- [`docs/contributing.md`](docs/contributing.md) — First-time setup, tests, and the bar for merging
+- [`docs/ble-protocol.md`](docs/ble-protocol.md) — BLE wire format spec
+- [`docs/adr/`](docs/adr) — Stack decisions
 - [`docs/mockups.html`](docs/mockups.html) — Screen mockups
-- [`docs/mockups-extra.html`](docs/mockups-extra.html) — Additional mockups

@@ -1,0 +1,9 @@
+# cppcheck suppressions for ESP-IDF firmware.
+# Add entries as `<id>:<file>:<line>` or `<id>` to suppress globally.
+
+# Unity's internal macros trigger misleading warnings.
+unusedFunction:test/host/*
+
+# ESP-IDF headers are outside our source tree.
+*:*/esp-idf/*
+missingIncludeSystem

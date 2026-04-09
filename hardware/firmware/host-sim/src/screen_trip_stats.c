@@ -69,9 +69,11 @@ void host_sim_render_trip_stats(host_sim_canvas_t           *canvas,
                                      max_buf, sizeof(max_buf));
     const int speed_scale = 2;
     const int speed_y     = dur_y + 8 * dur_scale + 32;
-    const int avg_x       = 90;
+    const int half_w      = canvas->width / 2;
+    const int avg_w       = host_sim_measure_text(avg_buf, speed_scale);
     const int max_w       = host_sim_measure_text(max_buf, speed_scale);
-    const int max_x       = canvas->width - max_w - 90;
+    const int avg_x       = (half_w - avg_w) / 2;
+    const int max_x       = half_w + (half_w - max_w) / 2;
     host_sim_draw_text(canvas, avg_buf, avg_x, speed_y, speed_scale,
                        muted_r, muted_g, muted_b);
     host_sim_draw_text(canvas, max_buf, max_x, speed_y, speed_scale,
@@ -86,9 +88,10 @@ void host_sim_render_trip_stats(host_sim_canvas_t           *canvas,
                                           dsc_buf, sizeof(dsc_buf));
     const int elev_scale = 2;
     const int elev_y     = speed_y + 8 * speed_scale + 22;
-    const int asc_x      = 110;
+    const int asc_w      = host_sim_measure_text(asc_buf, elev_scale);
     const int dsc_w      = host_sim_measure_text(dsc_buf, elev_scale);
-    const int dsc_x      = canvas->width - dsc_w - 110;
+    const int asc_x      = (half_w - asc_w) / 2;
+    const int dsc_x      = half_w + (half_w - dsc_w) / 2;
     host_sim_draw_text(canvas, asc_buf, asc_x, elev_y, elev_scale,
                        muted_r, muted_g, muted_b);
     host_sim_draw_text(canvas, dsc_buf, dsc_x, elev_y, elev_scale,

@@ -145,6 +145,9 @@ add_snapshot_test(speed_stationary               speed_stationary.bin)
 add_snapshot_test(nav_straight                   nav_straight.bin)
 add_snapshot_test(nav_sharp_left                 nav_sharp_left.bin)
 add_snapshot_test(nav_arrive                     nav_arrive.bin)
+add_snapshot_test(trip_stats_fresh                trip_stats_fresh.bin)
+add_snapshot_test(trip_stats_city_loop            trip_stats_city_loop.bin)
+add_snapshot_test(trip_stats_highway              trip_stats_highway.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).

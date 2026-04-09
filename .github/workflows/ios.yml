@@ -37,14 +37,20 @@ jobs:
         run: swiftlint --strict --config .swiftlint.yml
 
   package-tests:
-    name: BLEProtocol package tests
+    name: Swift package tests (${{ matrix.package }})
     runs-on: [self-hosted, macOS]
     needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - BLEProtocol
+          - RideSimulatorKit
     steps:
       - uses: actions/checkout@v4
 
       - name: swift test
-        working-directory: app/ios/Packages/BLEProtocol
+        working-directory: app/ios/Packages/${{ matrix.package }}
         run: swift test --parallel
 
   test:

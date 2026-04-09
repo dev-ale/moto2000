@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="moto2000-synth" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>basel-city-loop</name>
+    <trkseg>
+      <trkpt lat="47.5482" lon="7.5899"><ele>260</ele><time>2025-08-01T10:00:00Z</time></trkpt>
+      <trkpt lat="47.5486" lon="7.5902"><ele>260</ele><time>2025-08-01T10:00:10Z</time></trkpt>
+      <trkpt lat="47.5491" lon="7.5905"><ele>261</ele><time>2025-08-01T10:00:20Z</time></trkpt>
+      <trkpt lat="47.5496" lon="7.5908"><ele>261</ele><time>2025-08-01T10:00:30Z</time></trkpt>
+      <trkpt lat="47.5501" lon="7.5911"><ele>262</ele><time>2025-08-01T10:00:40Z</time></trkpt>
+      <trkpt lat="47.5506" lon="7.5914"><ele>262</ele><time>2025-08-01T10:00:50Z</time></trkpt>
+      <trkpt lat="47.5510" lon="7.5917"><ele>263</ele><time>2025-08-01T10:01:00Z</time></trkpt>
+      <trkpt lat="47.5515" lon="7.5915"><ele>263</ele><time>2025-08-01T10:01:10Z</time></trkpt>
+      <trkpt lat="47.5520" lon="7.5910"><ele>263</ele><time>2025-08-01T10:01:20Z</time></trkpt>
+      <trkpt lat="47.5525" lon="7.5903"><ele>263</ele><time>2025-08-01T10:01:30Z</time></trkpt>
+      <trkpt lat="47.5524" lon="7.5895"><ele>263</ele><time>2025-08-01T10:01:40Z</time></trkpt>
+      <trkpt lat="47.5518" lon="7.5892"><ele>262</ele><time>2025-08-01T10:01:50Z</time></trkpt>
+      <trkpt lat="47.5511" lon="7.5890"><ele>262</ele><time>2025-08-01T10:02:00Z</time></trkpt>
+      <trkpt lat="47.5504" lon="7.5891"><ele>261</ele><time>2025-08-01T10:02:10Z</time></trkpt>
+      <trkpt lat="47.5497" lon="7.5893"><ele>261</ele><time>2025-08-01T10:02:20Z</time></trkpt>
+      <trkpt lat="47.5490" lon="7.5895"><ele>260</ele><time>2025-08-01T10:02:30Z</time></trkpt>
+      <trkpt lat="47.5484" lon="7.5897"><ele>260</ele><time>2025-08-01T10:02:40Z</time></trkpt>
+      <trkpt lat="47.5482" lon="7.5899"><ele>260</ele><time>2025-08-01T10:02:50Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

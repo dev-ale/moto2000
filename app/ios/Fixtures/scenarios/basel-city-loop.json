@@ -1,0 +1,407 @@
+{
+  "calendarEvents": [
+    {
+      "location": "Kaffee Lade Basel",
+      "scenarioTime": 0.0,
+      "startsInSeconds": 1800.0,
+      "title": "Meet at Kaffee Lade"
+    }
+  ],
+  "callEvents": [
+    {
+      "callerHandle": "contact-mom",
+      "scenarioTime": 90.0,
+      "state": "incoming"
+    },
+    {
+      "callerHandle": "contact-mom",
+      "scenarioTime": 110.0,
+      "state": "ended"
+    }
+  ],
+  "durationSeconds": 170.0,
+  "headingSamples": [
+    {
+      "magneticDegrees": 26.84957928313213,
+      "scenarioTime": 10.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 22.0466957402316,
+      "scenarioTime": 20.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 22.046505571828106,
+      "scenarioTime": 30.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 22.046315400068295,
+      "scenarioTime": 40.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 22.04612522653281,
+      "scenarioTime": 50.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 26.84852204576208,
+      "scenarioTime": 60.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 344.8919841967315,
+      "scenarioTime": 70.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 325.98382538512516,
+      "scenarioTime": 80.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 316.62350846386073,
+      "scenarioTime": 90.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 259.5075262106474,
+      "scenarioTime": 100.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 198.6475793365196,
+      "scenarioTime": 110.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 190.91481794801655,
+      "scenarioTime": 120.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 174.4925543123636,
+      "scenarioTime": 130.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 169.08489748562147,
+      "scenarioTime": 140.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 169.08475520495836,
+      "scenarioTime": 150.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 167.32020994010497,
+      "scenarioTime": 160.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 145.98181821196692,
+      "scenarioTime": 170.0,
+      "trueDegrees": -1
+    }
+  ],
+  "locationSamples": [
+    {
+      "altitudeMeters": 260.0,
+      "courseDegrees": -1,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5482,
+      "longitude": 7.5899,
+      "scenarioTime": 0.0,
+      "speedMps": -1
+    },
+    {
+      "altitudeMeters": 260.0,
+      "courseDegrees": 26.84957928313213,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5486,
+      "longitude": 7.5902,
+      "scenarioTime": 10.0,
+      "speedMps": 4.985232789933152
+    },
+    {
+      "altitudeMeters": 261.0,
+      "courseDegrees": 22.0466957402316,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5491,
+      "longitude": 7.5905,
+      "scenarioTime": 20.0,
+      "speedMps": 5.9983613977427455
+    },
+    {
+      "altitudeMeters": 261.0,
+      "courseDegrees": 22.046505571828106,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5496,
+      "longitude": 7.5908,
+      "scenarioTime": 30.0,
+      "speedMps": 5.9983533350563825
+    },
+    {
+      "altitudeMeters": 262.0,
+      "courseDegrees": 22.046315400068295,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5501,
+      "longitude": 7.5911,
+      "scenarioTime": 40.0,
+      "speedMps": 5.9983452725156985
+    },
+    {
+      "altitudeMeters": 262.0,
+      "courseDegrees": 22.04612522653281,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5506,
+      "longitude": 7.5914,
+      "scenarioTime": 50.0,
+      "speedMps": 5.998337209903503
+    },
+    {
+      "altitudeMeters": 263.0,
+      "courseDegrees": 26.84852204576208,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.551,
+      "longitude": 7.5917,
+      "scenarioTime": 60.0,
+      "speedMps": 4.98518622430787
+    },
+    {
+      "altitudeMeters": 263.0,
+      "courseDegrees": 344.8919841967315,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5515,
+      "longitude": 7.5915,
+      "scenarioTime": 70.0,
+      "speedMps": 5.75879421316761
+    },
+    {
+      "altitudeMeters": 263.0,
+      "courseDegrees": 325.98382538512516,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.552,
+      "longitude": 7.591,
+      "scenarioTime": 80.0,
+      "speedMps": 6.70755786761072
+    },
+    {
+      "altitudeMeters": 263.0,
+      "courseDegrees": 316.62350846386073,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5525,
+      "longitude": 7.5903,
+      "scenarioTime": 90.0,
+      "speedMps": 7.649061189211956
+    },
+    {
+      "altitudeMeters": 263.0,
+      "courseDegrees": 259.5075262106474,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5524,
+      "longitude": 7.5895,
+      "scenarioTime": 100.0,
+      "speedMps": 6.1058729595273595
+    },
+    {
+      "altitudeMeters": 262.0,
+      "courseDegrees": 198.6475793365196,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5518,
+      "longitude": 7.5892,
+      "scenarioTime": 110.0,
+      "speedMps": 7.041338908962926
+    },
+    {
+      "altitudeMeters": 262.0,
+      "courseDegrees": 190.91481794801655,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5511,
+      "longitude": 7.589,
+      "scenarioTime": 120.0,
+      "speedMps": 7.927044953991472
+    },
+    {
+      "altitudeMeters": 261.0,
+      "courseDegrees": 174.4925543123636,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5504,
+      "longitude": 7.5891,
+      "scenarioTime": 130.0,
+      "speedMps": 7.819742387725649
+    },
+    {
+      "altitudeMeters": 261.0,
+      "courseDegrees": 169.08489748562147,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5497,
+      "longitude": 7.5893,
+      "scenarioTime": 140.0,
+      "speedMps": 7.927052546233504
+    },
+    {
+      "altitudeMeters": 260.0,
+      "courseDegrees": 169.08475520495836,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.549,
+      "longitude": 7.5895,
+      "scenarioTime": 150.0,
+      "speedMps": 7.927056342365475
+    },
+    {
+      "altitudeMeters": 260.0,
+      "courseDegrees": 167.32020994010497,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5484,
+      "longitude": 7.5897,
+      "scenarioTime": 160.0,
+      "speedMps": 6.8384700712283575
+    },
+    {
+      "altitudeMeters": 260.0,
+      "courseDegrees": 145.98181821196692,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.5482,
+      "longitude": 7.5899,
+      "scenarioTime": 170.0,
+      "speedMps": 2.683078424077446
+    }
+  ],
+  "motionSamples": [
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 0.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.05,
+      "gravityY": -0.99,
+      "gravityZ": 0.0,
+      "scenarioTime": 0.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.1,
+      "gravityY": -0.99,
+      "gravityZ": 0.0,
+      "scenarioTime": 1.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.2,
+      "gravityY": -0.98,
+      "gravityZ": 0.0,
+      "scenarioTime": 1.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.3,
+      "gravityY": -0.95,
+      "gravityZ": 0.0,
+      "scenarioTime": 2.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.2,
+      "gravityY": -0.98,
+      "gravityZ": 0.0,
+      "scenarioTime": 2.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.05,
+      "gravityY": -0.99,
+      "gravityZ": 0.0,
+      "scenarioTime": 3.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 3.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.05,
+      "gravityY": -0.99,
+      "gravityZ": 0.0,
+      "scenarioTime": 4.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.15,
+      "gravityY": -0.98,
+      "gravityZ": 0.0,
+      "scenarioTime": 4.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.25,
+      "gravityY": -0.97,
+      "gravityZ": 0.0,
+      "scenarioTime": 5.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.15,
+      "gravityY": -0.98,
+      "gravityZ": 0.0,
+      "scenarioTime": 5.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 6.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    }
+  ],
+  "name": "basel-city-loop",
+  "nowPlayingSnapshots": [],
+  "summary": "Short urban loop through central Basel with a mid-ride incoming call",
+  "version": 1,
+  "weatherSnapshots": [
+    {
+      "condition": "cloudy",
+      "highCelsius": 17.0,
+      "locationName": "Basel",
+      "lowCelsius": 9.0,
+      "scenarioTime": 0.0,
+      "temperatureCelsius": 14.0
+    }
+  ]
+}

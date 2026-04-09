@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="moto2000-synth" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>highway-straight</name>
+    <trkseg>
+      <trkpt lat="47.4000" lon="7.6000"><ele>310</ele><time>2025-08-01T11:00:00Z</time></trkpt>
+      <trkpt lat="47.4030" lon="7.6010"><ele>310</ele><time>2025-08-01T11:00:10Z</time></trkpt>
+      <trkpt lat="47.4060" lon="7.6020"><ele>309</ele><time>2025-08-01T11:00:20Z</time></trkpt>
+      <trkpt lat="47.4090" lon="7.6030"><ele>309</ele><time>2025-08-01T11:00:30Z</time></trkpt>
+      <trkpt lat="47.4120" lon="7.6040"><ele>308</ele><time>2025-08-01T11:00:40Z</time></trkpt>
+      <trkpt lat="47.4150" lon="7.6050"><ele>308</ele><time>2025-08-01T11:00:50Z</time></trkpt>
+      <trkpt lat="47.4180" lon="7.6060"><ele>307</ele><time>2025-08-01T11:01:00Z</time></trkpt>
+      <trkpt lat="47.4210" lon="7.6070"><ele>307</ele><time>2025-08-01T11:01:10Z</time></trkpt>
+      <trkpt lat="47.4240" lon="7.6080"><ele>307</ele><time>2025-08-01T11:01:20Z</time></trkpt>
+      <trkpt lat="47.4270" lon="7.6090"><ele>306</ele><time>2025-08-01T11:01:30Z</time></trkpt>
+      <trkpt lat="47.4300" lon="7.6100"><ele>306</ele><time>2025-08-01T11:01:40Z</time></trkpt>
+      <trkpt lat="47.4330" lon="7.6110"><ele>305</ele><time>2025-08-01T11:01:50Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

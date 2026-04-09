@@ -32,6 +32,7 @@ let project = Project(
     ),
     packages: [
         .local(path: "Packages/BLEProtocol"),
+        .local(path: "Packages/RideSimulatorKit"),
     ],
     settings: .settings(
         base: baseSettings,
@@ -65,9 +66,17 @@ let project = Project(
                 ],
             ]),
             sources: ["Sources/**"],
-            resources: [],
+            // Scenario fixtures are bundled into the app so the debug-only
+            // ride simulator panel can read them at runtime. The Swift code
+            // that references them is wrapped in `#if DEBUG`, so Release
+            // builds ship the files but never read them — trivial cost for
+            // a simpler Tuist config.
+            resources: [
+                .glob(pattern: "Fixtures/scenarios/**"),
+            ],
             dependencies: [
                 .package(product: "BLEProtocol"),
+                .package(product: "RideSimulatorKit"),
             ]
         ),
         .target(

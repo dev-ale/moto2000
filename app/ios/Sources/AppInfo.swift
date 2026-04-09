@@ -5,7 +5,7 @@ import Foundation
 /// reaching into the bundle or the view layer.
 enum AppInfo {
     /// Short tagline rendered on the placeholder root view.
-    static let tagline = "Custom round motorcycle display — Slice 1 scaffold"
+    static let tagline = "Custom round motorcycle display — Slice 1.5a scaffold"
 
     /// Protocol version the app speaks on the wire. Sourced from the
     /// authoritative `BLEProtocol` package so bumping the wire format

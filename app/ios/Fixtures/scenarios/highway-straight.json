@@ -1,0 +1,197 @@
+{
+  "calendarEvents": [],
+  "callEvents": [],
+  "durationSeconds": 120.0,
+  "headingSamples": [
+    {
+      "magneticDegrees": 12.71376261072055,
+      "scenarioTime": 10.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.713062115511434,
+      "scenarioTime": 20.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.712361582667029,
+      "scenarioTime": 30.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.71166101224776,
+      "scenarioTime": 40.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.710960404235436,
+      "scenarioTime": 50.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.710259758670702,
+      "scenarioTime": 60.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.709559075509617,
+      "scenarioTime": 70.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.708858354788276,
+      "scenarioTime": 80.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.708157596434603,
+      "scenarioTime": 90.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.707456800573766,
+      "scenarioTime": 100.0,
+      "trueDegrees": -1
+    },
+    {
+      "magneticDegrees": 12.706755967142158,
+      "scenarioTime": 110.0,
+      "trueDegrees": -1
+    }
+  ],
+  "locationSamples": [
+    {
+      "altitudeMeters": 310.0,
+      "courseDegrees": -1,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.4,
+      "longitude": 7.6,
+      "scenarioTime": 0.0,
+      "speedMps": -1
+    },
+    {
+      "altitudeMeters": 310.0,
+      "courseDegrees": 12.71376261072055,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.403,
+      "longitude": 7.601,
+      "scenarioTime": 10.0,
+      "speedMps": 34.19697782305845
+    },
+    {
+      "altitudeMeters": 309.0,
+      "courseDegrees": 12.713062115511434,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.406,
+      "longitude": 7.602,
+      "scenarioTime": 20.0,
+      "speedMps": 34.19688349914442
+    },
+    {
+      "altitudeMeters": 309.0,
+      "courseDegrees": 12.712361582667029,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.409,
+      "longitude": 7.603,
+      "scenarioTime": 30.0,
+      "speedMps": 34.196789175799765
+    },
+    {
+      "altitudeMeters": 308.0,
+      "courseDegrees": 12.71166101224776,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.412,
+      "longitude": 7.604,
+      "scenarioTime": 40.0,
+      "speedMps": 34.19669485302992
+    },
+    {
+      "altitudeMeters": 308.0,
+      "courseDegrees": 12.710960404235436,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.415,
+      "longitude": 7.605,
+      "scenarioTime": 50.0,
+      "speedMps": 34.19660053083152
+    },
+    {
+      "altitudeMeters": 307.0,
+      "courseDegrees": 12.710259758670702,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.418,
+      "longitude": 7.606,
+      "scenarioTime": 60.0,
+      "speedMps": 34.196506209205594
+    },
+    {
+      "altitudeMeters": 307.0,
+      "courseDegrees": 12.709559075509617,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.421,
+      "longitude": 7.607,
+      "scenarioTime": 70.0,
+      "speedMps": 34.19641188815761
+    },
+    {
+      "altitudeMeters": 307.0,
+      "courseDegrees": 12.708858354788276,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.424,
+      "longitude": 7.608,
+      "scenarioTime": 80.0,
+      "speedMps": 34.19631756768271
+    },
+    {
+      "altitudeMeters": 306.0,
+      "courseDegrees": 12.708157596434603,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.427,
+      "longitude": 7.609,
+      "scenarioTime": 90.0,
+      "speedMps": 34.19622324778783
+    },
+    {
+      "altitudeMeters": 306.0,
+      "courseDegrees": 12.707456800573766,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.43,
+      "longitude": 7.61,
+      "scenarioTime": 100.0,
+      "speedMps": 34.19612892846958
+    },
+    {
+      "altitudeMeters": 305.0,
+      "courseDegrees": 12.706755967142158,
+      "horizontalAccuracyMeters": 5,
+      "latitude": 47.433,
+      "longitude": 7.611,
+      "scenarioTime": 110.0,
+      "speedMps": 34.19603460972901
+    }
+  ],
+  "motionSamples": [],
+  "name": "highway-straight",
+  "nowPlayingSnapshots": [
+    {
+      "album": "Asphalt",
+      "artist": "The Riders",
+      "durationSeconds": 240.0,
+      "isPlaying": true,
+      "positionSeconds": 0.0,
+      "scenarioTime": 0.0,
+      "title": "Moving On"
+    }
+  ],
+  "summary": "Steady highway run, clear weather, music playing",
+  "version": 1,
+  "weatherSnapshots": [
+    {
+      "condition": "clear",
+      "highCelsius": 25.0,
+      "locationName": "Autobahn",
+      "lowCelsius": 13.0,
+      "scenarioTime": 0.0,
+      "temperatureCelsius": 22.0
+    }
+  ]
+}

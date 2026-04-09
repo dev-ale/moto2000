@@ -138,6 +138,37 @@ git diff -- hardware/firmware/host-sim/snapshots/
 **Always review the visual diff before committing.** A snapshot test
 only catches regressions if a human actually looked at the new PNG.
 
+## Watch a ride play out as a video
+
+`tools/scenario-to-video` walks a scenario JSON second-by-second, feeds
+each derived state through the host simulator, and stitches the PNGs into
+an MP4 with ffmpeg. This gives you a playable video of the dashboard
+reacting to the ride — no bike, no ESP32, no iPhone.
+
+Prerequisites:
+
+1. Build the host simulator
+   (`cmake -B hardware/firmware/host-sim/build && cmake --build hardware/firmware/host-sim/build`).
+2. Install ffmpeg (`brew install ffmpeg` on macOS, `apt-get install ffmpeg`
+   on Ubuntu).
+
+Then from the repo root:
+
+```sh
+cd tools/scenario-to-video
+swift build -c release
+.build/release/scenario-to-video \
+    --scenario ../../app/ios/Fixtures/scenarios/basel-city-loop.json \
+    --host-sim ../../hardware/firmware/host-sim/build/scramscreen-host-sim \
+    --out /tmp/basel.mp4 \
+    --verbose
+open /tmp/basel.mp4
+```
+
+See `tools/scenario-to-video/README.md` for every flag, the list of
+derivable screens, and troubleshooting tips. This tool is **not** part of
+CI — it is a manual developer utility.
+
 ## What doesn't work yet
 
 - **Real data sources** — each real provider (wrapping `CLLocationManager`,

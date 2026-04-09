@@ -1,0 +1,75 @@
+/*
+ * renderer.h — host simulator rendering surface.
+ *
+ * The host simulator renders ScramScreen screens into a fixed-size RGB888
+ * buffer shaped to the real AMOLED panel (466×466, round). The buffer is
+ * then serialised as a PNG for snapshot tests.
+ *
+ * NOTE on graphics backend: the issue tracker refers to this as the "LVGL
+ * host simulator". In practice, Slice 1.5b ships a pure-C software
+ * rasteriser that is deterministic, offline, and trivially reproducible on
+ * CI — no LVGL v9 FetchContent, no SDL, no dynamic linking. Every screen
+ * lives behind a `host_sim_render_*` function that only touches the RGB
+ * buffer, so a follow-up slice can swap the backend for real LVGL without
+ * touching the rest of the simulator (main.c, PNG writer, snapshot
+ * harness, Swift transport). See host-sim/README.md for the rationale.
+ */
+#ifndef HOST_SIM_RENDERER_H
+#define HOST_SIM_RENDERER_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#include "ble_protocol.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define HOST_SIM_DISPLAY_WIDTH  466
+#define HOST_SIM_DISPLAY_HEIGHT 466
+
+/* RGB888 framebuffer, row-major, no padding. */
+typedef struct {
+    uint8_t *pixels; /* HOST_SIM_DISPLAY_WIDTH*HOST_SIM_DISPLAY_HEIGHT*3 bytes */
+    int      width;
+    int      height;
+} host_sim_canvas_t;
+
+/* Allocate a fresh canvas. Caller owns and must free with host_sim_canvas_destroy(). */
+host_sim_canvas_t *host_sim_canvas_create(void);
+void host_sim_canvas_destroy(host_sim_canvas_t *canvas);
+
+/* Fill the canvas with a single RGB colour. */
+void host_sim_canvas_fill(host_sim_canvas_t *canvas, uint8_t r, uint8_t g, uint8_t b);
+
+/* Draw a filled round display background (mask everything outside the circle
+ * to the off-panel colour). Call this *after* drawing screen contents. */
+void host_sim_canvas_apply_round_mask(host_sim_canvas_t *canvas);
+
+/* Screen-specific renderers. They each take the already-decoded payload
+ * and draw into `canvas`. The canvas is expected to be pre-filled with
+ * the background colour the screen wants. */
+void host_sim_render_clock(host_sim_canvas_t      *canvas,
+                           const ble_clock_data_t *clock,
+                           uint8_t                 flags);
+
+/* Placeholder for screens that have not been implemented yet. Draws a
+ * "screen 0xNN pending" message on a dark background. */
+void host_sim_render_placeholder(host_sim_canvas_t *canvas, uint8_t screen_id);
+
+/* Dispatch on screen id. Returns 0 on success, non-zero on decode error
+ * (caller should check stderr). On decode failure a red error screen is
+ * still rendered so snapshot diffs fail loudly instead of silently. */
+int host_sim_render_payload(host_sim_canvas_t *canvas,
+                            const uint8_t     *payload,
+                            size_t             length);
+
+/* Serialise the canvas as a PNG to the given path. Returns 0 on success. */
+int host_sim_canvas_write_png(const host_sim_canvas_t *canvas, const char *path);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* HOST_SIM_RENDERER_H */

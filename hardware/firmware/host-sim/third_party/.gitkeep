@@ -1,0 +1,4 @@
+# stb_image.h / stb_image_write.h are fetched at configure time via
+# FetchContent in ../CMakeLists.txt. This directory exists so the
+# standard host-sim/ layout is visible in the repo tree; any future
+# vendored third-party source can live here.

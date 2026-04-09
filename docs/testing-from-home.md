@@ -62,16 +62,88 @@ python3 generate.py
 
 Never hand-edit the `.json` files. `generate.py` is authoritative.
 
+## Workflow: render a screen on your Mac (no bike, no ESP32)
+
+Slice 1.5b ships a standalone C host simulator that decodes the **exact
+same** BLE payload bytes the firmware decodes on device and writes a
+466×466 PNG of the corresponding screen.
+
+```sh
+cmake -S hardware/firmware/host-sim -B hardware/firmware/host-sim/build
+cmake --build hardware/firmware/host-sim/build
+./hardware/firmware/host-sim/build/scramscreen-host-sim \
+    --in protocol/fixtures/valid/clock_basel_winter.bin \
+    --out /tmp/clock.png
+open /tmp/clock.png
+```
+
+See [`hardware/firmware/host-sim/README.md`](../hardware/firmware/host-sim/README.md)
+for the full CLI, error codes, and the judgement call behind the pure-C
+software rasteriser (vs. a FetchContent-driven LVGL+SDL backend).
+
+## Workflow: loopback from Swift into the simulator
+
+`RideSimulatorKit` ships a `BLETransport` protocol and a
+`HostSimulatorBLETransport` that spawns the host simulator as a
+subprocess and pipes encoded payloads into its stdin:
+
+```swift
+let transport = HostSimulatorBLETransport(
+    executableURL: URL(fileURLWithPath: "…/host-sim/build/scramscreen-host-sim"),
+    outputURL: URL(fileURLWithPath: "/tmp/loopback.png")
+)
+let payload = ScreenPayload.clock(clockData, flags: [])
+try await transport.send(ScreenPayloadCodec.encode(payload))
+```
+
+The `testEndToEndLoopbackAgainstRealSimulator` XCTest exercises the
+whole path. It auto-skips unless `SCRAMSCREEN_HOST_SIM` points at the
+built simulator, so it is safe to leave committed:
+
+```sh
+cd app/ios/Packages/RideSimulatorKit
+SCRAMSCREEN_HOST_SIM=$(pwd)/../../../../hardware/firmware/host-sim/build/scramscreen-host-sim \
+    swift test --filter BLETransportTests
+```
+
+When Slice 2 lands a real Core Bluetooth transport, the only thing that
+changes is which `BLETransport` implementation the scenario player
+injects. Every screen test written against the host-simulator transport
+stays unchanged.
+
+## Workflow: screen snapshot tests
+
+Every future screen slice ships a committed golden PNG under
+`hardware/firmware/host-sim/snapshots/` plus an `add_snapshot_test()`
+entry in `hardware/firmware/host-sim/CMakeLists.txt`. The ctest harness
+runs the simulator against a fixture, writes a PNG, and pixel-diffs it
+against the golden via a small stb_image based `snapshot-diff` helper.
+
+```sh
+cd hardware/firmware/host-sim
+cmake -B build && cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+CI runs the same thing on `ubuntu-latest` in the new `host-sim` job in
+`.github/workflows/firmware.yml`.
+
+When an intentional UI change lands, regenerate the goldens:
+
+```sh
+./hardware/firmware/host-sim/tools/snapshot-update.sh
+git diff -- hardware/firmware/host-sim/snapshots/
+```
+
+**Always review the visual diff before committing.** A snapshot test
+only catches regressions if a human actually looked at the new PNG.
+
 ## What doesn't work yet
 
-- **LVGL host simulator + screen snapshot tests** — that is Slice 1.5b.
-  Until it lands, you cannot yet render the actual ESP32 screens on your
-  Mac. You *can* write all the logic that feeds them and verify it with
-  unit tests.
-- **BLE loopback transport** — also Slice 1.5b. Today the
-  `ScenarioPlayer` drives iOS mock providers; once 1.5b is done, you'll be
-  able to pipe the encoded BLE bytes into the host simulator and see the
-  pixels.
 - **Real data sources** — each real provider (wrapping `CLLocationManager`,
   `WeatherKit`, etc.) is added by its owning screen slice. Until then the
   protocols exist but the real implementations do nothing.
+- **Real BLE transport** — Slice 2 replaces the loopback transport with
+  a Core Bluetooth peripheral wrapper. Until then, scenarios driven
+  through `HostSimulatorBLETransport` render on your Mac, not on the
+  actual ESP32 panel.

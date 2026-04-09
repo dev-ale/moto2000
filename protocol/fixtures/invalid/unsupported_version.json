@@ -1,0 +1,5 @@
+{
+  "description": "Clock packet with version byte set to 0x02 — decoders must reject unknown versions",
+  "expected_error": "unsupportedVersion",
+  "raw_bytes_hex": "020d00000c00000080f39c67000000003c000100"
+}

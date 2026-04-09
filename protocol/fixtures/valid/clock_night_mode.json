@@ -1,0 +1,10 @@
+{
+  "description": "Clock screen in night mode, 12h format, UTC",
+  "screen": "clock",
+  "flags": ["NIGHT_MODE"],
+  "body": {
+    "unix_time": 1738339200,
+    "tz_offset_minutes": 0,
+    "is_24h": false
+  }
+}

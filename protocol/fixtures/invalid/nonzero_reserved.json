@@ -1,0 +1,5 @@
+{
+  "description": "Reserved byte 3 set to 0x42 — must be rejected",
+  "expected_error": "invalidReserved",
+  "raw_bytes_hex": "010d00420c00000080f39c67000000003c000100"
+}

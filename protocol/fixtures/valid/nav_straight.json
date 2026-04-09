@@ -1,0 +1,16 @@
+{
+  "description": "Navigation: going straight on Aeschengraben, Basel, 45 km/h, 320m to next maneuver",
+  "screen": "navigation",
+  "flags": [],
+  "body": {
+    "lat": 47.5482,
+    "lng": 7.5899,
+    "speed_kmh": 45.3,
+    "heading_deg": 182.7,
+    "distance_to_maneuver_m": 320,
+    "maneuver": "straight",
+    "street_name": "Aeschengraben",
+    "eta_minutes": 18,
+    "remaining_km": 7.4
+  }
+}

@@ -43,6 +43,38 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(unity)
 
+# ------------------------------------------------------------------------- #
+# ble_protocol as a host-buildable static library                            #
+# ------------------------------------------------------------------------- #
+#
+# The sources under hardware/firmware/components/ble_protocol are plain C
+# with no ESP-IDF dependencies, so we compile them here for the host.
+set(BLE_PROTOCOL_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ble_protocol")
+add_library(ble_protocol STATIC
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_clock.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_nav.c"
+)
+target_include_directories(ble_protocol
+    PUBLIC "${BLE_PROTOCOL_ROOT}/include"
+    PRIVATE "${BLE_PROTOCOL_ROOT}/src"
+)
+
+# Shared fixture directory is at the repo root.
+get_filename_component(REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../.." ABSOLUTE)
+set(FIXTURES_DIR "${REPO_ROOT}/protocol/fixtures")
+
+# ------------------------------------------------------------------------- #
+# Tests                                                                      #
+# ------------------------------------------------------------------------- #
+
 add_executable(test_smoke test_smoke.c)
 target_link_libraries(test_smoke PRIVATE unity)
 add_test(NAME smoke COMMAND test_smoke)
+
+add_executable(test_ble_protocol test_ble_protocol.c)
+target_link_libraries(test_ble_protocol PRIVATE unity ble_protocol)
+target_compile_definitions(test_ble_protocol
+    PRIVATE "SCRAMSCREEN_FIXTURES_DIR=\"${FIXTURES_DIR}\""
+)
+add_test(NAME ble_protocol COMMAND test_ble_protocol)

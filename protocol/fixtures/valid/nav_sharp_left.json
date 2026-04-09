@@ -1,0 +1,16 @@
+{
+  "description": "Navigation: sharp left in 50m, night mode, stale data flag set",
+  "screen": "navigation",
+  "flags": ["NIGHT_MODE", "STALE"],
+  "body": {
+    "lat": 47.5596,
+    "lng": 7.5886,
+    "speed_kmh": 28.1,
+    "heading_deg": 91.5,
+    "distance_to_maneuver_m": 50,
+    "maneuver": "sharpLeft",
+    "street_name": "Rümelinsplatz",
+    "eta_minutes": 22,
+    "remaining_km": 8.9
+  }
+}

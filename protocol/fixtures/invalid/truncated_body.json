@@ -1,0 +1,5 @@
+{
+  "description": "Clock header declares 12-byte body but only 8 bytes follow",
+  "expected_error": "truncatedBody",
+  "raw_bytes_hex": "010d00000c0000000000000000000000"
+}

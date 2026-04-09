@@ -94,3 +94,16 @@ target_include_directories(ble_reconnect PUBLIC "${BLE_RECONNECT_ROOT}/include")
 add_executable(test_ble_reconnect test_ble_reconnect.c)
 target_link_libraries(test_ble_reconnect PRIVATE unity ble_reconnect)
 add_test(NAME ble_reconnect COMMAND test_ble_reconnect)
+
+# ------------------------------------------------------------------------- #
+# screen_fsm — Slice 5 screen-switching FSM                                  #
+# ------------------------------------------------------------------------- #
+set(SCREEN_FSM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/screen_fsm")
+add_library(screen_fsm STATIC
+    "${SCREEN_FSM_ROOT}/src/screen_fsm.c"
+)
+target_include_directories(screen_fsm PUBLIC "${SCREEN_FSM_ROOT}/include")
+
+add_executable(test_screen_fsm test_screen_fsm.c)
+target_link_libraries(test_screen_fsm PRIVATE unity screen_fsm)
+add_test(NAME screen_fsm COMMAND test_screen_fsm)

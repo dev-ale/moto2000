@@ -163,6 +163,33 @@ Defined in Slice 5 (#6). Placeholder.
 
 Defined in Slice 2 (#3). Placeholder.
 
+### Staleness flag and the last-known-payload cache
+
+The `STALE` flag (bit 2 in the screen header — see
+[Flags bitfield](#flags-bitfield)) is raised by the ESP32 renderer
+when the last-known payload for the current screen is older than a configured
+threshold. It is **not** set by the iOS side on the wire; the ESP32 owns it
+because the ESP32 is the side that keeps drawing during BLE outages.
+
+Slice 17 adds two matching caches that cooperate with this flag:
+
+- **iOS** — `BLECentralClient.LastKnownPayloadCache` stores the last body
+  successfully written per `ScreenID`. During a reconnect loop the UI can ask
+  the cache for a snapshot and render a "last known" state instead of a blank
+  widget. The cache is clock-agnostic; callers pass a timestamp on every
+  mutation so tests drive it with a `VirtualClock`.
+- **ESP32** — the `ble_reconnect` component exposes an equivalent
+  `ble_payload_cache_t` (14 slots, one per screen id, 64-byte bodies) that the
+  firmware updates on every successful write and queries from the render loop.
+  When `ble_payload_cache_is_stale()` returns `true` for the active screen,
+  the renderer sets the `STALE` flag on whatever frame it draws from the
+  cached body.
+
+The staleness threshold is a property of the renderer, not the wire format —
+both sides default to 2 seconds and can be tuned per screen without a
+protocol bump. See [background-ble.md](./background-ble.md) for the full
+reconnect lifecycle.
+
 ## Golden fixtures
 
 Shared binary fixtures for round-trip tests live in `protocol/fixtures/`. Each

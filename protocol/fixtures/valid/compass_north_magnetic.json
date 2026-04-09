@@ -1,0 +1,11 @@
+{
+  "description": "Compass: pointing magnetic north, 2.0° accuracy, use magnetic heading",
+  "screen": "compass",
+  "flags": [],
+  "body": {
+    "magnetic_heading_deg": 0.0,
+    "true_heading_deg_raw": 65535,
+    "heading_accuracy_deg": 2.0,
+    "use_true_heading": false
+  }
+}

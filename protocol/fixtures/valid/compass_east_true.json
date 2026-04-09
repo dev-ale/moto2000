@@ -1,0 +1,11 @@
+{
+  "description": "Compass: true heading 90°, magnetic 88.5°, 1.5° accuracy, render true",
+  "screen": "compass",
+  "flags": [],
+  "body": {
+    "magnetic_heading_deg": 88.5,
+    "true_heading_deg": 90.0,
+    "heading_accuracy_deg": 1.5,
+    "use_true_heading": true
+  }
+}

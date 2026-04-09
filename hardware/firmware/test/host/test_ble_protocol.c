@@ -93,6 +93,26 @@ static void assert_speed_heading_fixture_roundtrips(const char *name)
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
 }
 
+static void assert_compass_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t            flags = 0xFF;
+    ble_compass_data_t decoded_body;
+    const ble_result_t decoded =
+        ble_decode_compass(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_compass(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
 static void assert_nav_fixture_roundtrips(const char *name)
 {
     fixture_blob_t blob;
@@ -149,6 +169,31 @@ static void test_speed_highway_120_roundtrip(void)
 static void test_speed_stationary_roundtrip(void)
 {
     assert_speed_heading_fixture_roundtrips("speed_stationary");
+}
+
+static void test_compass_north_magnetic_roundtrip(void)
+{
+    assert_compass_fixture_roundtrips("compass_north_magnetic");
+}
+
+static void test_compass_east_true_roundtrip(void)
+{
+    assert_compass_fixture_roundtrips("compass_east_true");
+}
+
+static void test_compass_southwest_unknown_true_roundtrip(void)
+{
+    assert_compass_fixture_roundtrips("compass_southwest_unknown_true");
+}
+
+static void test_compass_out_of_range_fixture_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "compass_out_of_range", &blob));
+    ble_compass_data_t body;
+    const ble_result_t result =
+        ble_decode_compass(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
 /* ------------------------------------------------------------------------- */
@@ -220,7 +265,11 @@ int main(void)
     RUN_TEST(test_speed_urban_45_roundtrip);
     RUN_TEST(test_speed_highway_120_roundtrip);
     RUN_TEST(test_speed_stationary_roundtrip);
+    RUN_TEST(test_compass_north_magnetic_roundtrip);
+    RUN_TEST(test_compass_east_true_roundtrip);
+    RUN_TEST(test_compass_southwest_unknown_true_roundtrip);
     RUN_TEST(test_invalid_fixtures_are_rejected);
     RUN_TEST(test_speed_heading_out_of_range_fixture_rejected);
+    RUN_TEST(test_compass_out_of_range_fixture_rejected);
     return UNITY_END();
 }

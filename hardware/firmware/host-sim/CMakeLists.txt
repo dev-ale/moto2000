@@ -91,12 +91,14 @@ add_executable(scramscreen-host-sim
     src/screen_clock.c
     src/screen_compass.c
     src/screen_speed.c
+    src/screen_navigation.c
     src/screen_placeholder.c
     src/compass_layout.c
     src/speed_layout.c
     src/png_writer.c
     src/text_draw.c
     src/time_format.c
+    src/navigation_layout.c
 )
 target_include_directories(scramscreen-host-sim PRIVATE include)
 target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
@@ -137,6 +139,9 @@ add_snapshot_test(compass_southwest_unknown_true compass_southwest_unknown_true.
 add_snapshot_test(speed_urban_45kmh              speed_urban_45kmh.bin)
 add_snapshot_test(speed_highway_120kmh           speed_highway_120kmh.bin)
 add_snapshot_test(speed_stationary               speed_stationary.bin)
+add_snapshot_test(nav_straight                   nav_straight.bin)
+add_snapshot_test(nav_sharp_left                 nav_sharp_left.bin)
+add_snapshot_test(nav_arrive                     nav_arrive.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
@@ -172,3 +177,12 @@ add_executable(test_speed_layout
 target_include_directories(test_speed_layout PRIVATE include)
 target_link_libraries(test_speed_layout PRIVATE unity m)
 add_test(NAME speed_layout COMMAND test_speed_layout)
+
+add_executable(test_host_sim_navigation_layout
+    tests/test_navigation_layout.c
+    src/navigation_layout.c
+)
+target_include_directories(test_host_sim_navigation_layout PRIVATE include)
+target_link_libraries(test_host_sim_navigation_layout PRIVATE unity ble_protocol)
+add_test(NAME host_sim_navigation_layout
+         COMMAND test_host_sim_navigation_layout)

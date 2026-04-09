@@ -7,6 +7,9 @@
  * for reproducibility.
  */
 #define STB_IMAGE_IMPLEMENTATION
+/* stb uses #ifdef STBI_NO_STDIO, so defining the macro at all — even to
+ * 0 — disables the stdio-based loader. Leave it undefined so that
+ * stbi_load(const char *) is compiled in for the snapshot-diff tool. */
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION

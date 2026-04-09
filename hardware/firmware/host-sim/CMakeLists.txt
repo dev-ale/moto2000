@@ -166,6 +166,10 @@ add_snapshot_test(lean_upright                    lean_upright.bin)
 add_snapshot_test(lean_moderate_right             lean_moderate_right.bin)
 add_snapshot_test(lean_hard_left                  lean_hard_left.bin)
 add_snapshot_test(lean_racetrack                  lean_racetrack.bin)
+add_snapshot_test(music_playing                  music_playing.bin)
+add_snapshot_test(music_paused                   music_paused.bin)
+add_snapshot_test(music_long_titles              music_long_titles.bin)
+add_snapshot_test(music_unknown_duration         music_unknown_duration.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).

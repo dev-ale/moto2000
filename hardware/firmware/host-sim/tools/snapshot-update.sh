@@ -50,6 +50,10 @@ SNAPSHOTS=(
     "lean_moderate_right             lean_moderate_right.bin"
     "lean_hard_left                  lean_hard_left.bin"
     "lean_racetrack                  lean_racetrack.bin"
+    "music_playing                   music_playing.bin"
+    "music_paused                    music_paused.bin"
+    "music_long_titles               music_long_titles.bin"
+    "music_unknown_duration          music_unknown_duration.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

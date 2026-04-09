@@ -175,6 +175,24 @@ Body size: **16 bytes**
 | 12 | `ascent_meters` | `uint16` | Total positive elevation change, in metres. Altitude jitter under 1 m is ignored. |
 | 14 | `descent_meters` | `uint16` | Total negative elevation change (magnitude), in metres. |
 
+### `music_data_t` (screen `0x06`)
+
+Body size: **86 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `music_flags` | `uint8` | Bit 0: `PLAYING`. Bits 1..7 reserved, must be `0`. |
+| 1 | `reserved` | `uint8` | Must be `0x00`. |
+| 2 | `position_seconds` | `uint16` | Current playback position. `0xFFFF` = unknown (e.g. live radio stream). |
+| 4 | `duration_seconds` | `uint16` | Track duration. `0xFFFF` = unknown. |
+| 6 | `title` | `char[32]` | UTF-8, zero-padded, null-terminated. ≤ 31 bytes. |
+| 38 | `artist` | `char[24]` | UTF-8, zero-padded, null-terminated. ≤ 23 bytes. |
+| 62 | `album` | `char[24]` | UTF-8, zero-padded, null-terminated. ≤ 23 bytes. |
+
+See [platform-limits.md](platform-limits.md) for the iOS `MPNowPlayingInfoCenter`
+restriction — Slice 8 ships a testable protocol seam but defers the system
+framework wiring to a follow-up.
+
 ### Maneuver types
 
 | ID | Name |

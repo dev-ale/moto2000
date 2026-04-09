@@ -112,3 +112,12 @@ From Slice 1.5a onward, every screen slice must ship:
    screen from the ride simulator without a bike
 
 Slice 1.5b will add host-simulator snapshot tests on top of this.
+
+## Replaying a scenario through the navigation pipeline
+
+From Slice 6 onward, any scenario with `locationSamples` can be replayed
+through `NavigationService` to produce a `nav_data_t` stream. Tests wire
+a `StaticRouteEngine` (fed from a hand-crafted `*.route.json` fixture)
+to the scenario's `MockLocationProvider` so no MapKit or CoreLocation is
+touched. See `NavigationIntegrationTests.test_replayBaselCityLoop_*`
+for the pattern.

@@ -1,0 +1,11 @@
+{
+  "description": "Speed + heading: highway cruise, 120.0 km/h heading 45°, 500 m, 22°C",
+  "screen": "speedHeading",
+  "flags": [],
+  "body": {
+    "speed_kmh": 120.0,
+    "heading_deg": 45.0,
+    "altitude_m": 500,
+    "temperature_celsius": 22.0
+  }
+}

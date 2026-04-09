@@ -21,6 +21,7 @@ extern "C" {
 #define BLE_PROTOCOL_HEADER_SIZE   ((size_t)8)
 #define BLE_PROTOCOL_NAV_BODY_SIZE ((size_t)56)
 #define BLE_PROTOCOL_CLOCK_BODY_SIZE ((size_t)12)
+#define BLE_PROTOCOL_SPEED_HEADING_BODY_SIZE ((size_t)8)
 
 /* Flag bits carried in the header flags byte. */
 #define BLE_FLAG_ALERT      (1U << 0)
@@ -87,6 +88,13 @@ typedef struct {
 } ble_clock_data_t;
 
 typedef struct {
+    uint16_t speed_kmh_x10;
+    uint16_t heading_deg_x10;
+    int16_t  altitude_m;
+    int16_t  temperature_celsius_x10;
+} ble_speed_heading_data_t;
+
+typedef struct {
     int32_t        latitude_e7;
     int32_t        longitude_e7;
     uint16_t       speed_kmh_x10;
@@ -127,6 +135,11 @@ ble_result_t ble_decode_nav(const uint8_t  *data,
                             uint8_t        *out_flags,
                             ble_nav_data_t *out_nav);
 
+ble_result_t ble_decode_speed_heading(const uint8_t             *data,
+                                      size_t                     length,
+                                      uint8_t                   *out_flags,
+                                      ble_speed_heading_data_t  *out);
+
 /*
  * Encoders. `out_buf` must point to a buffer of at least
  * BLE_PROTOCOL_HEADER_SIZE + body_size bytes. On success, *out_written is
@@ -143,6 +156,12 @@ ble_result_t ble_encode_nav(const ble_nav_data_t *nav,
                             uint8_t              *out_buf,
                             size_t                out_cap,
                             size_t               *out_written);
+
+ble_result_t ble_encode_speed_heading(const ble_speed_heading_data_t *in,
+                                      uint8_t                         flags,
+                                      uint8_t                        *out_buf,
+                                      size_t                          out_cap,
+                                      size_t                         *out_written);
 
 #ifdef __cplusplus
 }

@@ -18,6 +18,8 @@ __pycache__/
 build/
 Derived/
 DerivedData/
+.build/
+.swiftpm/
 
 # Secrets
 .env

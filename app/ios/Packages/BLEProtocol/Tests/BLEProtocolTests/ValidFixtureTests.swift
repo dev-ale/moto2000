@@ -55,6 +55,8 @@ final class ValidFixtureTests: XCTestCase {
             return .clock(try ClockData(parsing: body), flags: flags)
         case "navigation":
             return .navigation(try NavData(parsing: body), flags: flags)
+        case "speedHeading":
+            return .speedHeading(try SpeedHeadingData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -150,6 +152,26 @@ extension NavData {
             streetName: street,
             etaMinutes: UInt16(eta),
             remainingKmX10: remainingX10
+        )
+    }
+}
+
+extension SpeedHeadingData {
+    init(parsing body: [String: Any]) throws {
+        func doubleValue(_ key: String) throws -> Double {
+            if let d = body[key] as? Double { return d }
+            if let i = body[key] as? Int { return Double(i) }
+            throw FixtureError.missingField(key)
+        }
+        let speed = try doubleValue("speed_kmh")
+        let heading = try doubleValue("heading_deg")
+        let altitude = try doubleValue("altitude_m")
+        let temperature = try doubleValue("temperature_celsius")
+        self.init(
+            speedKmhX10: UInt16(Int(round(speed * 10))),
+            headingDegX10: UInt16(Int(round(heading * 10))),
+            altitudeMeters: Int16(Int(round(altitude))),
+            temperatureCelsiusX10: Int16(Int(round(temperature * 10)))
         )
     }
 }

@@ -189,6 +189,30 @@ def build_highway(root: Path) -> None:
     write_json(root / "highway-straight.json", scenario)
 
 
+def build_twisty_mountain(root: Path) -> None:
+    """Pure-motion scenario for the lean-angle screen.
+
+    No GPS track — only IMU samples — so the integration test can replay
+    a controlled lean profile through ScenarioPlayer + LeanAngleService
+    without any location chatter.
+    """
+    imu = parse_imu(root / "twisty-mountain.imu.csv")
+    scenario = {
+        "version": SCENARIO_VERSION,
+        "name": "twisty-mountain",
+        "summary": "Pure motion scenario: alternating left/right leans up to 45° for the lean-angle screen",
+        "durationSeconds": 30.0,
+        "locationSamples": [],
+        "headingSamples": [],
+        "motionSamples": imu,
+        "weatherSnapshots": [],
+        "nowPlayingSnapshots": [],
+        "callEvents": [],
+        "calendarEvents": [],
+    }
+    write_json(root / "twisty-mountain.json", scenario)
+
+
 def main() -> int:
     root = Path(__file__).resolve().parent
     print("Regenerating scenario fixtures")
@@ -196,6 +220,8 @@ def main() -> int:
     print("  wrote basel-city-loop.json")
     build_highway(root)
     print("  wrote highway-straight.json")
+    build_twisty_mountain(root)
+    print("  wrote twisty-mountain.json")
     return 0
 
 

@@ -113,6 +113,18 @@ From Slice 1.5a onward, every screen slice must ship:
 
 Slice 1.5b will add host-simulator snapshot tests on top of this.
 
+## Pure-motion scenarios for the lean-angle screen
+
+Slice 10 introduces `twisty-mountain.json`, a motion-only scenario (no
+GPS track, no weather, no calls) that drives the new `LeanAngleService`
+through ScenarioPlayer. The IMU CSV holds gravity vectors corresponding
+to alternating ±40° leans for several seconds at a time so the EMA
+smoothing inside `LeanAngleCalculator` has room to settle. Use this
+shape when adding new screens that only depend on a single sensor
+stream — keeping the scenario narrow makes the integration test
+unambiguous about what is being verified. See
+`LeanAngleIntegrationTests` for the replay pattern.
+
 ## Replaying a scenario through the navigation pipeline
 
 From Slice 6 onward, any scenario with `locationSamples` can be replayed

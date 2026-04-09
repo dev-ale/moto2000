@@ -159,6 +159,10 @@ add_snapshot_test(weather_alps_snow               weather_alps_snow.bin)
 add_snapshot_test(weather_paris_rain              weather_paris_rain.bin)
 add_snapshot_test(weather_cold_fog                weather_cold_fog.bin)
 add_snapshot_test(weather_thunderstorm            weather_thunderstorm.bin)
+add_snapshot_test(lean_upright                    lean_upright.bin)
+add_snapshot_test(lean_moderate_right             lean_moderate_right.bin)
+add_snapshot_test(lean_hard_left                  lean_hard_left.bin)
+add_snapshot_test(lean_racetrack                  lean_racetrack.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).

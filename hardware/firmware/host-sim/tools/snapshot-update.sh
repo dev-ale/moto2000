@@ -46,6 +46,10 @@ SNAPSHOTS=(
     "weather_paris_rain              weather_paris_rain.bin"
     "weather_cold_fog                weather_cold_fog.bin"
     "weather_thunderstorm            weather_thunderstorm.bin"
+    "lean_upright                    lean_upright.bin"
+    "lean_moderate_right             lean_moderate_right.bin"
+    "lean_hard_left                  lean_hard_left.bin"
+    "lean_racetrack                  lean_racetrack.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

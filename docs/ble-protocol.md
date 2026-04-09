@@ -79,7 +79,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x04` | `weather`       | Weather           | 7   | `weather_data_t` |
 | `0x05` | `tripStats`     | Trip Stats        | 9   | `trip_stats_data_t` |
 | `0x06` | `music`         | Music             | 8   | TBD |
-| `0x07` | `leanAngle`     | Lean Angle        | 10  | TBD |
+| `0x07` | `leanAngle`     | Lean Angle        | 10  | `lean_angle_data_t` |
 | `0x08` | `blitzer`       | Blitzer / Radar   | 14  | TBD |
 | `0x09` | `incomingCall`  | Incoming Call     | 13  | TBD |
 | `0x0A` | `fuelEstimate`  | Fuel Estimate     | 12  | TBD |
@@ -126,6 +126,23 @@ Body size: **8 bytes**
 | 7 | `reserved` | `uint8` | Must be `0x00`. |
 
 If `USE_TRUE_HEADING` is set but `true_heading_deg_x10 == 0xFFFF`, the renderer falls back to the magnetic reading and displays a `MAG` label instead of `TRU`.
+
+### `lean_angle_data_t` (screen `0x07`)
+
+Body size: **8 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `current_lean_deg_x10` | `int16` | Current lean × 10. Negative = left lean, positive = right lean. Range `-900..=900` (±90.0°). |
+| 2 | `max_left_lean_deg_x10` | `uint16` | Max left lean magnitude × 10 (unsigned). Range `0..=900`. |
+| 4 | `max_right_lean_deg_x10` | `uint16` | Max right lean magnitude × 10 (unsigned). Range `0..=900`. |
+| 6 | `confidence_percent` | `uint8` | Renderer confidence in the calculation, `0..=100`. Drops when non-gravitational acceleration spikes (hard braking, bumps). |
+| 7 | `reserved` | `uint8` | Must be `0x00`. |
+
+The sign convention is locked in here so the iOS calculator, the C
+codec, and the host-sim renderer all agree: a bike leaning *right*
+produces a *positive* `current_lean_deg_x10`. The same convention is
+documented in `LeanAngleCalculator.swift`.
 
 ### `nav_data_t` (screen `0x01`)
 

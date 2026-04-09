@@ -26,9 +26,17 @@ extern "C" {
 #define BLE_PROTOCOL_TRIP_STATS_BODY_SIZE ((size_t)16)
 #define BLE_PROTOCOL_WEATHER_BODY_SIZE ((size_t)28)
 #define BLE_PROTOCOL_LEAN_ANGLE_BODY_SIZE ((size_t)8)
+#define BLE_PROTOCOL_MUSIC_BODY_SIZE ((size_t)86)
 
 /* Maximum absolute lean angle (× 10) carried on the wire = ±90.0°. */
 #define BLE_LEAN_ANGLE_MAX_ABS_X10 ((int16_t)900)
+
+/* Flag bits carried in the music body flags byte. */
+#define BLE_MUSIC_FLAG_PLAYING        (1U << 0)
+#define BLE_MUSIC_FLAG_RESERVED_MASK  0xFEU
+
+/* Sentinel for unknown position / duration (e.g. live radio stream). */
+#define BLE_MUSIC_UNKNOWN_DURATION_OR_POSITION ((uint16_t)0xFFFFU)
 
 /* Flag bits carried in the compass body flags byte. */
 #define BLE_COMPASS_FLAG_USE_TRUE_HEADING (1U << 0)
@@ -161,6 +169,15 @@ typedef struct {
     uint16_t ascent_meters;
     uint16_t descent_meters;
 } ble_trip_stats_data_t;
+
+typedef struct {
+    uint8_t  music_flags;               /* bit 0 = BLE_MUSIC_FLAG_PLAYING */
+    uint16_t position_seconds;          /* 0xFFFF = unknown */
+    uint16_t duration_seconds;          /* 0xFFFF = unknown */
+    char     title[32];                 /* null-terminated UTF-8 */
+    char     artist[24];                /* null-terminated UTF-8 */
+    char     album[24];                 /* null-terminated UTF-8 */
+} ble_music_data_t;
 
 typedef struct {
     ble_screen_id_t screen_id;
@@ -301,6 +318,16 @@ ble_result_t ble_encode_lean_angle(const ble_lean_angle_data_t *in,
                                    size_t                       out_cap,
                                    size_t                      *out_written);
 
+ble_result_t ble_decode_music(const uint8_t    *data,
+                              size_t            length,
+                              uint8_t          *out_flags,
+                              ble_music_data_t *out);
+
+ble_result_t ble_encode_music(const ble_music_data_t *in,
+                              uint8_t                 flags,
+                              uint8_t                *out_buf,
+                              size_t                  out_cap,
+                              size_t                 *out_written);
 
 #ifdef __cplusplus
 }

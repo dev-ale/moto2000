@@ -80,6 +80,7 @@ SPEED_HEADING_BODY_SIZE = 8
 COMPASS_BODY_SIZE = 8
 TRIP_STATS_BODY_SIZE = 16
 WEATHER_BODY_SIZE = 28
+MUSIC_BODY_SIZE = 86
 
 COMPASS_FLAG_USE_TRUE_HEADING = 1 << 0
 COMPASS_TRUE_HEADING_UNKNOWN = 0xFFFF
@@ -95,6 +96,12 @@ WEATHER_CONDITIONS = {
 
 LEAN_ANGLE_BODY_SIZE = 8
 LEAN_ANGLE_MAX_ABS_X10 = 900
+
+MUSIC_FLAG_PLAYING = 1 << 0
+MUSIC_UNKNOWN_U16 = 0xFFFF
+MUSIC_TITLE_LEN = 32
+MUSIC_ARTIST_LEN = 24
+MUSIC_ALBUM_LEN = 24
 
 
 def encode_flags(flags: list[str]) -> int:
@@ -279,6 +286,30 @@ def encode_lean_angle_body(spec: dict) -> bytes:
     return body
 
 
+def encode_music_body(spec: dict) -> bytes:
+    # Position and duration accept either the raw uint16 (for the 0xFFFF
+    # sentinel) or the plain integer seconds.
+    def u16_field(key: str) -> int:
+        raw_key = f"{key}_raw"
+        if raw_key in spec:
+            return int(spec[raw_key]) & 0xFFFF
+        return int(spec[key]) & 0xFFFF
+
+    flags = 0
+    if spec.get("is_playing", False):
+        flags |= MUSIC_FLAG_PLAYING
+    position = u16_field("position_seconds")
+    duration = u16_field("duration_seconds")
+    title = encode_fixed_string(spec.get("title", ""), MUSIC_TITLE_LEN)
+    artist = encode_fixed_string(spec.get("artist", ""), MUSIC_ARTIST_LEN)
+    album = encode_fixed_string(spec.get("album", ""), MUSIC_ALBUM_LEN)
+    body = struct.pack("<BBHH", flags, 0, position, duration) + title + artist + album
+    assert len(body) == MUSIC_BODY_SIZE, (
+        f"music body is {len(body)} bytes, expected {MUSIC_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
@@ -287,6 +318,7 @@ BODY_ENCODERS = {
     "tripStats": encode_trip_stats_body,
     "weather": encode_weather_body,
     "leanAngle": encode_lean_angle_body,
+    "music": encode_music_body,
 }
 
 

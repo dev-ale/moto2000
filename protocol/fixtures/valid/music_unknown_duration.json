@@ -1,0 +1,13 @@
+{
+  "description": "Music: live radio stream with unknown position and duration (0xFFFF sentinels)",
+  "screen": "music",
+  "flags": [],
+  "body": {
+    "is_playing": true,
+    "position_seconds_raw": 65535,
+    "duration_seconds_raw": 65535,
+    "title": "Radio Stream",
+    "artist": "Live DJ",
+    "album": "Broadcast"
+  }
+}

@@ -109,6 +109,8 @@ add_executable(scramscreen-host-sim
     src/text_draw.c
     src/time_format.c
     src/navigation_layout.c
+    src/screen_music.c
+    src/music_layout.c
 )
 target_include_directories(scramscreen-host-sim PRIVATE include)
 target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
@@ -232,3 +234,11 @@ add_executable(test_weather_layout
 target_include_directories(test_weather_layout PRIVATE include src)
 target_link_libraries(test_weather_layout PRIVATE unity ble_protocol)
 add_test(NAME weather_layout COMMAND test_weather_layout)
+
+add_executable(test_music_layout
+    tests/test_music_layout.c
+    src/music_layout.c
+)
+target_include_directories(test_music_layout PRIVATE include)
+target_link_libraries(test_music_layout PRIVATE unity)
+add_test(NAME music_layout COMMAND test_music_layout)

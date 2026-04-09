@@ -20,6 +20,36 @@ Together with:
 …it forms a closed loop: change any screen's layout, re-run the snapshot
 tests, see the diff, commit the new golden if it was intentional.
 
+## ⚠️ Read this before judging the visual quality
+
+**The PNGs this simulator produces are NOT what the real ESP32 screen will
+look like.** They are intentionally rendered with an 8×8 pixel bitmap font
+and a pure-C software rasteriser so that snapshot tests can diff PNGs
+byte-for-byte across every CI runner and every developer's laptop. Any
+anti-aliasing, font hinting, or vector rasterization would introduce
+non-determinism and make snapshot tests flaky.
+
+The real ESP32 firmware (starting at Slice 2, hardware bring-up) uses
+**LVGL v9 with real TTF fonts** on the 466×466 round AMOLED, which runs
+at ~267 PPI — comparable to an iPhone 4 Retina screen. Anti-aliased text,
+smooth curves, proper typography. That is what the rider will actually
+see. The mockups in [`docs/mockups.html`](../../../docs/mockups.html) are
+the design target for the real device.
+
+**Two renderers, two purposes:**
+
+| Renderer | Lives where | Font | Purpose |
+|---|---|---|---|
+| Host simulator (this project) | `hardware/firmware/host-sim/` | 8×8 bitmap (`font8x8.h`) | CI-deterministic previews + snapshot regression tests |
+| Real firmware (Slice 2+) | `hardware/firmware/main/` | LVGL v9 + TTF | What actually ships on the ESP32 |
+
+If you see the simulator PNGs and think "that looks like a retro
+calculator", you are right — and that is on purpose. Don't judge final
+polish from these images; judge layout, information density, and
+glanceability, which is what the snapshot tests are actually guarding.
+See [`docs/adr/0003-lvgl-v9.md`](../../../docs/adr/0003-lvgl-v9.md) and
+the "Graphics backend" section below for the full reasoning.
+
 ## Layout
 
 ```

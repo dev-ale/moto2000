@@ -180,6 +180,33 @@
       "positionSeconds": 0.0,
       "scenarioTime": 0.0,
       "title": "Moving On"
+    },
+    {
+      "album": "Asphalt",
+      "artist": "The Riders",
+      "durationSeconds": 240.0,
+      "isPlaying": true,
+      "positionSeconds": 60.0,
+      "scenarioTime": 60.0,
+      "title": "Moving On"
+    },
+    {
+      "album": "Demo",
+      "artist": "Solo Project",
+      "durationSeconds": 180.0,
+      "isPlaying": true,
+      "positionSeconds": 0.0,
+      "scenarioTime": 80.0,
+      "title": "Midnight Sun"
+    },
+    {
+      "album": "Broadcast",
+      "artist": "Live DJ",
+      "durationSeconds": -1.0,
+      "isPlaying": true,
+      "positionSeconds": -1.0,
+      "scenarioTime": 110.0,
+      "title": "Radio Stream"
     }
   ],
   "summary": "Steady highway run, clear weather, music playing",

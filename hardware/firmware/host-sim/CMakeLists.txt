@@ -78,6 +78,7 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_compass.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_trip_stats.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_weather.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_lean_angle.c"
 )
 target_include_directories(ble_protocol
     PUBLIC  "${BLE_PROTOCOL_ROOT}/include"
@@ -96,8 +97,10 @@ add_executable(scramscreen-host-sim
     src/screen_navigation.c
     src/screen_trip_stats.c
     src/screen_weather.c
+    src/screen_lean_angle.c
     src/screen_placeholder.c
     src/compass_layout.c
+    src/lean_angle_layout.c
     src/speed_layout.c
     src/trip_stats_layout.c
     src/weather_layout.c
@@ -191,6 +194,14 @@ add_executable(test_speed_layout
 target_include_directories(test_speed_layout PRIVATE include)
 target_link_libraries(test_speed_layout PRIVATE unity m)
 add_test(NAME speed_layout COMMAND test_speed_layout)
+
+add_executable(test_lean_angle_layout
+    tests/test_lean_angle_layout.c
+    src/lean_angle_layout.c
+)
+target_include_directories(test_lean_angle_layout PRIVATE include src)
+target_link_libraries(test_lean_angle_layout PRIVATE unity m)
+add_test(NAME lean_angle_layout COMMAND test_lean_angle_layout)
 
 add_executable(test_host_sim_navigation_layout
     tests/test_navigation_layout.c

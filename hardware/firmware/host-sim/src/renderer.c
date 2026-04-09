@@ -170,6 +170,22 @@ int host_sim_render_payload(host_sim_canvas_t *canvas,
             host_sim_render_weather(canvas, &weather, flags);
             return 0;
         }
+        case BLE_SCREEN_LEAN_ANGLE: {
+            ble_lean_angle_data_t lean;
+            uint8_t               flags = 0;
+            const ble_result_t    res =
+                ble_decode_lean_angle(payload, length, &flags, &lean);
+            if (res != BLE_OK) {
+                fprintf(stderr,
+                        "host-sim: failed to decode lean angle body: %s\n",
+                        ble_result_name(res));
+                host_sim_canvas_fill(canvas, 200, 0, 0);
+                host_sim_canvas_apply_round_mask(canvas);
+                return 3;
+            }
+            host_sim_render_lean_angle(canvas, &lean, flags);
+            return 0;
+        }
         case BLE_SCREEN_NAVIGATION: {
             ble_nav_data_t nav;
             uint8_t        flags = 0;

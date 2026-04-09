@@ -133,6 +133,26 @@ static void assert_trip_stats_fixture_roundtrips(const char *name)
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
 }
 
+static void assert_weather_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t            flags = 0xFF;
+    ble_weather_data_t weather;
+    const ble_result_t decoded =
+        ble_decode_weather(blob.bytes, blob.length, &flags, &weather);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_weather(&weather, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
 static void assert_nav_fixture_roundtrips(const char *name)
 {
     fixture_blob_t blob;
@@ -228,6 +248,41 @@ static void test_trip_stats_speed_out_of_range_fixture_rejected(void)
     ble_trip_stats_data_t body;
     const ble_result_t    result =
         ble_decode_trip_stats(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
+
+static void test_weather_basel_clear_roundtrip(void)
+{
+    assert_weather_fixture_roundtrips("weather_basel_clear");
+}
+
+static void test_weather_alps_snow_roundtrip(void)
+{
+    assert_weather_fixture_roundtrips("weather_alps_snow");
+}
+
+static void test_weather_paris_rain_roundtrip(void)
+{
+    assert_weather_fixture_roundtrips("weather_paris_rain");
+}
+
+static void test_weather_cold_fog_roundtrip(void)
+{
+    assert_weather_fixture_roundtrips("weather_cold_fog");
+}
+
+static void test_weather_thunderstorm_roundtrip(void)
+{
+    assert_weather_fixture_roundtrips("weather_thunderstorm");
+}
+
+static void test_weather_over_max_temp_fixture_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "weather_over_max_temp", &blob));
+    ble_weather_data_t body;
+    const ble_result_t result =
+        ble_decode_weather(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -427,6 +482,11 @@ int main(void)
     RUN_TEST(test_compass_north_magnetic_roundtrip);
     RUN_TEST(test_compass_east_true_roundtrip);
     RUN_TEST(test_compass_southwest_unknown_true_roundtrip);
+    RUN_TEST(test_weather_basel_clear_roundtrip);
+    RUN_TEST(test_weather_alps_snow_roundtrip);
+    RUN_TEST(test_weather_paris_rain_roundtrip);
+    RUN_TEST(test_weather_cold_fog_roundtrip);
+    RUN_TEST(test_weather_thunderstorm_roundtrip);
     RUN_TEST(test_invalid_fixtures_are_rejected);
     RUN_TEST(test_speed_heading_out_of_range_fixture_rejected);
     RUN_TEST(test_compass_out_of_range_fixture_rejected);
@@ -447,5 +507,6 @@ int main(void)
     RUN_TEST(test_trip_stats_city_loop_roundtrip);
     RUN_TEST(test_trip_stats_highway_roundtrip);
     RUN_TEST(test_trip_stats_speed_out_of_range_fixture_rejected);
+    RUN_TEST(test_weather_over_max_temp_fixture_rejected);
     return UNITY_END();
 }

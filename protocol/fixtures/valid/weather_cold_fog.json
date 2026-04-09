@@ -1,0 +1,12 @@
+{
+  "description": "Weather: freezing fog on the Jura, -10.0C current, high -5.0, low -15.0",
+  "screen": "weather",
+  "flags": [],
+  "body": {
+    "condition": "fog",
+    "temperature_celsius": -10.0,
+    "high_celsius": -5.0,
+    "low_celsius": -15.0,
+    "location_name": "Jura"
+  }
+}

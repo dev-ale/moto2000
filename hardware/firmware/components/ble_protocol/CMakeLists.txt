@@ -17,6 +17,7 @@ idf_component_register(
         "src/ble_protocol_compass.c"
         "src/ble_protocol_control.c"
         "src/ble_protocol_trip_stats.c"
+        "src/ble_protocol_weather.c"
     INCLUDE_DIRS
         "include"
     PRIV_INCLUDE_DIRS

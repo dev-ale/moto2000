@@ -61,6 +61,8 @@ final class ValidFixtureTests: XCTestCase {
             return .compass(try CompassData(parsing: body), flags: flags)
         case "tripStats":
             return .tripStats(try TripStatsData(parsing: body), flags: flags)
+        case "weather":
+            return .weather(try WeatherData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -235,6 +237,33 @@ extension TripStatsData {
             maxSpeedKmhX10: UInt16(Int(round(maxKmh * 10))),
             ascentMeters: UInt16(ascent),
             descentMeters: UInt16(descent)
+        )
+    }
+}
+
+extension WeatherData {
+    init(parsing body: [String: Any]) throws {
+        guard let conditionName = body["condition"] as? String else {
+            throw FixtureError.missingField("condition")
+        }
+        guard let condition = WeatherConditionWire.allCases.first(where: { "\($0)" == conditionName }) else {
+            throw FixtureError.missingField("condition")
+        }
+        func doubleValue(_ key: String) throws -> Double {
+            if let d = body[key] as? Double { return d }
+            if let i = body[key] as? Int { return Double(i) }
+            throw FixtureError.missingField(key)
+        }
+        let temp = try doubleValue("temperature_celsius")
+        let high = try doubleValue("high_celsius")
+        let low = try doubleValue("low_celsius")
+        let name = (body["location_name"] as? String) ?? ""
+        self.init(
+            condition: condition,
+            temperatureCelsiusX10: Int16(Int(round(temp * 10))),
+            highCelsiusX10: Int16(Int(round(high * 10))),
+            lowCelsiusX10: Int16(Int(round(low * 10))),
+            locationName: name
         )
     }
 }

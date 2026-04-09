@@ -1,0 +1,12 @@
+{
+  "description": "Weather: thunderstorm in Basel, 18.0C current, high 22.0, low 14.0",
+  "screen": "weather",
+  "flags": [],
+  "body": {
+    "condition": "thunderstorm",
+    "temperature_celsius": 18.0,
+    "high_celsius": 22.0,
+    "low_celsius": 14.0,
+    "location_name": "Basel"
+  }
+}

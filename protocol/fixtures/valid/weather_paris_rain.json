@@ -1,0 +1,12 @@
+{
+  "description": "Weather: rain in Paris, 14.5C current, high 17.0, low 11.0",
+  "screen": "weather",
+  "flags": [],
+  "body": {
+    "condition": "rain",
+    "temperature_celsius": 14.5,
+    "high_celsius": 17.0,
+    "low_celsius": 11.0,
+    "location_name": "Paris"
+  }
+}

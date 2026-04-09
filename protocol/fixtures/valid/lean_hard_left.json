@@ -1,0 +1,11 @@
+{
+  "description": "Lean angle: hard 42.5° left lean, equal max-L, smaller max-R, slightly reduced confidence",
+  "screen": "leanAngle",
+  "flags": [],
+  "body": {
+    "current_lean_deg": -42.5,
+    "max_left_lean_deg": 42.5,
+    "max_right_lean_deg": 18.0,
+    "confidence_percent": 90
+  }
+}

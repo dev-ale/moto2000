@@ -63,6 +63,8 @@ final class ValidFixtureTests: XCTestCase {
             return .tripStats(try TripStatsData(parsing: body), flags: flags)
         case "weather":
             return .weather(try WeatherData(parsing: body), flags: flags)
+        case "leanAngle":
+            return .leanAngle(try LeanAngleData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -264,6 +266,31 @@ extension WeatherData {
             highCelsiusX10: Int16(Int(round(high * 10))),
             lowCelsiusX10: Int16(Int(round(low * 10))),
             locationName: name
+        )
+    }
+}
+
+extension LeanAngleData {
+    init(parsing body: [String: Any]) throws {
+        func doubleValue(_ key: String) throws -> Double {
+            if let d = body[key] as? Double { return d }
+            if let i = body[key] as? Int { return Double(i) }
+            throw FixtureError.missingField(key)
+        }
+        func intValue(_ key: String) throws -> Int {
+            if let i = body[key] as? Int { return i }
+            if let d = body[key] as? Double { return Int(d) }
+            throw FixtureError.missingField(key)
+        }
+        let current = try doubleValue("current_lean_deg")
+        let maxLeft = try doubleValue("max_left_lean_deg")
+        let maxRight = try doubleValue("max_right_lean_deg")
+        let confidence = try intValue("confidence_percent")
+        self.init(
+            currentLeanDegX10: Int16(Int((current * 10).rounded())),
+            maxLeftLeanDegX10: UInt16(Int((maxLeft * 10).rounded())),
+            maxRightLeanDegX10: UInt16(Int((maxRight * 10).rounded())),
+            confidencePercent: UInt8(confidence)
         )
     }
 }

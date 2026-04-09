@@ -93,6 +93,9 @@ WEATHER_CONDITIONS = {
     "thunderstorm": 0x05,
 }
 
+LEAN_ANGLE_BODY_SIZE = 8
+LEAN_ANGLE_MAX_ABS_X10 = 900
+
 
 def encode_flags(flags: list[str]) -> int:
     value = 0
@@ -251,6 +254,31 @@ def encode_weather_body(spec: dict) -> bytes:
     return body
 
 
+def encode_lean_angle_body(spec: dict) -> bytes:
+    """Encode the 8-byte lean-angle body.
+
+    Note: current_lean_deg_x10 is a signed int16. struct's "<h" handles
+    two's-complement encoding for negative values automatically.
+    """
+    current_x10 = int(round(spec["current_lean_deg"] * 10))
+    max_left_x10 = int(round(spec["max_left_lean_deg"] * 10))
+    max_right_x10 = int(round(spec["max_right_lean_deg"] * 10))
+    confidence = int(spec["confidence_percent"])
+    # <hHHBB: int16 current, uint16 max_left, uint16 max_right, u8 conf, u8 reserved
+    body = struct.pack(
+        "<hHHBB",
+        current_x10,
+        max_left_x10,
+        max_right_x10,
+        confidence,
+        0,
+    )
+    assert len(body) == LEAN_ANGLE_BODY_SIZE, (
+        f"lean angle body is {len(body)} bytes, expected {LEAN_ANGLE_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
@@ -258,6 +286,7 @@ BODY_ENCODERS = {
     "compass": encode_compass_body,
     "tripStats": encode_trip_stats_body,
     "weather": encode_weather_body,
+    "leanAngle": encode_lean_angle_body,
 }
 
 

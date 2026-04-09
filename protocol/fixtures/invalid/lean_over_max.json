@@ -1,0 +1,5 @@
+{
+  "description": "Lean angle body with current_lean_deg_x10=1000 (> 900 max ±90°)",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "0107000008000000 e803 0000 0000 0000"
+}

@@ -1,0 +1,11 @@
+{
+  "description": "Lean angle: upright (0°), no max history yet, full confidence",
+  "screen": "leanAngle",
+  "flags": [],
+  "body": {
+    "current_lean_deg": 0.0,
+    "max_left_lean_deg": 0.0,
+    "max_right_lean_deg": 0.0,
+    "confidence_percent": 100
+  }
+}

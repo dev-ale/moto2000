@@ -296,6 +296,56 @@ static void test_compass_out_of_range_fixture_rejected(void)
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
+static void assert_lean_angle_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t               flags = 0xFF;
+    ble_lean_angle_data_t decoded_body;
+    const ble_result_t    decoded =
+        ble_decode_lean_angle(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_lean_angle(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_lean_upright_roundtrip(void)
+{
+    assert_lean_angle_fixture_roundtrips("lean_upright");
+}
+
+static void test_lean_moderate_right_roundtrip(void)
+{
+    assert_lean_angle_fixture_roundtrips("lean_moderate_right");
+}
+
+static void test_lean_hard_left_roundtrip(void)
+{
+    assert_lean_angle_fixture_roundtrips("lean_hard_left");
+}
+
+static void test_lean_racetrack_roundtrip(void)
+{
+    assert_lean_angle_fixture_roundtrips("lean_racetrack");
+}
+
+static void test_lean_over_max_fixture_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "lean_over_max", &blob));
+    ble_lean_angle_data_t body;
+    const ble_result_t    result =
+        ble_decode_lean_angle(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
+
 /* ------------------------------------------------------------------------- */
 /*                  invalid fixtures — each case fails cleanly               */
 /* ------------------------------------------------------------------------- */
@@ -508,5 +558,10 @@ int main(void)
     RUN_TEST(test_trip_stats_highway_roundtrip);
     RUN_TEST(test_trip_stats_speed_out_of_range_fixture_rejected);
     RUN_TEST(test_weather_over_max_temp_fixture_rejected);
+    RUN_TEST(test_lean_upright_roundtrip);
+    RUN_TEST(test_lean_moderate_right_roundtrip);
+    RUN_TEST(test_lean_hard_left_roundtrip);
+    RUN_TEST(test_lean_racetrack_roundtrip);
+    RUN_TEST(test_lean_over_max_fixture_rejected);
     return UNITY_END();
 }

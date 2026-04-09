@@ -1,0 +1,11 @@
+{
+  "description": "Lean angle: moderate 25° right lean during a sweeper, max-L 15°, max-R 40°",
+  "screen": "leanAngle",
+  "flags": [],
+  "body": {
+    "current_lean_deg": 25.0,
+    "max_left_lean_deg": 15.0,
+    "max_right_lean_deg": 40.0,
+    "confidence_percent": 95
+  }
+}

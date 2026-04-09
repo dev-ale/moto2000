@@ -27,8 +27,14 @@ SIM="$BUILD_DIR/scramscreen-host-sim"
 
 # (name, fixture) pairs — mirror add_snapshot_test() in CMakeLists.txt.
 SNAPSHOTS=(
-    "clock_basel_winter clock_basel_winter.bin"
-    "clock_night_mode   clock_night_mode.bin"
+    "clock_basel_winter              clock_basel_winter.bin"
+    "clock_night_mode                clock_night_mode.bin"
+    "compass_north_magnetic          compass_north_magnetic.bin"
+    "compass_east_true               compass_east_true.bin"
+    "compass_southwest_unknown_true  compass_southwest_unknown_true.bin"
+    "speed_urban_45kmh               speed_urban_45kmh.bin"
+    "speed_highway_120kmh            speed_highway_120kmh.bin"
+    "speed_stationary                speed_stationary.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

@@ -129,11 +129,14 @@ function(add_snapshot_test name fixture)
     )
 endfunction()
 
-add_snapshot_test(clock_basel_winter clock_basel_winter.bin)
-add_snapshot_test(clock_night_mode   clock_night_mode.bin)
+add_snapshot_test(clock_basel_winter             clock_basel_winter.bin)
+add_snapshot_test(clock_night_mode               clock_night_mode.bin)
 add_snapshot_test(compass_north_magnetic         compass_north_magnetic.bin)
 add_snapshot_test(compass_east_true              compass_east_true.bin)
 add_snapshot_test(compass_southwest_unknown_true compass_southwest_unknown_true.bin)
+add_snapshot_test(speed_urban_45kmh              speed_urban_45kmh.bin)
+add_snapshot_test(speed_highway_120kmh           speed_highway_120kmh.bin)
+add_snapshot_test(speed_stationary               speed_stationary.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).

@@ -159,3 +159,11 @@ target_include_directories(test_compass_layout PRIVATE include src)
 target_link_libraries(test_compass_layout PRIVATE unity ble_protocol)
 target_link_libraries(test_compass_layout PRIVATE m)
 add_test(NAME compass_layout COMMAND test_compass_layout)
+
+add_executable(test_speed_layout
+    tests/test_speed_layout.c
+    src/speed_layout.c
+)
+target_include_directories(test_speed_layout PRIVATE include)
+target_link_libraries(test_speed_layout PRIVATE unity m)
+add_test(NAME speed_layout COMMAND test_speed_layout)

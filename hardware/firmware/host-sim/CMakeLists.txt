@@ -90,14 +90,16 @@ add_executable(scramscreen-host-sim
     src/renderer.c
     src/screen_clock.c
     src/screen_compass.c
+    src/screen_speed.c
     src/screen_placeholder.c
     src/compass_layout.c
+    src/speed_layout.c
     src/png_writer.c
     src/text_draw.c
     src/time_format.c
 )
 target_include_directories(scramscreen-host-sim PRIVATE include)
-target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image)
+target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
 
 # ---------------------------------------------------------------------------
 # Snapshot diff helper (separate tiny C executable).
@@ -127,11 +129,14 @@ function(add_snapshot_test name fixture)
     )
 endfunction()
 
-add_snapshot_test(clock_basel_winter clock_basel_winter.bin)
-add_snapshot_test(clock_night_mode   clock_night_mode.bin)
+add_snapshot_test(clock_basel_winter             clock_basel_winter.bin)
+add_snapshot_test(clock_night_mode               clock_night_mode.bin)
 add_snapshot_test(compass_north_magnetic         compass_north_magnetic.bin)
 add_snapshot_test(compass_east_true              compass_east_true.bin)
 add_snapshot_test(compass_southwest_unknown_true compass_southwest_unknown_true.bin)
+add_snapshot_test(speed_urban_45kmh              speed_urban_45kmh.bin)
+add_snapshot_test(speed_highway_120kmh           speed_highway_120kmh.bin)
+add_snapshot_test(speed_stationary               speed_stationary.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
@@ -159,3 +164,11 @@ target_include_directories(test_compass_layout PRIVATE include src)
 target_link_libraries(test_compass_layout PRIVATE unity ble_protocol)
 target_link_libraries(test_compass_layout PRIVATE m)
 add_test(NAME compass_layout COMMAND test_compass_layout)
+
+add_executable(test_speed_layout
+    tests/test_speed_layout.c
+    src/speed_layout.c
+)
+target_include_directories(test_speed_layout PRIVATE include)
+target_link_libraries(test_speed_layout PRIVATE unity m)
+add_test(NAME speed_layout COMMAND test_speed_layout)

@@ -1,0 +1,27 @@
+{
+  "steps": [
+    {
+      "maneuver": "straight",
+      "streetName": "AESCHENGRABEN",
+      "distanceMeters": 600.0,
+      "startLocation": { "latitude": 47.5482, "longitude": 7.5899 },
+      "endLocation":   { "latitude": 47.5525, "longitude": 7.5903 }
+    },
+    {
+      "maneuver": "left",
+      "streetName": "ST JAKOBS STR",
+      "distanceMeters": 400.0,
+      "startLocation": { "latitude": 47.5525, "longitude": 7.5903 },
+      "endLocation":   { "latitude": 47.5511, "longitude": 7.5890 }
+    },
+    {
+      "maneuver": "arrive",
+      "streetName": "KAFFEE LADE",
+      "distanceMeters": 350.0,
+      "startLocation": { "latitude": 47.5511, "longitude": 7.5890 },
+      "endLocation":   { "latitude": 47.5482, "longitude": 7.5899 }
+    }
+  ],
+  "totalDistanceMeters": 1350.0,
+  "expectedTravelTimeSeconds": 170.0
+}

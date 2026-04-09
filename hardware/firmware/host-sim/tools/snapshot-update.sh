@@ -35,6 +35,9 @@ SNAPSHOTS=(
     "speed_urban_45kmh               speed_urban_45kmh.bin"
     "speed_highway_120kmh            speed_highway_120kmh.bin"
     "speed_stationary                speed_stationary.bin"
+    "nav_straight                    nav_straight.bin"
+    "nav_sharp_left                  nav_sharp_left.bin"
+    "nav_arrive                      nav_arrive.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

@@ -26,6 +26,8 @@ static const uint8_t FONT8X8_PERIOD[8]    = {0,    0,    0,    0,    0,    0,   
 static const uint8_t FONT8X8_SLASH[8]     = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x60, 0xC0, 0};
 static const uint8_t FONT8X8_PLUS[8]      = {0,    0x18, 0x18, 0x7E, 0x18, 0x18, 0,    0};
 static const uint8_t FONT8X8_MINUS[8]     = {0,    0,    0,    0x7E, 0,    0,    0,    0};
+/* Small degree glyph: a hollow square in the top-right of the cell. */
+static const uint8_t FONT8X8_DEGREE[8]    = {0x38, 0x44, 0x44, 0x38, 0,    0,    0,    0};
 
 static const uint8_t FONT8X8_0[8] = {0x3C, 0x66, 0x6E, 0x76, 0x66, 0x66, 0x3C, 0};
 static const uint8_t FONT8X8_1[8] = {0x18, 0x38, 0x18, 0x18, 0x18, 0x18, 0x7E, 0};
@@ -75,6 +77,7 @@ static const uint8_t *font8x8_glyph(char c)
         case '/': return FONT8X8_SLASH;
         case '+': return FONT8X8_PLUS;
         case '-': return FONT8X8_MINUS;
+        case '^': return FONT8X8_DEGREE; /* caret is our degree proxy */
         case '0': return FONT8X8_0;
         case '1': return FONT8X8_1;
         case '2': return FONT8X8_2;

@@ -77,6 +77,7 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_speed_heading.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_compass.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_trip_stats.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_weather.c"
 )
 target_include_directories(ble_protocol
     PUBLIC  "${BLE_PROTOCOL_ROOT}/include"
@@ -94,10 +95,12 @@ add_executable(scramscreen-host-sim
     src/screen_speed.c
     src/screen_navigation.c
     src/screen_trip_stats.c
+    src/screen_weather.c
     src/screen_placeholder.c
     src/compass_layout.c
     src/speed_layout.c
     src/trip_stats_layout.c
+    src/weather_layout.c
     src/png_writer.c
     src/text_draw.c
     src/time_format.c
@@ -148,6 +151,11 @@ add_snapshot_test(nav_arrive                     nav_arrive.bin)
 add_snapshot_test(trip_stats_fresh                trip_stats_fresh.bin)
 add_snapshot_test(trip_stats_city_loop            trip_stats_city_loop.bin)
 add_snapshot_test(trip_stats_highway              trip_stats_highway.bin)
+add_snapshot_test(weather_basel_clear             weather_basel_clear.bin)
+add_snapshot_test(weather_alps_snow               weather_alps_snow.bin)
+add_snapshot_test(weather_paris_rain              weather_paris_rain.bin)
+add_snapshot_test(weather_cold_fog                weather_cold_fog.bin)
+add_snapshot_test(weather_thunderstorm            weather_thunderstorm.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
@@ -200,3 +208,11 @@ add_executable(test_trip_stats_layout
 target_include_directories(test_trip_stats_layout PRIVATE include)
 target_link_libraries(test_trip_stats_layout PRIVATE unity)
 add_test(NAME trip_stats_layout COMMAND test_trip_stats_layout)
+
+add_executable(test_weather_layout
+    tests/test_weather_layout.c
+    src/weather_layout.c
+)
+target_include_directories(test_weather_layout PRIVATE include src)
+target_link_libraries(test_weather_layout PRIVATE unity ble_protocol)
+add_test(NAME weather_layout COMMAND test_weather_layout)

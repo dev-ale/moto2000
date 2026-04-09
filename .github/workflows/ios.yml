@@ -46,6 +46,8 @@ jobs:
         package:
           - BLEProtocol
           - RideSimulatorKit
+          - BLECentralClient
+          - ScramCore
     steps:
       - uses: actions/checkout@v4
 

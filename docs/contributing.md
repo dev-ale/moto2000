@@ -98,6 +98,8 @@ On `main`:
   - `iOS / Lint (SwiftLint + swift-format)`
   - `iOS / Swift package tests (BLEProtocol)`
   - `iOS / Swift package tests (RideSimulatorKit)`
+  - `iOS / Swift package tests (BLECentralClient)`
+  - `iOS / Swift package tests (ScramCore)`
   - `iOS / Build & test`
   - `Firmware / Unity host tests`
   - `Firmware / clang-format + cppcheck`

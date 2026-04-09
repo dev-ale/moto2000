@@ -96,6 +96,7 @@ On `main`:
 - Require PR review before merging.
 - Require status checks to pass:
   - `iOS / Lint (SwiftLint + swift-format)`
+  - `iOS / BLEProtocol package tests`
   - `iOS / Build & test`
   - `Firmware / Unity host tests`
   - `Firmware / clang-format + cppcheck`

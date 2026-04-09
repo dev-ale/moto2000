@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - "app/ios/**"
+      - "protocol/**"
       - ".swiftlint.yml"
       - ".swift-format"
       - ".github/workflows/ios.yml"
   pull_request:
     paths:
       - "app/ios/**"
+      - "protocol/**"
       - ".swiftlint.yml"
       - ".swift-format"
       - ".github/workflows/ios.yml"
@@ -34,10 +36,21 @@ jobs:
       - name: SwiftLint
         run: swiftlint --strict --config .swiftlint.yml
 
+  package-tests:
+    name: BLEProtocol package tests
+    runs-on: [self-hosted, macOS]
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: swift test
+        working-directory: app/ios/Packages/BLEProtocol
+        run: swift test --parallel
+
   test:
     name: Build & test
     runs-on: [self-hosted, macOS]
-    needs: lint
+    needs: [lint, package-tests]
     env:
       TUIST_DEVELOPMENT_TEAM: ${{ secrets.TUIST_DEVELOPMENT_TEAM }}
     steps:

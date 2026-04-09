@@ -30,6 +30,9 @@ let project = Project(
         defaultKnownRegions: ["en"],
         developmentRegion: "en"
     ),
+    packages: [
+        .local(path: "Packages/BLEProtocol"),
+    ],
     settings: .settings(
         base: baseSettings,
         configurations: [
@@ -63,7 +66,9 @@ let project = Project(
             ]),
             sources: ["Sources/**"],
             resources: [],
-            dependencies: []
+            dependencies: [
+                .package(product: "BLEProtocol"),
+            ]
         ),
         .target(
             name: "ScramScreenTests",

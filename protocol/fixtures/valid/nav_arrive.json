@@ -1,0 +1,16 @@
+{
+  "description": "Navigation: arrival within 10m, ETA 0, zero remaining distance",
+  "screen": "navigation",
+  "flags": [],
+  "body": {
+    "lat": 47.5482,
+    "lng": 7.5899,
+    "speed_kmh": 8.0,
+    "heading_deg": 270.0,
+    "distance_to_maneuver_m": 10,
+    "maneuver": "arrive",
+    "street_name": "Startplatz 1",
+    "eta_minutes": 0,
+    "remaining_km": 0.0
+  }
+}

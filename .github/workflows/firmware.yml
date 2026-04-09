@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - "hardware/firmware/**"
+      - "protocol/**"
       - ".clang-format"
       - ".github/workflows/firmware.yml"
   pull_request:
     paths:
       - "hardware/firmware/**"
+      - "protocol/**"
       - ".clang-format"
       - ".github/workflows/firmware.yml"
 
@@ -68,6 +70,7 @@ jobs:
             --suppressions-list=hardware/firmware/.cppcheck-suppressions \
             --quiet \
             hardware/firmware/main \
+            hardware/firmware/components \
             hardware/firmware/test/host
 
   idf-build:

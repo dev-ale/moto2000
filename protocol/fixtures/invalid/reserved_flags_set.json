@@ -1,0 +1,5 @@
+{
+  "description": "Flags byte has bit 5 set — bits 3..7 are reserved and must be zero",
+  "expected_error": "reservedFlagsSet",
+  "raw_bytes_hex": "010d20000c00000080f39c67000000003c000100"
+}

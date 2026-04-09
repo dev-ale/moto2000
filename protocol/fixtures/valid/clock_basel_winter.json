@@ -1,0 +1,10 @@
+{
+  "description": "Clock screen, Basel winter afternoon, CET (+60m), 24h format",
+  "screen": "clock",
+  "flags": [],
+  "body": {
+    "unix_time": 1738339200,
+    "tz_offset_minutes": 60,
+    "is_24h": true
+  }
+}

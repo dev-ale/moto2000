@@ -1,0 +1,5 @@
+{
+  "description": "Only 5 bytes — shorter than the 8-byte header",
+  "expected_error": "truncatedHeader",
+  "raw_bytes_hex": "010D00000C"
+}

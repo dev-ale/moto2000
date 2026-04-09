@@ -1,0 +1,5 @@
+{
+  "description": "Clock packet declares data_length=20 but clock body is always 12 bytes",
+  "expected_error": "bodyLengthMismatch",
+  "raw_bytes_hex": "010d00001400000080f39c67000000003c000100"
+}

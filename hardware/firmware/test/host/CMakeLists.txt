@@ -78,3 +78,16 @@ target_compile_definitions(test_ble_protocol
     PRIVATE "SCRAMSCREEN_FIXTURES_DIR=\"${FIXTURES_DIR}\""
 )
 add_test(NAME ble_protocol COMMAND test_ble_protocol)
+
+# ------------------------------------------------------------------------- #
+# ble_reconnect — Slice 17 FSM + last-known-payload cache                    #
+# ------------------------------------------------------------------------- #
+set(BLE_RECONNECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ble_reconnect")
+add_library(ble_reconnect STATIC
+    "${BLE_RECONNECT_ROOT}/src/ble_reconnect.c"
+)
+target_include_directories(ble_reconnect PUBLIC "${BLE_RECONNECT_ROOT}/include")
+
+add_executable(test_ble_reconnect test_ble_reconnect.c)
+target_link_libraries(test_ble_reconnect PRIVATE unity ble_reconnect)
+add_test(NAME ble_reconnect COMMAND test_ble_reconnect)

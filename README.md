@@ -112,8 +112,15 @@ Legal in Switzerland (Bundesgericht ruling, 2024) for passive proximity warnings
 - Android support (iOS only)
 - Mass production or commercial sale
 
-## Repo Contents
+## Repo Structure
 
-- [`scram-display-prd.md`](scram-display-prd.md) — Full product requirements doc
-- [`scram_round_display_mockups.html`](scram_round_display_mockups.html) — Screen mockups
-- [`scram_round_display_mockups_extra.html`](scram_round_display_mockups_extra.html) — Additional mockups
+```
+.
+├── app/        # iOS companion app (Swift)
+├── hardware/   # ESP32-S3 firmware, enclosure CAD, wiring
+└── docs/       # PRD, mockups, protocol specs
+```
+
+- [`docs/prd.md`](docs/prd.md) — Full product requirements doc
+- [`docs/mockups.html`](docs/mockups.html) — Screen mockups
+- [`docs/mockups-extra.html`](docs/mockups-extra.html) — Additional mockups

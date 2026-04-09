@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+#
+# snapshot-update.sh — regenerate every golden PNG under
+# hardware/firmware/host-sim/snapshots/ from the current renderer output.
+#
+# Run this only when an intentional UI change lands. Review the resulting
+# diff visually before committing — the whole point of snapshot tests is
+# to catch *unintentional* UI changes, so if this script is ever run
+# without a human looking at the result, the net has a hole in it.
+#
+# Usage:
+#   ./hardware/firmware/host-sim/tools/snapshot-update.sh
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HOST_SIM_DIR="$(cd "$HERE/.." && pwd)"
+REPO_ROOT="$(cd "$HOST_SIM_DIR/../../.." && pwd)"
+BUILD_DIR="$HOST_SIM_DIR/build"
+FIXTURES_DIR="$REPO_ROOT/protocol/fixtures/valid"
+SNAPSHOTS_DIR="$HOST_SIM_DIR/snapshots"
+
+echo "==> configuring host-sim build"
+cmake -S "$HOST_SIM_DIR" -B "$BUILD_DIR" >/dev/null
+cmake --build "$BUILD_DIR" --target scramscreen-host-sim >/dev/null
+
+SIM="$BUILD_DIR/scramscreen-host-sim"
+
+# (name, fixture) pairs — mirror add_snapshot_test() in CMakeLists.txt.
+SNAPSHOTS=(
+    "clock_basel_winter clock_basel_winter.bin"
+    "clock_night_mode   clock_night_mode.bin"
+)
+
+mkdir -p "$SNAPSHOTS_DIR"
+
+for pair in "${SNAPSHOTS[@]}"; do
+    # shellcheck disable=SC2206
+    arr=($pair)
+    name="${arr[0]}"
+    fixture="${arr[1]}"
+    out="$SNAPSHOTS_DIR/$name.png"
+    echo "==> rendering $name ($fixture) -> $out"
+    "$SIM" --in "$FIXTURES_DIR/$fixture" --out "$out"
+done
+
+echo "done. review 'git diff -- hardware/firmware/host-sim/snapshots/' before committing."

@@ -48,6 +48,8 @@ extension BLEProtocolError {
         case .unterminatedString: return "unterminatedString"
         case .valueOutOfRange: return "valueOutOfRange"
         case .nonZeroBodyReserved: return "nonZeroBodyReserved"
+        case .unknownCommand: return "unknownCommand"
+        case .invalidCommandValue: return "invalidCommandValue"
         }
     }
 }

@@ -26,4 +26,8 @@ public enum BLEProtocolError: Error, Equatable, Sendable {
     case valueOutOfRange(field: String)
     /// A reserved body byte is non-zero.
     case nonZeroBodyReserved(field: String)
+    /// Control command byte is not a known ``ControlCommand`` value.
+    case unknownCommand(UInt8)
+    /// A control command's value bytes are outside the documented range.
+    case invalidCommandValue(field: String)
 }

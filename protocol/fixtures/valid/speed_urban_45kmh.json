@@ -1,0 +1,11 @@
+{
+  "description": "Speed + heading: urban cruise, 45.3 km/h heading 120°, 260 m, 14°C",
+  "screen": "speedHeading",
+  "flags": [],
+  "body": {
+    "speed_kmh": 45.3,
+    "heading_deg": 120.0,
+    "altitude_m": 260,
+    "temperature_celsius": 14.0
+  }
+}

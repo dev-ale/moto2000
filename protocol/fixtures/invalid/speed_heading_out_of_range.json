@@ -1,0 +1,5 @@
+{
+  "description": "Speed + heading body with speed_kmh_x10=3100 (> 3000 max)",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "0102000008000000 1c0c 0000 0000 0000"
+}

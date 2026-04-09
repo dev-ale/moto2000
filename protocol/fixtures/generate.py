@@ -76,6 +76,7 @@ FLAG_BITS = {
 
 NAV_BODY_SIZE = 56
 CLOCK_BODY_SIZE = 12
+SPEED_HEADING_BODY_SIZE = 8
 
 
 def encode_flags(flags: list[str]) -> int:
@@ -143,9 +144,23 @@ def encode_nav_body(spec: dict) -> bytes:
     return body
 
 
+def encode_speed_heading_body(spec: dict) -> bytes:
+    speed_x10 = int(round(spec["speed_kmh"] * 10))
+    heading_x10 = int(round(spec["heading_deg"] * 10))
+    altitude_m = int(round(spec["altitude_m"]))
+    temperature_x10 = int(round(spec["temperature_celsius"] * 10))
+    # <HHhh: uint16 speed, uint16 heading, int16 altitude, int16 temperature
+    body = struct.pack("<HHhh", speed_x10, heading_x10, altitude_m, temperature_x10)
+    assert len(body) == SPEED_HEADING_BODY_SIZE, (
+        f"speed_heading body is {len(body)} bytes, expected {SPEED_HEADING_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
+    "speedHeading": encode_speed_heading_body,
 }
 
 

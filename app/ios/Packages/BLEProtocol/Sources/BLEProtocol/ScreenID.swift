@@ -25,6 +25,7 @@ public enum ScreenID: UInt8, Sendable, CaseIterable {
         case .clock: return ClockData.encodedSize
         case .navigation: return NavData.encodedSize
         case .speedHeading: return SpeedHeadingData.encodedSize
+        case .compass: return CompassData.encodedSize
         default: return nil
         }
     }

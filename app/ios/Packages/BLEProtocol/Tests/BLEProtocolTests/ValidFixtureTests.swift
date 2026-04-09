@@ -57,6 +57,8 @@ final class ValidFixtureTests: XCTestCase {
             return .navigation(try NavData(parsing: body), flags: flags)
         case "speedHeading":
             return .speedHeading(try SpeedHeadingData(parsing: body), flags: flags)
+        case "compass":
+            return .compass(try CompassData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -172,6 +174,36 @@ extension SpeedHeadingData {
             headingDegX10: UInt16(Int(round(heading * 10))),
             altitudeMeters: Int16(Int(round(altitude))),
             temperatureCelsiusX10: Int16(Int(round(temperature * 10)))
+        )
+    }
+}
+
+extension CompassData {
+    init(parsing body: [String: Any]) throws {
+        func doubleValue(_ key: String) throws -> Double {
+            if let d = body[key] as? Double { return d }
+            if let i = body[key] as? Int { return Double(i) }
+            throw FixtureError.missingField(key)
+        }
+        let magnetic = try doubleValue("magnetic_heading_deg")
+        let accuracy = try doubleValue("heading_accuracy_deg")
+        let trueRaw: UInt16
+        if let raw = body["true_heading_deg_raw"] as? Int {
+            trueRaw = UInt16(raw)
+        } else if let d = body["true_heading_deg"] as? Double {
+            trueRaw = UInt16(Int(round(d * 10)))
+        } else if let i = body["true_heading_deg"] as? Int {
+            trueRaw = UInt16(i * 10)
+        } else {
+            throw FixtureError.missingField("true_heading_deg")
+        }
+        let useTrue = (body["use_true_heading"] as? Bool) ?? false
+        let flags: UInt8 = useTrue ? CompassData.useTrueHeadingFlag : 0
+        self.init(
+            magneticHeadingDegX10: UInt16(Int(round(magnetic * 10))),
+            trueHeadingDegX10: trueRaw,
+            headingAccuracyDegX10: UInt16(Int(round(accuracy * 10))),
+            flags: flags
         )
     }
 }

@@ -77,7 +77,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x02` | `speedHeading`  | Speed + Heading   | 3   | TBD |
 | `0x03` | `compass`       | Compass           | 4   | `compass_data_t` |
 | `0x04` | `weather`       | Weather           | 7   | TBD |
-| `0x05` | `tripStats`     | Trip Stats        | 9   | TBD |
+| `0x05` | `tripStats`     | Trip Stats        | 9   | `trip_stats_data_t` |
 | `0x06` | `music`         | Music             | 8   | TBD |
 | `0x07` | `leanAngle`     | Lean Angle        | 10  | TBD |
 | `0x08` | `blitzer`       | Blitzer / Radar   | 14  | TBD |
@@ -144,6 +144,19 @@ Body size: **56 bytes**
 | 48 | `eta_minutes` | `uint16` | Minutes to destination. `0xFFFF` = unknown. |
 | 50 | `remaining_km_x10` | `uint16` | Remaining distance × 10. `0xFFFF` = unknown. |
 | 52 | `reserved2` | `uint32` | Must be `0x00000000`. |
+
+### `trip_stats_data_t` (screen `0x05`)
+
+Body size: **16 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `ride_time_seconds` | `uint32` | Total accumulated ride time, in seconds. Sum of positive `Δt` between consecutive samples (so scenario gaps do not inflate it). |
+| 4 | `distance_meters` | `uint32` | Total accumulated distance, in metres (haversine between consecutive samples). |
+| 8 | `average_speed_kmh_x10` | `uint16` | Average ground speed × 10. Range `0..=3000` (300.0 km/h). Computed as `distance_m / ride_time_s × 3.6 × 10` and clamped. |
+| 10 | `max_speed_kmh_x10` | `uint16` | Maximum recorded ground speed × 10. Range `0..=3000`. |
+| 12 | `ascent_meters` | `uint16` | Total positive elevation change, in metres. Altitude jitter under 1 m is ignored. |
+| 14 | `descent_meters` | `uint16` | Total negative elevation change (magnitude), in metres. |
 
 ### Maneuver types
 

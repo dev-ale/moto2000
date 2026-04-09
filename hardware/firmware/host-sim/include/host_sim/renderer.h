@@ -58,6 +58,10 @@ void host_sim_render_compass(host_sim_canvas_t        *canvas,
                              const ble_compass_data_t *compass,
                              uint8_t                   header_flags);
 
+void host_sim_render_speed(host_sim_canvas_t              *canvas,
+                           const ble_speed_heading_data_t *data,
+                           uint8_t                         flags);
+
 /* Placeholder for screens that have not been implemented yet. Draws a
  * "screen 0xNN pending" message on a dark background. */
 void host_sim_render_placeholder(host_sim_canvas_t *canvas, uint8_t screen_id);

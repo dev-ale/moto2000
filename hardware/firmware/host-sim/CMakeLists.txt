@@ -90,14 +90,16 @@ add_executable(scramscreen-host-sim
     src/renderer.c
     src/screen_clock.c
     src/screen_compass.c
+    src/screen_speed.c
     src/screen_placeholder.c
     src/compass_layout.c
+    src/speed_layout.c
     src/png_writer.c
     src/text_draw.c
     src/time_format.c
 )
 target_include_directories(scramscreen-host-sim PRIVATE include)
-target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image)
+target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
 
 # ---------------------------------------------------------------------------
 # Snapshot diff helper (separate tiny C executable).

@@ -33,6 +33,7 @@ let project = Project(
     packages: [
         .local(path: "Packages/BLEProtocol"),
         .local(path: "Packages/RideSimulatorKit"),
+        .local(path: "Packages/ScramCore"),
     ],
     settings: .settings(
         base: baseSettings,
@@ -77,6 +78,7 @@ let project = Project(
             dependencies: [
                 .package(product: "BLEProtocol"),
                 .package(product: "RideSimulatorKit"),
+                .package(product: "ScramCore"),
             ]
         ),
         .target(

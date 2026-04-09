@@ -1,0 +1,5 @@
+{
+  "description": "Switch the active screen to clock (idle face)",
+  "command": "setActiveScreen",
+  "screen": "clock"
+}

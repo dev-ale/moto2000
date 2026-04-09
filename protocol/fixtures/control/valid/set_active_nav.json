@@ -1,0 +1,5 @@
+{
+  "description": "Switch the active screen to navigation",
+  "command": "setActiveScreen",
+  "screen": "navigation"
+}

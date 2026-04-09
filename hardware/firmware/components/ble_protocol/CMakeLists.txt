@@ -15,6 +15,7 @@ idf_component_register(
         "src/ble_protocol_nav.c"
         "src/ble_protocol_speed_heading.c"
         "src/ble_protocol_compass.c"
+        "src/ble_protocol_control.c"
     INCLUDE_DIRS
         "include"
     PRIV_INCLUDE_DIRS

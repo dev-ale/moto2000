@@ -1,0 +1,5 @@
+{
+  "description": "Brightness 101 is outside 0..100 and must be rejected",
+  "raw_bytes_hex": "01 02 65 00",
+  "expected_error": "invalidCommandValue"
+}

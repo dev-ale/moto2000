@@ -31,7 +31,12 @@ public actor TestBLECentralClient: BLECentralClient {
 
     /// If non-nil, the next call to ``send(_:)`` throws this error and
     /// then clears the slot.
-    public var nextSendError: BLECentralClientError?
+    public private(set) var nextSendError: BLECentralClientError?
+
+    /// Queue a one-shot error to be thrown by the next call to ``send(_:)``.
+    public func setNextSendError(_ error: BLECentralClientError?) {
+        nextSendError = error
+    }
 
     public init() {
         var cont: AsyncStream<ConnectionState>.Continuation!

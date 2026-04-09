@@ -59,6 +59,8 @@ final class ValidFixtureTests: XCTestCase {
             return .speedHeading(try SpeedHeadingData(parsing: body), flags: flags)
         case "compass":
             return .compass(try CompassData(parsing: body), flags: flags)
+        case "tripStats":
+            return .tripStats(try TripStatsData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -204,6 +206,35 @@ extension CompassData {
             trueHeadingDegX10: trueRaw,
             headingAccuracyDegX10: UInt16(Int(round(accuracy * 10))),
             flags: flags
+        )
+    }
+}
+
+extension TripStatsData {
+    init(parsing body: [String: Any]) throws {
+        func intValue(_ key: String) throws -> Int {
+            if let i = body[key] as? Int { return i }
+            if let d = body[key] as? Double { return Int(d) }
+            throw FixtureError.missingField(key)
+        }
+        func doubleValue(_ key: String) throws -> Double {
+            if let d = body[key] as? Double { return d }
+            if let i = body[key] as? Int { return Double(i) }
+            throw FixtureError.missingField(key)
+        }
+        let rideTime = try intValue("ride_time_seconds")
+        let distance = try intValue("distance_meters")
+        let avg = try doubleValue("average_speed_kmh")
+        let maxKmh = try doubleValue("max_speed_kmh")
+        let ascent = try intValue("ascent_meters")
+        let descent = try intValue("descent_meters")
+        self.init(
+            rideTimeSeconds: UInt32(rideTime),
+            distanceMeters: UInt32(distance),
+            averageSpeedKmhX10: UInt16(Int(round(avg * 10))),
+            maxSpeedKmhX10: UInt16(Int(round(maxKmh * 10))),
+            ascentMeters: UInt16(ascent),
+            descentMeters: UInt16(descent)
         )
     }
 }

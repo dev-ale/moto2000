@@ -113,6 +113,26 @@ static void assert_compass_fixture_roundtrips(const char *name)
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
 }
 
+static void assert_trip_stats_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t               flags = 0xFF;
+    ble_trip_stats_data_t decoded_body;
+    const ble_result_t    decoded =
+        ble_decode_trip_stats(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_trip_stats(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
 static void assert_nav_fixture_roundtrips(const char *name)
 {
     fixture_blob_t blob;
@@ -184,6 +204,31 @@ static void test_compass_east_true_roundtrip(void)
 static void test_compass_southwest_unknown_true_roundtrip(void)
 {
     assert_compass_fixture_roundtrips("compass_southwest_unknown_true");
+}
+
+static void test_trip_stats_fresh_roundtrip(void)
+{
+    assert_trip_stats_fixture_roundtrips("trip_stats_fresh");
+}
+
+static void test_trip_stats_city_loop_roundtrip(void)
+{
+    assert_trip_stats_fixture_roundtrips("trip_stats_city_loop");
+}
+
+static void test_trip_stats_highway_roundtrip(void)
+{
+    assert_trip_stats_fixture_roundtrips("trip_stats_highway");
+}
+
+static void test_trip_stats_speed_out_of_range_fixture_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "trip_stats_speed_out_of_range", &blob));
+    ble_trip_stats_data_t body;
+    const ble_result_t    result =
+        ble_decode_trip_stats(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
 static void test_compass_out_of_range_fixture_rejected(void)
@@ -398,5 +443,9 @@ int main(void)
     RUN_TEST(test_control_unsupported_version_rejected);
     RUN_TEST(test_control_sleep_with_nonzero_value_rejected);
     RUN_TEST(test_control_set_active_unknown_screen_rejected);
+    RUN_TEST(test_trip_stats_fresh_roundtrip);
+    RUN_TEST(test_trip_stats_city_loop_roundtrip);
+    RUN_TEST(test_trip_stats_highway_roundtrip);
+    RUN_TEST(test_trip_stats_speed_out_of_range_fixture_rejected);
     return UNITY_END();
 }

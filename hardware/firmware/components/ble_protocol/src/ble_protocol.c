@@ -76,6 +76,8 @@ size_t ble_expected_body_size(ble_screen_id_t screen)
             return BLE_PROTOCOL_SPEED_HEADING_BODY_SIZE;
         case BLE_SCREEN_COMPASS:
             return BLE_PROTOCOL_COMPASS_BODY_SIZE;
+        case BLE_SCREEN_TRIP_STATS:
+            return BLE_PROTOCOL_TRIP_STATS_BODY_SIZE;
         default:
             return 0;
     }

@@ -1,0 +1,13 @@
+{
+  "description": "Trip stats: 45 min highway, 90 km, 120/135 km/h, +300/-280 m",
+  "screen": "tripStats",
+  "flags": [],
+  "body": {
+    "ride_time_seconds": 2700,
+    "distance_meters": 90000,
+    "average_speed_kmh": 120.0,
+    "max_speed_kmh": 135.0,
+    "ascent_meters": 300,
+    "descent_meters": 280
+  }
+}

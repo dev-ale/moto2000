@@ -47,6 +47,9 @@ let package = Package(
                 "BLEProtocol",
                 "RideSimulatorKit",
             ],
+            resources: [
+                .copy("Fixtures"),
+            ],
             swiftSettings: [
                 .enableUpcomingFeature("StrictConcurrency"),
             ]

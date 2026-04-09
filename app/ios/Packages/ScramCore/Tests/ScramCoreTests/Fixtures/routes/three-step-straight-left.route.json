@@ -1,0 +1,27 @@
+{
+  "steps": [
+    {
+      "maneuver": "straight",
+      "streetName": "AESCHENGRABEN",
+      "distanceMeters": 400.0,
+      "startLocation": { "latitude": 47.5480, "longitude": 7.5900 },
+      "endLocation":   { "latitude": 47.5516, "longitude": 7.5900 }
+    },
+    {
+      "maneuver": "left",
+      "streetName": "ST ALBAN RHEINWEG",
+      "distanceMeters": 300.0,
+      "startLocation": { "latitude": 47.5516, "longitude": 7.5900 },
+      "endLocation":   { "latitude": 47.5516, "longitude": 7.5860 }
+    },
+    {
+      "maneuver": "arrive",
+      "streetName": "KAFFEE LADE",
+      "distanceMeters": 0.0,
+      "startLocation": { "latitude": 47.5516, "longitude": 7.5860 },
+      "endLocation":   { "latitude": 47.5516, "longitude": 7.5860 }
+    }
+  ],
+  "totalDistanceMeters": 700.0,
+  "expectedTravelTimeSeconds": 140.0
+}

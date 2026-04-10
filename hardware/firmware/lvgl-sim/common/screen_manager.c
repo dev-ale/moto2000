@@ -13,6 +13,7 @@
 #include "screens/screen_compass.h"
 #include "screens/screen_navigation.h"
 #include "screens/screen_weather.h"
+#include "screens/screen_music.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -117,9 +118,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
         case BLE_SCREEN_TRIP_STATS:
             screen_placeholder_create(scr, "TRIP STATS");
             break;
-        case BLE_SCREEN_MUSIC:
-            screen_placeholder_create(scr, "MUSIC");
+        case BLE_SCREEN_MUSIC: {
+            ble_music_data_t music;
+            uint8_t music_flags = 0;
+            rc = ble_decode_music(data, len, &music_flags, &music);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: music decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "MUSIC (decode error)");
+                break;
+            }
+            screen_music_create(scr, &music, music_flags);
             break;
+        }
         case BLE_SCREEN_LEAN_ANGLE:
             screen_placeholder_create(scr, "LEAN ANGLE");
             break;

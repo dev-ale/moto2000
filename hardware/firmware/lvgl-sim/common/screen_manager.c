@@ -12,6 +12,9 @@
 #include "screens/screen_speed.h"
 #include "screens/screen_compass.h"
 #include "screens/screen_navigation.h"
+#include "screens/screen_weather.h"
+#include "screens/screen_music.h"
+#include "screens/screen_trip_stats.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -100,15 +103,45 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
             screen_compass_create(scr, &compass, compass_flags);
             break;
         }
-        case BLE_SCREEN_WEATHER:
-            screen_placeholder_create(scr, "WEATHER");
+        case BLE_SCREEN_WEATHER: {
+            ble_weather_data_t weather;
+            uint8_t weather_flags = 0;
+            rc = ble_decode_weather(data, len, &weather_flags, &weather);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: weather decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "WEATHER (decode error)");
+                break;
+            }
+            screen_weather_create(scr, &weather, weather_flags);
             break;
-        case BLE_SCREEN_TRIP_STATS:
-            screen_placeholder_create(scr, "TRIP STATS");
+        }
+        case BLE_SCREEN_TRIP_STATS: {
+            ble_trip_stats_data_t trip;
+            uint8_t trip_flags = 0;
+            rc = ble_decode_trip_stats(data, len, &trip_flags, &trip);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: trip_stats decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "TRIP STATS (decode error)");
+                break;
+            }
+            screen_trip_stats_create(scr, &trip, trip_flags);
             break;
-        case BLE_SCREEN_MUSIC:
-            screen_placeholder_create(scr, "MUSIC");
+        }
+        case BLE_SCREEN_MUSIC: {
+            ble_music_data_t music;
+            uint8_t music_flags = 0;
+            rc = ble_decode_music(data, len, &music_flags, &music);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: music decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "MUSIC (decode error)");
+                break;
+            }
+            screen_music_create(scr, &music, music_flags);
             break;
+        }
         case BLE_SCREEN_LEAN_ANGLE:
             screen_placeholder_create(scr, "LEAN ANGLE");
             break;

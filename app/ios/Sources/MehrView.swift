@@ -19,6 +19,8 @@ struct MehrView: View {
     private var brightness: Double = 80
     @AppStorage("scramscreen.display.nightMode")
     private var nightModePreference = NightModePreference.automatisch.rawValue
+    @AppStorage("scramscreen.fuel.tankCapacityLiters")
+    private var tankCapacityLiters: Double = 15
 
     @State private var showUnpairConfirm = false
     @State var ekCalendars: [EKCalendar] = []
@@ -56,6 +58,12 @@ struct MehrView: View {
 
                 settingsSection("Kalender") {
                     calendarSection
+                }
+
+                // MARK: - Tank
+
+                settingsSection("Tank") {
+                    tankSection
                 }
 
                 // MARK: - Alerts
@@ -197,6 +205,23 @@ struct MehrView: View {
                 onLabel: "°C",
                 offLabel: "°F",
                 isOn: $useCelsius
+            )
+        }
+    }
+
+    // MARK: - Tank
+
+    private var tankSection: some View {
+        Group {
+            settingsPickerRow(
+                icon: "fuelpump",
+                title: "Tankvolumen",
+                options: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                labels: ["9 L", "10 L", "11 L", "12 L", "13 L", "14 L", "15 L", "16 L", "17 L", "18 L", "19 L", "20 L"],
+                selection: Binding(
+                    get: { Int(tankCapacityLiters) },
+                    set: { tankCapacityLiters = Double($0) }
+                )
             )
         }
     }

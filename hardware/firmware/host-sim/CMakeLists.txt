@@ -112,6 +112,8 @@ add_executable(scramscreen-host-sim
     src/navigation_layout.c
     src/screen_music.c
     src/music_layout.c
+    src/screen_appointment.c
+    src/appointment_layout.c
 )
 target_include_directories(scramscreen-host-sim PRIVATE include)
 target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
@@ -171,6 +173,9 @@ add_snapshot_test(music_playing                  music_playing.bin)
 add_snapshot_test(music_paused                   music_paused.bin)
 add_snapshot_test(music_long_titles              music_long_titles.bin)
 add_snapshot_test(music_unknown_duration         music_unknown_duration.bin)
+add_snapshot_test(appointment_soon               appointment_soon.bin)
+add_snapshot_test(appointment_now                appointment_now.bin)
+add_snapshot_test(appointment_past               appointment_past.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
@@ -247,3 +252,11 @@ add_executable(test_music_layout
 target_include_directories(test_music_layout PRIVATE include)
 target_link_libraries(test_music_layout PRIVATE unity)
 add_test(NAME music_layout COMMAND test_music_layout)
+
+add_executable(test_appointment_layout
+    tests/test_appointment_layout.c
+    src/appointment_layout.c
+)
+target_include_directories(test_appointment_layout PRIVATE include)
+target_link_libraries(test_appointment_layout PRIVATE unity)
+add_test(NAME appointment_layout COMMAND test_appointment_layout)

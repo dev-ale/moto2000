@@ -90,6 +90,10 @@ void host_sim_render_fuel(host_sim_canvas_t       *canvas,
                           const ble_fuel_data_t   *fuel,
                           uint8_t                  header_flags);
 
+void host_sim_render_altitude(host_sim_canvas_t                   *canvas,
+                              const ble_altitude_profile_data_t   *alt,
+                              uint8_t                              header_flags);
+
 /* Placeholder for screens that have not been implemented yet. Draws a
  * "screen 0xNN pending" message on a dark background. */
 void host_sim_render_placeholder(host_sim_canvas_t *canvas, uint8_t screen_id);

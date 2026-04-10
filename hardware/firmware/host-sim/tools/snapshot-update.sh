@@ -60,6 +60,9 @@ SNAPSHOTS=(
     "fuel_full_tank                  fuel_full_tank.bin"
     "fuel_half_tank                  fuel_half_tank.bin"
     "fuel_low                        fuel_low.bin"
+    "altitude_flat                   altitude_flat.bin"
+    "altitude_mountain_pass          altitude_mountain_pass.bin"
+    "altitude_start                  altitude_start.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

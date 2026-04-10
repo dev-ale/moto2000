@@ -1,0 +1,11 @@
+{
+  "description": "Fuel: half tank, 50%, 175 km range, 38 mL/km consumption, 6500 mL remaining",
+  "screen": "fuelEstimate",
+  "flags": [],
+  "body": {
+    "tank_percent": 50,
+    "estimated_range_km": 175,
+    "consumption_ml_per_km": 38,
+    "fuel_remaining_ml": 6500
+  }
+}

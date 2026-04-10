@@ -28,6 +28,10 @@ extern "C" {
 #define BLE_PROTOCOL_LEAN_ANGLE_BODY_SIZE ((size_t)8)
 #define BLE_PROTOCOL_MUSIC_BODY_SIZE ((size_t)86)
 #define BLE_PROTOCOL_APPOINTMENT_BODY_SIZE ((size_t)60)
+#define BLE_PROTOCOL_FUEL_BODY_SIZE ((size_t)8)
+
+/* Sentinel for unknown fuel estimate fields. */
+#define BLE_FUEL_UNKNOWN ((uint16_t)0xFFFFU)
 
 /* Appointment starts_in_minutes range. */
 #define BLE_APPOINTMENT_MIN_STARTS_IN_MINUTES ((int16_t)-1440)
@@ -191,6 +195,13 @@ typedef struct {
 } ble_appointment_data_t;
 
 typedef struct {
+    uint8_t  tank_percent;              /* 0..100 */
+    uint16_t estimated_range_km;        /* 0xFFFF = unknown */
+    uint16_t consumption_ml_per_km;     /* 0xFFFF = unknown */
+    uint16_t fuel_remaining_ml;         /* 0xFFFF = unknown */
+} ble_fuel_data_t;
+
+typedef struct {
     ble_screen_id_t screen_id;
     uint8_t         flags;
     uint16_t        body_length;
@@ -350,6 +361,17 @@ ble_result_t ble_encode_appointment(const ble_appointment_data_t *in,
                                     uint8_t                      *out_buf,
                                     size_t                        out_cap,
                                     size_t                       *out_written);
+
+ble_result_t ble_decode_fuel(const uint8_t      *data,
+                             size_t              length,
+                             uint8_t            *out_flags,
+                             ble_fuel_data_t    *out);
+
+ble_result_t ble_encode_fuel(const ble_fuel_data_t *in,
+                             uint8_t                flags,
+                             uint8_t               *out_buf,
+                             size_t                 out_cap,
+                             size_t                *out_written);
 
 #ifdef __cplusplus
 }

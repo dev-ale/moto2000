@@ -69,6 +69,8 @@ final class ValidFixtureTests: XCTestCase {
             return .music(try MusicData(parsing: body), flags: flags)
         case "appointment":
             return .appointment(try AppointmentData(parsing: body), flags: flags)
+        case "fuelEstimate":
+            return .fuelEstimate(try FuelData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -351,6 +353,27 @@ extension AppointmentData {
             startsInMinutes: Int16(minutes),
             title: title,
             location: location
+        )
+    }
+}
+
+extension FuelData {
+    init(parsing body: [String: Any]) throws {
+        func intValue(_ key: String, default defaultValue: Int? = nil) throws -> Int {
+            if let i = body[key] as? Int { return i }
+            if let d = body[key] as? Double { return Int(d) }
+            if let defaultValue { return defaultValue }
+            throw FixtureError.missingField(key)
+        }
+        let pct = try intValue("tank_percent")
+        let range = try intValue("estimated_range_km", default: 0xFFFF)
+        let consumption = try intValue("consumption_ml_per_km", default: 0xFFFF)
+        let remaining = try intValue("fuel_remaining_ml", default: 0xFFFF)
+        self.init(
+            tankPercent: UInt8(pct),
+            estimatedRangeKm: UInt16(range),
+            consumptionMlPerKm: UInt16(consumption),
+            fuelRemainingMl: UInt16(remaining)
         )
     }
 }

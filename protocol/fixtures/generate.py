@@ -107,6 +107,9 @@ APPOINTMENT_BODY_SIZE = 60
 APPOINTMENT_TITLE_LEN = 32
 APPOINTMENT_LOCATION_LEN = 24
 
+FUEL_BODY_SIZE = 8
+FUEL_UNKNOWN_U16 = 0xFFFF
+
 
 def encode_flags(flags: list[str]) -> int:
     value = 0
@@ -325,6 +328,25 @@ def encode_appointment_body(spec: dict) -> bytes:
     return body
 
 
+def encode_fuel_body(spec: dict) -> bytes:
+    tank_percent = int(spec["tank_percent"])
+    estimated_range_km = int(spec.get("estimated_range_km", FUEL_UNKNOWN_U16)) & 0xFFFF
+    consumption_ml_per_km = int(spec.get("consumption_ml_per_km", FUEL_UNKNOWN_U16)) & 0xFFFF
+    fuel_remaining_ml = int(spec.get("fuel_remaining_ml", FUEL_UNKNOWN_U16)) & 0xFFFF
+    body = struct.pack(
+        "<BBHHH",
+        tank_percent,
+        0,  # reserved
+        estimated_range_km,
+        consumption_ml_per_km,
+        fuel_remaining_ml,
+    )
+    assert len(body) == FUEL_BODY_SIZE, (
+        f"fuel body is {len(body)} bytes, expected {FUEL_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
@@ -335,6 +357,7 @@ BODY_ENCODERS = {
     "leanAngle": encode_lean_angle_body,
     "music": encode_music_body,
     "appointment": encode_appointment_body,
+    "fuelEstimate": encode_fuel_body,
 }
 
 

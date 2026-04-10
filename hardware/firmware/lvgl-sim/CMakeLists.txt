@@ -101,6 +101,7 @@ add_executable(scramscreen-lvgl-sim
     screens/screen_speed.c
     screens/screen_compass.c
     screens/screen_navigation.c
+    screens/screen_weather.c
     screens/screen_placeholder.c
     common/screen_manager.c
 )

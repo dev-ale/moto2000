@@ -15,11 +15,7 @@ public struct SystemClockProvider: ClockProvider, Sendable {
     public func now() -> Date { Date() }
     public func timeZone() -> TimeZone { TimeZone.current }
     public func is24Hour() -> Bool {
-        let locale = Locale.current
-        let format = DateFormatter.dateFormat(
-            fromTemplate: "j", options: 0, locale: locale
-        ) ?? "h"
-        return !format.contains("a")
+        true
     }
 }
 

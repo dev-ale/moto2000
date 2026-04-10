@@ -52,20 +52,52 @@ public struct NavigationState: Sendable, Equatable {
 ///
 /// Step-advance rule: when the rider is within ``arrivalToleranceMeters``
 /// of the current step's end point, the tracker advances to the next
-/// step. This is intentionally simple — good enough to make snapshot
-/// tests deterministic and to exercise the BLE pipeline end-to-end
-/// without real hardware. A follow-up slice (real-route HITL) can
-/// refine it with along-polyline projection and off-route detection.
+/// step.
+///
+/// Off-route rule: when the rider is more than ``offRouteThresholdMeters``
+/// from the nearest step segment for ``offRouteConsecutiveThreshold``
+/// consecutive updates, ``isOffRoute`` becomes true.
+///
+/// Arrival rule: when the tracker is on the last step and the rider is
+/// within ``arrivalToleranceMeters`` of the destination, ``hasArrived``
+/// becomes true.
 public actor RouteTracker {
     /// Metres of slack around each step end-point; when the rider gets
     /// closer than this we consider the step complete.
     public static let arrivalToleranceMeters: Double = 15.0
 
-    private let route: NavigationRoute
+    /// Distance threshold in metres beyond which the rider is considered
+    /// off-route (measured from nearest point on any step segment).
+    public static let offRouteThresholdMeters: Double = 100.0
+
+    /// Number of consecutive off-route samples required before
+    /// ``isOffRoute`` fires. At ~1 Hz GPS this is roughly 10 seconds.
+    public static let offRouteConsecutiveThreshold: Int = 10
+
+    private var route: NavigationRoute
     private var currentStepIndex: Int = 0
+    private var consecutiveOffRouteCount: Int = 0
+
+    /// True when the rider has been off-route for enough consecutive
+    /// samples. Reset when a new route is loaded or the rider returns.
+    public private(set) var isOffRoute: Bool = false
+
+    /// True when the rider has arrived at the destination (last step,
+    /// within tolerance). Once set it stays true for this tracker.
+    public private(set) var hasArrived: Bool = false
 
     public init(route: NavigationRoute) {
         self.route = route
+    }
+
+    /// Replace the current route (used after a reroute). Resets all
+    /// off-route and arrival state.
+    public func replaceRoute(_ newRoute: NavigationRoute) {
+        self.route = newRoute
+        self.currentStepIndex = 0
+        self.consecutiveOffRouteCount = 0
+        self.isOffRoute = false
+        self.hasArrived = false
     }
 
     /// Feed the next GPS sample in. Returns the updated ``NavigationState``.
@@ -106,21 +138,13 @@ public actor RouteTracker {
             }
         }
 
-        // Derive ETA: scale the route's original expected travel time
-        // by fraction of distance remaining. Cheap, deterministic, and
-        // good enough for off-device verification.
-        let eta: UInt16
-        if route.totalDistanceMeters > 0 {
-            let fraction = min(max(remaining / route.totalDistanceMeters, 0), 1)
-            let seconds = route.expectedTravelTimeSeconds * fraction
-            let minutes = Int((seconds / 60.0).rounded())
-            eta = UInt16(min(max(minutes, 0), 0xFFFE))
-        } else {
-            eta = 0
-        }
+        let eta = Self.estimateETA(remaining: remaining, route: route)
 
         let speedKmhX10 = Self.speedKmhX10(from: location.speedMps)
         let headingDegX10 = Self.headingDegX10(from: location.courseDegrees)
+
+        updateOffRouteState(for: location)
+        updateArrivalState(for: location)
 
         return NavigationState(
             currentStepIndex: currentStepIndex,
@@ -157,6 +181,79 @@ public actor RouteTracker {
             }
             break
         }
+    }
+
+    // MARK: - ETA
+
+    /// Scale the route's original expected travel time by fraction of
+    /// distance remaining. Cheap, deterministic, good enough for BLE.
+    private static func estimateETA(
+        remaining: Double,
+        route: NavigationRoute
+    ) -> UInt16 {
+        guard route.totalDistanceMeters > 0 else { return 0 }
+        let fraction = min(max(remaining / route.totalDistanceMeters, 0), 1)
+        let seconds = route.expectedTravelTimeSeconds * fraction
+        let minutes = Int((seconds / 60.0).rounded())
+        return UInt16(min(max(minutes, 0), 0xFFFE))
+    }
+
+    // MARK: - Arrival
+
+    private func updateArrivalState(for location: LocationSample) {
+        guard currentStepIndex == route.steps.count - 1 else { return }
+        let lastStep = route.steps[currentStepIndex]
+        let distToDest = Self.haversineMeters(
+            lat1: location.latitude, lon1: location.longitude,
+            lat2: lastStep.endLocation.latitude, lon2: lastStep.endLocation.longitude
+        )
+        if distToDest <= Self.arrivalToleranceMeters {
+            hasArrived = true
+        }
+    }
+
+    // MARK: - Off-route
+
+    /// Compute the minimum haversine distance from `location` to any step
+    /// segment (start→end). If that distance exceeds the threshold for
+    /// enough consecutive samples, flag off-route.
+    private func updateOffRouteState(for location: LocationSample) {
+        let minDist = Self.minimumDistanceToRoute(
+            lat: location.latitude,
+            lon: location.longitude,
+            steps: route.steps
+        )
+        if minDist > Self.offRouteThresholdMeters {
+            consecutiveOffRouteCount += 1
+            if consecutiveOffRouteCount >= Self.offRouteConsecutiveThreshold {
+                isOffRoute = true
+            }
+        } else {
+            consecutiveOffRouteCount = 0
+            isOffRoute = false
+        }
+    }
+
+    /// Minimum haversine distance from a point to any step segment.
+    /// Uses a simple closest-of-(start, end) per segment — fine for
+    /// the step granularity we have.
+    static func minimumDistanceToRoute(
+        lat: Double, lon: Double,
+        steps: [NavigationRoute.Step]
+    ) -> Double {
+        var best = Double.infinity
+        for step in steps {
+            let dStart = haversineMeters(
+                lat1: lat, lon1: lon,
+                lat2: step.startLocation.latitude, lon2: step.startLocation.longitude
+            )
+            let dEnd = haversineMeters(
+                lat1: lat, lon1: lon,
+                lat2: step.endLocation.latitude, lon2: step.endLocation.longitude
+            )
+            best = min(best, dStart, dEnd)
+        }
+        return best
     }
 
     // MARK: - Pure helpers

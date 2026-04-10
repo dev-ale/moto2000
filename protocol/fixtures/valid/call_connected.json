@@ -1,0 +1,9 @@
+{
+  "description": "Incoming call: state=connected, caller 'contact-mom', ALERT flag set",
+  "screen": "incomingCall",
+  "flags": ["ALERT"],
+  "body": {
+    "call_state": "connected",
+    "caller_handle": "contact-mom"
+  }
+}

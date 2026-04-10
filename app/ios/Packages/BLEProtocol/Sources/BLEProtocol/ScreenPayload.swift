@@ -159,6 +159,8 @@ public enum ScreenPayloadCodec {
             body = try fuel.encode()
         case .altitude(let altitude, _):
             body = try altitude.encode()
+        case .incomingCall(let call, _):
+            body = try call.encode()
         }
         guard body.count <= Int(UInt16.max) else {
             throw BLEProtocolError.valueOutOfRange(field: "body.count")

@@ -1,0 +1,1888 @@
+{
+  "name": "alpine-pass-demo",
+  "summary": "Rich demo ride over an alpine pass with music, calls, weather changes, and navigation",
+  "version": 1,
+  "durationSeconds": 300,
+  "locationSamples": [
+    {
+      "scenarioTime": 0.0,
+      "latitude": 46.55,
+      "longitude": 8.3,
+      "altitudeMeters": 400.0,
+      "speedMps": 11.11,
+      "courseDegrees": 45.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 5.0,
+      "latitude": 46.552499999999995,
+      "longitude": 8.308294806634672,
+      "altitudeMeters": 489.0,
+      "speedMps": 11.85,
+      "courseDegrees": 68.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 10.0,
+      "latitude": 46.555,
+      "longitude": 8.316359734839809,
+      "altitudeMeters": 577.7,
+      "speedMps": 12.58,
+      "courseDegrees": 91.7,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 15.0,
+      "latitude": 46.5575,
+      "longitude": 8.32397127693021,
+      "altitudeMeters": 665.9,
+      "speedMps": 13.27,
+      "courseDegrees": 112.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 20.0,
+      "latitude": 46.559999999999995,
+      "longitude": 8.330918490153488,
+      "altitudeMeters": 753.4,
+      "speedMps": 13.94,
+      "courseDegrees": 131.1,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 25.0,
+      "latitude": 46.5625,
+      "longitude": 8.337008842659802,
+      "altitudeMeters": 840.0,
+      "speedMps": 14.55,
+      "courseDegrees": 146.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 30.0,
+      "latitude": 46.565,
+      "longitude": 8.342073549240396,
+      "altitudeMeters": 925.3,
+      "speedMps": 15.1,
+      "courseDegrees": 156.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 35.0,
+      "latitude": 46.567499999999995,
+      "longitude": 8.345972248962688,
+      "altitudeMeters": 1009.2,
+      "speedMps": 15.58,
+      "courseDegrees": 163.3,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 40.0,
+      "latitude": 46.57,
+      "longitude": 8.348596895068166,
+      "altitudeMeters": 1091.5,
+      "speedMps": 15.98,
+      "courseDegrees": 164.9,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 45.0,
+      "latitude": 46.5725,
+      "longitude": 8.349874749330203,
+      "altitudeMeters": 1171.8,
+      "speedMps": 16.29,
+      "courseDegrees": 161.9,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 50.0,
+      "latitude": 46.574999999999996,
+      "longitude": 8.349770397887589,
+      "altitudeMeters": 1250.0,
+      "speedMps": 16.51,
+      "courseDegrees": 154.1,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 55.0,
+      "latitude": 46.5775,
+      "longitude": 8.348286732687876,
+      "altitudeMeters": 1325.9,
+      "speedMps": 16.64,
+      "courseDegrees": 142.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 60.0,
+      "latitude": 46.58,
+      "longitude": 8.345464871341285,
+      "altitudeMeters": 1399.2,
+      "speedMps": 16.66,
+      "courseDegrees": 126.1,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 65.0,
+      "latitude": 46.582499999999996,
+      "longitude": 8.341383017606299,
+      "altitudeMeters": 1469.8,
+      "speedMps": 16.59,
+      "courseDegrees": 106.9,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 70.0,
+      "latitude": 46.584999999999994,
+      "longitude": 8.336154294086917,
+      "altitudeMeters": 1537.5,
+      "speedMps": 16.43,
+      "courseDegrees": 85.2,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 75.0,
+      "latitude": 46.5875,
+      "longitude": 8.329923607205199,
+      "altitudeMeters": 1602.1,
+      "speedMps": 16.16,
+      "courseDegrees": 61.9,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 80.0,
+      "latitude": 46.589999999999996,
+      "longitude": 8.322863631331792,
+      "altitudeMeters": 1663.3,
+      "speedMps": 15.81,
+      "courseDegrees": 38.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 85.0,
+      "latitude": 46.592499999999994,
+      "longitude": 8.315170023368394,
+      "altitudeMeters": 1721.1,
+      "speedMps": 15.37,
+      "courseDegrees": 14.3,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 90.0,
+      "latitude": 46.595,
+      "longitude": 8.307056000402994,
+      "altitudeMeters": 1775.3,
+      "speedMps": 14.86,
+      "courseDegrees": 351.9,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 95.0,
+      "latitude": 46.5975,
+      "longitude": 8.298746430710242,
+      "altitudeMeters": 1825.7,
+      "speedMps": 14.29,
+      "courseDegrees": 331.6,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 100.0,
+      "latitude": 46.599999999999994,
+      "longitude": 8.290471601856227,
+      "altitudeMeters": 1872.2,
+      "speedMps": 13.65,
+      "courseDegrees": 314.2,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 105.0,
+      "latitude": 46.6025,
+      "longitude": 8.28246083861552,
+      "altitudeMeters": 1914.7,
+      "speedMps": 12.97,
+      "courseDegrees": 300.4,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 110.0,
+      "latitude": 46.605,
+      "longitude": 8.274936147570584,
+      "altitudeMeters": 1953.0,
+      "speedMps": 12.26,
+      "courseDegrees": 290.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 115.0,
+      "latitude": 46.607499999999995,
+      "longitude": 8.268106064524158,
+      "altitudeMeters": 1987.1,
+      "speedMps": 11.53,
+      "courseDegrees": 285.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 120.0,
+      "latitude": 46.61,
+      "longitude": 8.262159875234603,
+      "altitudeMeters": 2016.8,
+      "speedMps": 10.79,
+      "courseDegrees": 285.5,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 125.0,
+      "latitude": 46.6125,
+      "longitude": 8.25726236963806,
+      "altitudeMeters": 2042.1,
+      "speedMps": 10.05,
+      "courseDegrees": 289.9,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 130.0,
+      "latitude": 46.614999999999995,
+      "longitude": 8.253549274936463,
+      "altitudeMeters": 2062.9,
+      "speedMps": 9.34,
+      "courseDegrees": 299.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 135.0,
+      "latitude": 46.6175,
+      "longitude": 8.251123494116746,
+      "altitudeMeters": 2079.1,
+      "speedMps": 8.65,
+      "courseDegrees": 312.3,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 140.0,
+      "latitude": 46.62,
+      "longitude": 8.250052254145105,
+      "altitudeMeters": 2090.7,
+      "speedMps": 8.01,
+      "courseDegrees": 329.2,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 145.0,
+      "latitude": 46.622499999999995,
+      "longitude": 8.250365242869993,
+      "altitudeMeters": 2097.7,
+      "speedMps": 7.43,
+      "courseDegrees": 349.2,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 150.0,
+      "latitude": 46.625,
+      "longitude": 8.252053786266844,
+      "altitudeMeters": 2100.0,
+      "speedMps": 16.67,
+      "courseDegrees": 11.5,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 155.0,
+      "latitude": 46.6275,
+      "longitude": 8.255071088825964,
+      "altitudeMeters": 2097.7,
+      "speedMps": 17.78,
+      "courseDegrees": 35.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 160.0,
+      "latitude": 46.629999999999995,
+      "longitude": 8.259333530421621,
+      "altitudeMeters": 2090.7,
+      "speedMps": 18.87,
+      "courseDegrees": 59.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 165.0,
+      "latitude": 46.6325,
+      "longitude": 8.264722983721482,
+      "altitudeMeters": 2079.1,
+      "speedMps": 19.95,
+      "courseDegrees": 82.4,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 170.0,
+      "latitude": 46.635,
+      "longitude": 8.271090087912786,
+      "altitudeMeters": 2062.9,
+      "speedMps": 20.99,
+      "courseDegrees": 104.3,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 175.0,
+      "latitude": 46.637499999999996,
+      "longitude": 8.278258388018747,
+      "altitudeMeters": 2042.1,
+      "speedMps": 21.99,
+      "courseDegrees": 123.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 180.0,
+      "latitude": 46.64,
+      "longitude": 8.286029225090054,
+      "altitudeMeters": 2016.8,
+      "speedMps": 22.94,
+      "courseDegrees": 140.2,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 185.0,
+      "latitude": 46.6425,
+      "longitude": 8.29418724174699,
+      "altitudeMeters": 1987.1,
+      "speedMps": 23.82,
+      "courseDegrees": 152.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 190.0,
+      "latitude": 46.644999999999996,
+      "longitude": 8.30250635049411,
+      "altitudeMeters": 1953.0,
+      "speedMps": 24.64,
+      "courseDegrees": 161.2,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 195.0,
+      "latitude": 46.647499999999994,
+      "longitude": 8.31075599940439,
+      "altitudeMeters": 1914.7,
+      "speedMps": 25.37,
+      "courseDegrees": 164.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 200.0,
+      "latitude": 46.65,
+      "longitude": 8.318707561528562,
+      "altitudeMeters": 1872.2,
+      "speedMps": 26.02,
+      "courseDegrees": 163.7,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 205.0,
+      "latitude": 46.652499999999996,
+      "longitude": 8.326140670956486,
+      "altitudeMeters": 1825.7,
+      "speedMps": 26.57,
+      "courseDegrees": 157.9,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 210.0,
+      "latitude": 46.654999999999994,
+      "longitude": 8.33284932993594,
+      "altitudeMeters": 1775.3,
+      "speedMps": 27.02,
+      "courseDegrees": 147.6,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 215.0,
+      "latitude": 46.6575,
+      "longitude": 8.338647617798925,
+      "altitudeMeters": 1721.1,
+      "speedMps": 27.37,
+      "courseDegrees": 133.1,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 220.0,
+      "latitude": 46.66,
+      "longitude": 8.343374843480941,
+      "altitudeMeters": 1663.3,
+      "speedMps": 27.62,
+      "courseDegrees": 115.2,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 225.0,
+      "latitude": 46.662499999999994,
+      "longitude": 8.346899998838738,
+      "altitudeMeters": 1602.1,
+      "speedMps": 27.75,
+      "courseDegrees": 94.5,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 230.0,
+      "latitude": 46.665,
+      "longitude": 8.34912538934932,
+      "altitudeMeters": 1537.5,
+      "speedMps": 27.77,
+      "courseDegrees": 71.7,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 235.0,
+      "latitude": 46.6675,
+      "longitude": 8.349989341570712,
+      "altitudeMeters": 1469.8,
+      "speedMps": 27.69,
+      "courseDegrees": 48.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 240.0,
+      "latitude": 46.669999999999995,
+      "longitude": 8.34946791233117,
+      "altitudeMeters": 1399.2,
+      "speedMps": 27.49,
+      "courseDegrees": 24.1,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 245.0,
+      "latitude": 46.6725,
+      "longitude": 8.347575552279151,
+      "altitudeMeters": 1325.9,
+      "speedMps": 27.18,
+      "courseDegrees": 1.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 250.0,
+      "latitude": 46.675,
+      "longitude": 8.344364705404736,
+      "altitudeMeters": 1250.0,
+      "speedMps": 26.77,
+      "courseDegrees": 339.7,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 255.0,
+      "latitude": 46.677499999999995,
+      "longitude": 8.339924355631176,
+      "altitudeMeters": 1171.8,
+      "speedMps": 26.26,
+      "courseDegrees": 321.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 260.0,
+      "latitude": 46.68,
+      "longitude": 8.334377560755653,
+      "altitudeMeters": 1091.5,
+      "speedMps": 25.65,
+      "courseDegrees": 305.7,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 265.0,
+      "latitude": 46.6825,
+      "longitude": 8.327878042082487,
+      "altitudeMeters": 1009.2,
+      "speedMps": 24.95,
+      "courseDegrees": 294.3,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 270.0,
+      "latitude": 46.684999999999995,
+      "longitude": 8.320605924262088,
+      "altitudeMeters": 925.3,
+      "speedMps": 24.17,
+      "courseDegrees": 287.3,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 275.0,
+      "latitude": 46.6875,
+      "longitude": 8.312762743399826,
+      "altitudeMeters": 840.0,
+      "speedMps": 23.32,
+      "courseDegrees": 285.0,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 280.0,
+      "latitude": 46.69,
+      "longitude": 8.304565861777737,
+      "altitudeMeters": 753.4,
+      "speedMps": 22.39,
+      "courseDegrees": 287.5,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 285.0,
+      "latitude": 46.692499999999995,
+      "longitude": 8.29624244397691,
+      "altitudeMeters": 665.9,
+      "speedMps": 21.42,
+      "courseDegrees": 294.7,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 290.0,
+      "latitude": 46.695,
+      "longitude": 8.288023161343485,
+      "altitudeMeters": 577.7,
+      "speedMps": 20.39,
+      "courseDegrees": 306.3,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 295.0,
+      "latitude": 46.6975,
+      "longitude": 8.280135799269802,
+      "altitudeMeters": 489.0,
+      "speedMps": 19.32,
+      "courseDegrees": 321.8,
+      "horizontalAccuracyMeters": 5.0
+    },
+    {
+      "scenarioTime": 300.0,
+      "latitude": 46.699999999999996,
+      "longitude": 8.272798944455532,
+      "altitudeMeters": 400.0,
+      "speedMps": 18.23,
+      "courseDegrees": 340.6,
+      "horizontalAccuracyMeters": 5.0
+    }
+  ],
+  "headingSamples": [
+    {
+      "scenarioTime": 0.0,
+      "magneticDegrees": 45.0,
+      "trueDegrees": 47.5
+    },
+    {
+      "scenarioTime": 5.0,
+      "magneticDegrees": 68.84,
+      "trueDegrees": 71.34
+    },
+    {
+      "scenarioTime": 10.0,
+      "magneticDegrees": 91.73,
+      "trueDegrees": 94.23
+    },
+    {
+      "scenarioTime": 15.0,
+      "magneticDegrees": 112.76,
+      "trueDegrees": 115.26
+    },
+    {
+      "scenarioTime": 20.0,
+      "magneticDegrees": 131.08,
+      "trueDegrees": 133.58
+    },
+    {
+      "scenarioTime": 25.0,
+      "magneticDegrees": 145.98,
+      "trueDegrees": 148.48
+    },
+    {
+      "scenarioTime": 30.0,
+      "magneticDegrees": 156.84,
+      "trueDegrees": 159.34
+    },
+    {
+      "scenarioTime": 35.0,
+      "magneticDegrees": 163.25,
+      "trueDegrees": 165.75
+    },
+    {
+      "scenarioTime": 40.0,
+      "magneticDegrees": 164.95,
+      "trueDegrees": 167.45
+    },
+    {
+      "scenarioTime": 45.0,
+      "magneticDegrees": 161.86,
+      "trueDegrees": 164.36
+    },
+    {
+      "scenarioTime": 50.0,
+      "magneticDegrees": 154.12,
+      "trueDegrees": 156.62
+    },
+    {
+      "scenarioTime": 55.0,
+      "magneticDegrees": 142.02,
+      "trueDegrees": 144.52
+    },
+    {
+      "scenarioTime": 60.0,
+      "magneticDegrees": 126.06,
+      "trueDegrees": 128.56
+    },
+    {
+      "scenarioTime": 65.0,
+      "magneticDegrees": 106.86,
+      "trueDegrees": 109.36
+    },
+    {
+      "scenarioTime": 70.0,
+      "magneticDegrees": 85.2,
+      "trueDegrees": 87.7
+    },
+    {
+      "scenarioTime": 75.0,
+      "magneticDegrees": 61.93,
+      "trueDegrees": 64.43
+    },
+    {
+      "scenarioTime": 80.0,
+      "magneticDegrees": 38.0,
+      "trueDegrees": 40.5
+    },
+    {
+      "scenarioTime": 85.0,
+      "magneticDegrees": 14.34,
+      "trueDegrees": 16.84
+    },
+    {
+      "scenarioTime": 90.0,
+      "magneticDegrees": 351.9,
+      "trueDegrees": 354.4
+    },
+    {
+      "scenarioTime": 95.0,
+      "magneticDegrees": 331.58,
+      "trueDegrees": 334.08
+    },
+    {
+      "scenarioTime": 100.0,
+      "magneticDegrees": 314.18,
+      "trueDegrees": 316.68
+    },
+    {
+      "scenarioTime": 105.0,
+      "magneticDegrees": 300.41,
+      "trueDegrees": 302.91
+    },
+    {
+      "scenarioTime": 110.0,
+      "magneticDegrees": 290.81,
+      "trueDegrees": 293.31
+    },
+    {
+      "scenarioTime": 115.0,
+      "magneticDegrees": 285.76,
+      "trueDegrees": 288.26
+    },
+    {
+      "scenarioTime": 120.0,
+      "magneticDegrees": 285.46,
+      "trueDegrees": 287.96
+    },
+    {
+      "scenarioTime": 125.0,
+      "magneticDegrees": 289.93,
+      "trueDegrees": 292.43
+    },
+    {
+      "scenarioTime": 130.0,
+      "magneticDegrees": 298.99,
+      "trueDegrees": 301.49
+    },
+    {
+      "scenarioTime": 135.0,
+      "magneticDegrees": 312.27,
+      "trueDegrees": 314.77
+    },
+    {
+      "scenarioTime": 140.0,
+      "magneticDegrees": 329.25,
+      "trueDegrees": 331.75
+    },
+    {
+      "scenarioTime": 145.0,
+      "magneticDegrees": 349.25,
+      "trueDegrees": 351.75
+    },
+    {
+      "scenarioTime": 150.0,
+      "magneticDegrees": 11.47,
+      "trueDegrees": 13.97
+    },
+    {
+      "scenarioTime": 155.0,
+      "magneticDegrees": 35.03,
+      "trueDegrees": 37.53
+    },
+    {
+      "scenarioTime": 160.0,
+      "magneticDegrees": 58.99,
+      "trueDegrees": 61.49
+    },
+    {
+      "scenarioTime": 165.0,
+      "magneticDegrees": 82.38,
+      "trueDegrees": 84.88
+    },
+    {
+      "scenarioTime": 170.0,
+      "magneticDegrees": 104.29,
+      "trueDegrees": 106.79
+    },
+    {
+      "scenarioTime": 175.0,
+      "magneticDegrees": 123.84,
+      "trueDegrees": 126.34
+    },
+    {
+      "scenarioTime": 180.0,
+      "magneticDegrees": 140.24,
+      "trueDegrees": 142.74
+    },
+    {
+      "scenarioTime": 185.0,
+      "magneticDegrees": 152.84,
+      "trueDegrees": 155.34
+    },
+    {
+      "scenarioTime": 190.0,
+      "magneticDegrees": 161.15,
+      "trueDegrees": 163.65
+    },
+    {
+      "scenarioTime": 195.0,
+      "magneticDegrees": 164.83,
+      "trueDegrees": 167.33
+    },
+    {
+      "scenarioTime": 200.0,
+      "magneticDegrees": 163.72,
+      "trueDegrees": 166.22
+    },
+    {
+      "scenarioTime": 205.0,
+      "magneticDegrees": 157.89,
+      "trueDegrees": 160.39
+    },
+    {
+      "scenarioTime": 210.0,
+      "magneticDegrees": 147.55,
+      "trueDegrees": 150.05
+    },
+    {
+      "scenarioTime": 215.0,
+      "magneticDegrees": 133.13,
+      "trueDegrees": 135.63
+    },
+    {
+      "scenarioTime": 220.0,
+      "magneticDegrees": 115.19,
+      "trueDegrees": 117.69
+    },
+    {
+      "scenarioTime": 225.0,
+      "magneticDegrees": 94.45,
+      "trueDegrees": 96.95
+    },
+    {
+      "scenarioTime": 230.0,
+      "magneticDegrees": 71.75,
+      "trueDegrees": 74.25
+    },
+    {
+      "scenarioTime": 235.0,
+      "magneticDegrees": 47.97,
+      "trueDegrees": 50.47
+    },
+    {
+      "scenarioTime": 240.0,
+      "magneticDegrees": 24.08,
+      "trueDegrees": 26.58
+    },
+    {
+      "scenarioTime": 245.0,
+      "magneticDegrees": 1.02,
+      "trueDegrees": 3.52
+    },
+    {
+      "scenarioTime": 250.0,
+      "magneticDegrees": 339.72,
+      "trueDegrees": 342.22
+    },
+    {
+      "scenarioTime": 255.0,
+      "magneticDegrees": 321.02,
+      "trueDegrees": 323.52
+    },
+    {
+      "scenarioTime": 260.0,
+      "magneticDegrees": 305.66,
+      "trueDegrees": 308.16
+    },
+    {
+      "scenarioTime": 265.0,
+      "magneticDegrees": 294.27,
+      "trueDegrees": 296.77
+    },
+    {
+      "scenarioTime": 270.0,
+      "magneticDegrees": 287.29,
+      "trueDegrees": 289.79
+    },
+    {
+      "scenarioTime": 275.0,
+      "magneticDegrees": 285.0,
+      "trueDegrees": 287.5
+    },
+    {
+      "scenarioTime": 280.0,
+      "magneticDegrees": 287.5,
+      "trueDegrees": 290.0
+    },
+    {
+      "scenarioTime": 285.0,
+      "magneticDegrees": 294.68,
+      "trueDegrees": 297.18
+    },
+    {
+      "scenarioTime": 290.0,
+      "magneticDegrees": 306.26,
+      "trueDegrees": 308.76
+    },
+    {
+      "scenarioTime": 295.0,
+      "magneticDegrees": 321.78,
+      "trueDegrees": 324.28
+    },
+    {
+      "scenarioTime": 300.0,
+      "magneticDegrees": 340.61,
+      "trueDegrees": 343.11
+    }
+  ],
+  "motionSamples": [
+    {
+      "scenarioTime": 0.0,
+      "gravityX": 0.0,
+      "gravityY": 0.0,
+      "gravityZ": -1.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.05
+    },
+    {
+      "scenarioTime": 3.0,
+      "gravityX": 0.0866,
+      "gravityY": 0.0,
+      "gravityZ": -0.9962,
+      "userAccelX": 0.0296,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0478
+    },
+    {
+      "scenarioTime": 6.0,
+      "gravityX": 0.1691,
+      "gravityY": 0.0,
+      "gravityZ": -0.9856,
+      "userAccelX": 0.0565,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0413
+    },
+    {
+      "scenarioTime": 9.0,
+      "gravityX": 0.2439,
+      "gravityY": 0.0,
+      "gravityZ": -0.9698,
+      "userAccelX": 0.0783,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0311
+    },
+    {
+      "scenarioTime": 12.0,
+      "gravityX": 0.3079,
+      "gravityY": 0.0,
+      "gravityZ": -0.9514,
+      "userAccelX": 0.0932,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0181
+    },
+    {
+      "scenarioTime": 15.0,
+      "gravityX": 0.359,
+      "gravityY": 0.0,
+      "gravityZ": -0.9334,
+      "userAccelX": 0.0997,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0035
+    },
+    {
+      "scenarioTime": 18.0,
+      "gravityX": 0.3956,
+      "gravityY": 0.0,
+      "gravityZ": -0.9184,
+      "userAccelX": 0.0974,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0114
+    },
+    {
+      "scenarioTime": 21.0,
+      "gravityX": 0.4169,
+      "gravityY": 0.0,
+      "gravityZ": -0.909,
+      "userAccelX": 0.0863,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0252
+    },
+    {
+      "scenarioTime": 24.0,
+      "gravityX": 0.4224,
+      "gravityY": 0.0,
+      "gravityZ": -0.9064,
+      "userAccelX": 0.0675,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0369
+    },
+    {
+      "scenarioTime": 27.0,
+      "gravityX": 0.4122,
+      "gravityY": 0.0,
+      "gravityZ": -0.9111,
+      "userAccelX": 0.0427,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0452
+    },
+    {
+      "scenarioTime": 30.0,
+      "gravityX": 0.3864,
+      "gravityY": 0.0,
+      "gravityZ": -0.9223,
+      "userAccelX": 0.0141,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0495
+    },
+    {
+      "scenarioTime": 33.0,
+      "gravityX": 0.3455,
+      "gravityY": 0.0,
+      "gravityZ": -0.9384,
+      "userAccelX": -0.0158,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0494
+    },
+    {
+      "scenarioTime": 36.0,
+      "gravityX": 0.2905,
+      "gravityY": 0.0,
+      "gravityZ": -0.9569,
+      "userAccelX": -0.0443,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0448
+    },
+    {
+      "scenarioTime": 39.0,
+      "gravityX": 0.223,
+      "gravityY": 0.0,
+      "gravityZ": -0.9748,
+      "userAccelX": -0.0688,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0363
+    },
+    {
+      "scenarioTime": 42.0,
+      "gravityX": 0.1456,
+      "gravityY": 0.0,
+      "gravityZ": -0.9893,
+      "userAccelX": -0.0872,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0245
+    },
+    {
+      "scenarioTime": 45.0,
+      "gravityX": 0.0615,
+      "gravityY": 0.0,
+      "gravityZ": -0.9981,
+      "userAccelX": -0.0978,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0105
+    },
+    {
+      "scenarioTime": 48.0,
+      "gravityX": -0.0255,
+      "gravityY": 0.0,
+      "gravityZ": -0.9997,
+      "userAccelX": -0.0996,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0044
+    },
+    {
+      "scenarioTime": 51.0,
+      "gravityX": -0.1113,
+      "gravityY": 0.0,
+      "gravityZ": -0.9938,
+      "userAccelX": -0.0926,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0189
+    },
+    {
+      "scenarioTime": 54.0,
+      "gravityX": -0.1919,
+      "gravityY": 0.0,
+      "gravityZ": -0.9814,
+      "userAccelX": -0.0773,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0317
+    },
+    {
+      "scenarioTime": 57.0,
+      "gravityX": -0.2638,
+      "gravityY": 0.0,
+      "gravityZ": -0.9646,
+      "userAccelX": -0.0551,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0417
+    },
+    {
+      "scenarioTime": 60.0,
+      "gravityX": -0.3242,
+      "gravityY": 0.0,
+      "gravityZ": -0.946,
+      "userAccelX": -0.0279,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.048
+    },
+    {
+      "scenarioTime": 63.0,
+      "gravityX": -0.3712,
+      "gravityY": 0.0,
+      "gravityZ": -0.9286,
+      "userAccelX": 0.0017,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.05
+    },
+    {
+      "scenarioTime": 66.0,
+      "gravityX": -0.4034,
+      "gravityY": 0.0,
+      "gravityZ": -0.915,
+      "userAccelX": 0.0312,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0475
+    },
+    {
+      "scenarioTime": 69.0,
+      "gravityX": -0.4201,
+      "gravityY": 0.0,
+      "gravityZ": -0.9075,
+      "userAccelX": 0.0578,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0408
+    },
+    {
+      "scenarioTime": 72.0,
+      "gravityX": -0.4211,
+      "gravityY": 0.0,
+      "gravityZ": -0.907,
+      "userAccelX": 0.0794,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0304
+    },
+    {
+      "scenarioTime": 75.0,
+      "gravityX": -0.4063,
+      "gravityY": 0.0,
+      "gravityZ": -0.9137,
+      "userAccelX": 0.0938,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0173
+    },
+    {
+      "scenarioTime": 78.0,
+      "gravityX": -0.376,
+      "gravityY": 0.0,
+      "gravityZ": -0.9266,
+      "userAccelX": 0.0999,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0027
+    },
+    {
+      "scenarioTime": 81.0,
+      "gravityX": -0.3308,
+      "gravityY": 0.0,
+      "gravityZ": -0.9437,
+      "userAccelX": 0.097,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0122
+    },
+    {
+      "scenarioTime": 84.0,
+      "gravityX": -0.272,
+      "gravityY": 0.0,
+      "gravityZ": -0.9623,
+      "userAccelX": 0.0855,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.026
+    },
+    {
+      "scenarioTime": 87.0,
+      "gravityX": -0.2013,
+      "gravityY": 0.0,
+      "gravityZ": -0.9795,
+      "userAccelX": 0.0663,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0374
+    },
+    {
+      "scenarioTime": 90.0,
+      "gravityX": -0.1216,
+      "gravityY": 0.0,
+      "gravityZ": -0.9926,
+      "userAccelX": 0.0412,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0456
+    },
+    {
+      "scenarioTime": 93.0,
+      "gravityX": -0.0362,
+      "gravityY": 0.0,
+      "gravityZ": -0.9993,
+      "userAccelX": 0.0124,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0496
+    },
+    {
+      "scenarioTime": 96.0,
+      "gravityX": 0.0508,
+      "gravityY": 0.0,
+      "gravityZ": -0.9987,
+      "userAccelX": -0.0174,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0492
+    },
+    {
+      "scenarioTime": 99.0,
+      "gravityX": 0.1355,
+      "gravityY": 0.0,
+      "gravityZ": -0.9908,
+      "userAccelX": -0.0458,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0445
+    },
+    {
+      "scenarioTime": 102.0,
+      "gravityX": 0.2139,
+      "gravityY": 0.0,
+      "gravityZ": -0.9768,
+      "userAccelX": -0.07,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0357
+    },
+    {
+      "scenarioTime": 105.0,
+      "gravityX": 0.2828,
+      "gravityY": 0.0,
+      "gravityZ": -0.9592,
+      "userAccelX": -0.088,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0238
+    },
+    {
+      "scenarioTime": 108.0,
+      "gravityX": 0.3394,
+      "gravityY": 0.0,
+      "gravityZ": -0.9406,
+      "userAccelX": -0.0981,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0097
+    },
+    {
+      "scenarioTime": 111.0,
+      "gravityX": 0.3822,
+      "gravityY": 0.0,
+      "gravityZ": -0.9241,
+      "userAccelX": -0.0995,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0052
+    },
+    {
+      "scenarioTime": 114.0,
+      "gravityX": 0.4099,
+      "gravityY": 0.0,
+      "gravityZ": -0.9121,
+      "userAccelX": -0.0919,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0197
+    },
+    {
+      "scenarioTime": 117.0,
+      "gravityX": 0.422,
+      "gravityY": 0.0,
+      "gravityZ": -0.9066,
+      "userAccelX": -0.0762,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0324
+    },
+    {
+      "scenarioTime": 120.0,
+      "gravityX": 0.4184,
+      "gravityY": 0.0,
+      "gravityZ": -0.9083,
+      "userAccelX": -0.0537,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0422
+    },
+    {
+      "scenarioTime": 123.0,
+      "gravityX": 0.399,
+      "gravityY": 0.0,
+      "gravityZ": -0.9169,
+      "userAccelX": -0.0263,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0482
+    },
+    {
+      "scenarioTime": 126.0,
+      "gravityX": 0.3643,
+      "gravityY": 0.0,
+      "gravityZ": -0.9313,
+      "userAccelX": 0.0034,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.05
+    },
+    {
+      "scenarioTime": 129.0,
+      "gravityX": 0.315,
+      "gravityY": 0.0,
+      "gravityZ": -0.9491,
+      "userAccelX": 0.0327,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0472
+    },
+    {
+      "scenarioTime": 132.0,
+      "gravityX": 0.2525,
+      "gravityY": 0.0,
+      "gravityZ": -0.9676,
+      "userAccelX": 0.0592,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0403
+    },
+    {
+      "scenarioTime": 135.0,
+      "gravityX": 0.1789,
+      "gravityY": 0.0,
+      "gravityZ": -0.9839,
+      "userAccelX": 0.0804,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0297
+    },
+    {
+      "scenarioTime": 138.0,
+      "gravityX": 0.0971,
+      "gravityY": 0.0,
+      "gravityZ": -0.9953,
+      "userAccelX": 0.0944,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0165
+    },
+    {
+      "scenarioTime": 141.0,
+      "gravityX": 0.0108,
+      "gravityY": 0.0,
+      "gravityZ": -0.9999,
+      "userAccelX": 0.0999,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0019
+    },
+    {
+      "scenarioTime": 144.0,
+      "gravityX": -0.076,
+      "gravityY": 0.0,
+      "gravityZ": -0.9971,
+      "userAccelX": 0.0966,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.013
+    },
+    {
+      "scenarioTime": 147.0,
+      "gravityX": -0.1592,
+      "gravityY": 0.0,
+      "gravityZ": -0.9872,
+      "userAccelX": 0.0846,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0267
+    },
+    {
+      "scenarioTime": 150.0,
+      "gravityX": -0.2352,
+      "gravityY": 0.0,
+      "gravityZ": -0.972,
+      "userAccelX": 0.065,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.038
+    },
+    {
+      "scenarioTime": 153.0,
+      "gravityX": -0.3007,
+      "gravityY": 0.0,
+      "gravityZ": -0.9537,
+      "userAccelX": 0.0397,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0459
+    },
+    {
+      "scenarioTime": 156.0,
+      "gravityX": -0.3534,
+      "gravityY": 0.0,
+      "gravityZ": -0.9355,
+      "userAccelX": 0.0108,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0497
+    },
+    {
+      "scenarioTime": 159.0,
+      "gravityX": -0.3918,
+      "gravityY": 0.0,
+      "gravityZ": -0.92,
+      "userAccelX": -0.0191,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0491
+    },
+    {
+      "scenarioTime": 162.0,
+      "gravityX": -0.4151,
+      "gravityY": 0.0,
+      "gravityZ": -0.9098,
+      "userAccelX": -0.0472,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0441
+    },
+    {
+      "scenarioTime": 165.0,
+      "gravityX": -0.4226,
+      "gravityY": 0.0,
+      "gravityZ": -0.9063,
+      "userAccelX": -0.0712,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0351
+    },
+    {
+      "scenarioTime": 168.0,
+      "gravityX": -0.4144,
+      "gravityY": 0.0,
+      "gravityZ": -0.9101,
+      "userAccelX": -0.0888,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.023
+    },
+    {
+      "scenarioTime": 171.0,
+      "gravityX": -0.3905,
+      "gravityY": 0.0,
+      "gravityZ": -0.9206,
+      "userAccelX": -0.0984,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0089
+    },
+    {
+      "scenarioTime": 174.0,
+      "gravityX": -0.3514,
+      "gravityY": 0.0,
+      "gravityZ": -0.9362,
+      "userAccelX": -0.0993,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.006
+    },
+    {
+      "scenarioTime": 177.0,
+      "gravityX": -0.298,
+      "gravityY": 0.0,
+      "gravityZ": -0.9546,
+      "userAccelX": -0.0913,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0204
+    },
+    {
+      "scenarioTime": 180.0,
+      "gravityX": -0.232,
+      "gravityY": 0.0,
+      "gravityZ": -0.9727,
+      "userAccelX": -0.0751,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.033
+    },
+    {
+      "scenarioTime": 183.0,
+      "gravityX": -0.1557,
+      "gravityY": 0.0,
+      "gravityZ": -0.9878,
+      "userAccelX": -0.0522,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0426
+    },
+    {
+      "scenarioTime": 186.0,
+      "gravityX": -0.0722,
+      "gravityY": 0.0,
+      "gravityZ": -0.9974,
+      "userAccelX": -0.0247,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0485
+    },
+    {
+      "scenarioTime": 189.0,
+      "gravityX": 0.0147,
+      "gravityY": 0.0,
+      "gravityZ": -0.9999,
+      "userAccelX": 0.005,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0499
+    },
+    {
+      "scenarioTime": 192.0,
+      "gravityX": 0.1008,
+      "gravityY": 0.0,
+      "gravityZ": -0.9949,
+      "userAccelX": 0.0343,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.047
+    },
+    {
+      "scenarioTime": 195.0,
+      "gravityX": 0.1823,
+      "gravityY": 0.0,
+      "gravityZ": -0.9832,
+      "userAccelX": 0.0606,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0398
+    },
+    {
+      "scenarioTime": 198.0,
+      "gravityX": 0.2555,
+      "gravityY": 0.0,
+      "gravityZ": -0.9668,
+      "userAccelX": 0.0814,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0291
+    },
+    {
+      "scenarioTime": 201.0,
+      "gravityX": 0.3175,
+      "gravityY": 0.0,
+      "gravityZ": -0.9483,
+      "userAccelX": 0.0949,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0157
+    },
+    {
+      "scenarioTime": 204.0,
+      "gravityX": 0.3662,
+      "gravityY": 0.0,
+      "gravityZ": -0.9306,
+      "userAccelX": 0.1,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.001
+    },
+    {
+      "scenarioTime": 207.0,
+      "gravityX": 0.4002,
+      "gravityY": 0.0,
+      "gravityZ": -0.9164,
+      "userAccelX": 0.0961,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0138
+    },
+    {
+      "scenarioTime": 210.0,
+      "gravityX": 0.4189,
+      "gravityY": 0.0,
+      "gravityZ": -0.908,
+      "userAccelX": 0.0837,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0274
+    },
+    {
+      "scenarioTime": 213.0,
+      "gravityX": 0.4218,
+      "gravityY": 0.0,
+      "gravityZ": -0.9067,
+      "userAccelX": 0.0637,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0385
+    },
+    {
+      "scenarioTime": 216.0,
+      "gravityX": 0.409,
+      "gravityY": 0.0,
+      "gravityZ": -0.9125,
+      "userAccelX": 0.0381,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0462
+    },
+    {
+      "scenarioTime": 219.0,
+      "gravityX": 0.3806,
+      "gravityY": 0.0,
+      "gravityZ": -0.9247,
+      "userAccelX": 0.0091,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0498
+    },
+    {
+      "scenarioTime": 222.0,
+      "gravityX": 0.3372,
+      "gravityY": 0.0,
+      "gravityZ": -0.9414,
+      "userAccelX": -0.0207,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0489
+    },
+    {
+      "scenarioTime": 225.0,
+      "gravityX": 0.2799,
+      "gravityY": 0.0,
+      "gravityZ": -0.96,
+      "userAccelX": -0.0487,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0437
+    },
+    {
+      "scenarioTime": 228.0,
+      "gravityX": 0.2106,
+      "gravityY": 0.0,
+      "gravityZ": -0.9776,
+      "userAccelX": -0.0723,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0345
+    },
+    {
+      "scenarioTime": 231.0,
+      "gravityX": 0.1319,
+      "gravityY": 0.0,
+      "gravityZ": -0.9913,
+      "userAccelX": -0.0895,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0223
+    },
+    {
+      "scenarioTime": 234.0,
+      "gravityX": 0.047,
+      "gravityY": 0.0,
+      "gravityZ": -0.9989,
+      "userAccelX": -0.0987,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0081
+    },
+    {
+      "scenarioTime": 237.0,
+      "gravityX": -0.0401,
+      "gravityY": 0.0,
+      "gravityZ": -0.9992,
+      "userAccelX": -0.099,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0069
+    },
+    {
+      "scenarioTime": 240.0,
+      "gravityX": -0.1253,
+      "gravityY": 0.0,
+      "gravityZ": -0.9921,
+      "userAccelX": -0.0906,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0212
+    },
+    {
+      "scenarioTime": 243.0,
+      "gravityX": -0.2047,
+      "gravityY": 0.0,
+      "gravityZ": -0.9788,
+      "userAccelX": -0.074,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0336
+    },
+    {
+      "scenarioTime": 246.0,
+      "gravityX": -0.2748,
+      "gravityY": 0.0,
+      "gravityZ": -0.9615,
+      "userAccelX": -0.0508,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0431
+    },
+    {
+      "scenarioTime": 249.0,
+      "gravityX": -0.3331,
+      "gravityY": 0.0,
+      "gravityZ": -0.9429,
+      "userAccelX": -0.0231,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0487
+    },
+    {
+      "scenarioTime": 252.0,
+      "gravityX": -0.3777,
+      "gravityY": 0.0,
+      "gravityZ": -0.9259,
+      "userAccelX": 0.0067,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0499
+    },
+    {
+      "scenarioTime": 255.0,
+      "gravityX": -0.4073,
+      "gravityY": 0.0,
+      "gravityZ": -0.9133,
+      "userAccelX": 0.0359,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0467
+    },
+    {
+      "scenarioTime": 258.0,
+      "gravityX": -0.4214,
+      "gravityY": 0.0,
+      "gravityZ": -0.9069,
+      "userAccelX": 0.0619,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0393
+    },
+    {
+      "scenarioTime": 261.0,
+      "gravityX": -0.4197,
+      "gravityY": 0.0,
+      "gravityZ": -0.9077,
+      "userAccelX": 0.0823,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0284
+    },
+    {
+      "scenarioTime": 264.0,
+      "gravityX": -0.4023,
+      "gravityY": 0.0,
+      "gravityZ": -0.9155,
+      "userAccelX": 0.0954,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0149
+    },
+    {
+      "scenarioTime": 267.0,
+      "gravityX": -0.3694,
+      "gravityY": 0.0,
+      "gravityZ": -0.9293,
+      "userAccelX": 0.1,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0002
+    },
+    {
+      "scenarioTime": 270.0,
+      "gravityX": -0.3218,
+      "gravityY": 0.0,
+      "gravityZ": -0.9468,
+      "userAccelX": 0.0956,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0146
+    },
+    {
+      "scenarioTime": 273.0,
+      "gravityX": -0.2609,
+      "gravityY": 0.0,
+      "gravityZ": -0.9654,
+      "userAccelX": 0.0827,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0281
+    },
+    {
+      "scenarioTime": 276.0,
+      "gravityX": -0.1885,
+      "gravityY": 0.0,
+      "gravityZ": -0.9821,
+      "userAccelX": 0.0624,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0391
+    },
+    {
+      "scenarioTime": 279.0,
+      "gravityX": -0.1076,
+      "gravityY": 0.0,
+      "gravityZ": -0.9942,
+      "userAccelX": 0.0366,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0465
+    },
+    {
+      "scenarioTime": 282.0,
+      "gravityX": -0.0216,
+      "gravityY": 0.0,
+      "gravityZ": -0.9998,
+      "userAccelX": 0.0074,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0499
+    },
+    {
+      "scenarioTime": 285.0,
+      "gravityX": 0.0653,
+      "gravityY": 0.0,
+      "gravityZ": -0.9979,
+      "userAccelX": -0.0224,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0487
+    },
+    {
+      "scenarioTime": 288.0,
+      "gravityX": 0.1492,
+      "gravityY": 0.0,
+      "gravityZ": -0.9888,
+      "userAccelX": -0.0502,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0432
+    },
+    {
+      "scenarioTime": 291.0,
+      "gravityX": 0.2263,
+      "gravityY": 0.0,
+      "gravityZ": -0.9741,
+      "userAccelX": -0.0735,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0339
+    },
+    {
+      "scenarioTime": 294.0,
+      "gravityX": 0.2932,
+      "gravityY": 0.0,
+      "gravityZ": -0.9561,
+      "userAccelX": -0.0903,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0215
+    },
+    {
+      "scenarioTime": 297.0,
+      "gravityX": 0.3476,
+      "gravityY": 0.0,
+      "gravityZ": -0.9376,
+      "userAccelX": -0.0989,
+      "userAccelY": 0.0,
+      "userAccelZ": -0.0072
+    },
+    {
+      "scenarioTime": 300.0,
+      "gravityX": 0.3879,
+      "gravityY": 0.0,
+      "gravityZ": -0.9217,
+      "userAccelX": -0.0988,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0077
+    }
+  ],
+  "weatherSnapshots": [
+    {
+      "scenarioTime": 0,
+      "condition": "clear",
+      "temperatureCelsius": 22,
+      "highCelsius": 25,
+      "lowCelsius": 14,
+      "locationName": "Andermatt"
+    },
+    {
+      "scenarioTime": 100,
+      "condition": "cloudy",
+      "temperatureCelsius": 15,
+      "highCelsius": 18,
+      "lowCelsius": 8,
+      "locationName": "Gotthardpass"
+    },
+    {
+      "scenarioTime": 200,
+      "condition": "fog",
+      "temperatureCelsius": 8,
+      "highCelsius": 10,
+      "lowCelsius": 4,
+      "locationName": "Gotthardpass"
+    },
+    {
+      "scenarioTime": 260,
+      "condition": "rain",
+      "temperatureCelsius": 12,
+      "highCelsius": 15,
+      "lowCelsius": 9,
+      "locationName": "Airolo"
+    }
+  ],
+  "nowPlayingSnapshots": [
+    {
+      "scenarioTime": 0,
+      "title": "Born to Be Wild",
+      "artist": "Steppenwolf",
+      "album": "Easy Rider OST",
+      "isPlaying": true,
+      "durationSeconds": 210,
+      "positionSeconds": 0
+    },
+    {
+      "scenarioTime": 60,
+      "title": "Highway to Hell",
+      "artist": "AC/DC",
+      "album": "Highway to Hell",
+      "isPlaying": true,
+      "durationSeconds": 208,
+      "positionSeconds": 0
+    },
+    {
+      "scenarioTime": 150,
+      "title": "Riders on the Storm",
+      "artist": "The Doors",
+      "album": "L.A. Woman",
+      "isPlaying": true,
+      "durationSeconds": 430,
+      "positionSeconds": 0
+    },
+    {
+      "scenarioTime": 250,
+      "title": "Bat Out of Hell",
+      "artist": "Meat Loaf",
+      "album": "Bat Out of Hell",
+      "isPlaying": true,
+      "durationSeconds": 585,
+      "positionSeconds": 0
+    }
+  ],
+  "callEvents": [
+    {
+      "scenarioTime": 80,
+      "state": "incoming",
+      "callerHandle": "Marco"
+    },
+    {
+      "scenarioTime": 95,
+      "state": "connected",
+      "callerHandle": "Marco"
+    },
+    {
+      "scenarioTime": 130,
+      "state": "ended",
+      "callerHandle": "Marco"
+    },
+    {
+      "scenarioTime": 220,
+      "state": "incoming",
+      "callerHandle": "Garage M\u00fcller"
+    },
+    {
+      "scenarioTime": 240,
+      "state": "ended",
+      "callerHandle": "Garage M\u00fcller"
+    }
+  ],
+  "calendarEvents": [
+    {
+      "scenarioTime": 0,
+      "title": "Lunch at Albergo",
+      "startsInSeconds": 3600,
+      "location": "Airolo, TI"
+    },
+    {
+      "scenarioTime": 180,
+      "title": "Lunch at Albergo",
+      "startsInSeconds": 1200,
+      "location": "Airolo, TI"
+    }
+  ]
+}

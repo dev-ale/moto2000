@@ -40,6 +40,11 @@ final class AccessoryManager {
         }
     }
 
+    /// Whether activation has completed (may fail on simulator).
+    var isActivated: Bool {
+        sessionState == .activated || sessionState == .paired
+    }
+
     /// Show the Apple-designed accessory picker. User taps the ScramScreen
     /// device and pairing happens automatically — no custom scanning UI needed.
     func showPicker() {
@@ -77,10 +82,16 @@ final class AccessoryManager {
         switch event.eventType {
         case .activated:
             sessionState = .activated
-            // Check for previously paired accessories
             if let existing = session.accessories.first {
                 accessory = existing
                 sessionState = .paired
+            }
+
+        case .invalidated:
+            if let err = event.error {
+                sessionState = .error(err.localizedDescription)
+            } else {
+                sessionState = .idle
             }
 
         case .accessoryAdded:

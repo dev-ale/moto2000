@@ -62,6 +62,9 @@ let project = Project(
                     "ScramScreen uses your location to show speed, heading, and navigation on your motorcycle display.",
                 "NSLocationAlwaysAndWhenInUseUsageDescription":
                     "ScramScreen continues to read your location during rides so your dashboard stays live in the background.",
+                "NSAccessorySetupKitSupports": [
+                    "Bluetooth",
+                ],
                 "UIBackgroundModes": [
                     "bluetooth-central",
                     "location",

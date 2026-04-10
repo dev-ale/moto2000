@@ -1,6 +1,7 @@
 import BLECentralClient
 import Observation
 import RideSimulatorKit
+import ScramCore
 import SwiftUI
 
 @Observable
@@ -8,6 +9,7 @@ import SwiftUI
 final class ConnectionViewModel {
     private(set) var state: ConnectionState = .idle
     private(set) var healthLevel: ConnectionHealthLevel = .down
+    private(set) var firmwareVersion: FirmwareVersion?
 
     let accessoryManager: AccessoryManager
     private let coordinator: ReconnectCoordinator

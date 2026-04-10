@@ -1,16 +1,24 @@
 import BLECentralClient
+import ScramCore
 import SwiftUI
 
 struct MehrView: View {
     @State var connection: ConnectionViewModel
 
-    @AppStorage("scramscreen.unit.speed") private var useKmh = true
-    @AppStorage("scramscreen.unit.temp") private var useCelsius = true
-    @AppStorage("scramscreen.alert.sound") private var alertSounds = true
-    @AppStorage("scramscreen.display.autoSleep") private var autoSleepMinutes = 5
-    @AppStorage("scramscreen.display.brightness") private var brightness: Double = 80
+    @AppStorage("scramscreen.unit.speed")
+    private var useKmh = true
+    @AppStorage("scramscreen.unit.temp")
+    private var useCelsius = true
+    @AppStorage("scramscreen.alert.sound")
+    private var alertSounds = true
+    @AppStorage("scramscreen.display.autoSleep")
+    private var autoSleepMinutes = 5
+    @AppStorage("scramscreen.display.brightness")
+    private var brightness: Double = 80
 
     @State private var showUnpairConfirm = false
+    @State private var availableUpdate: FirmwareUpdate?
+    @State private var showOTASheet = false
 
     var body: some View {
         ScrollView {
@@ -56,6 +64,73 @@ struct MehrView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.scramBackground)
+        .sheet(isPresented: $showOTASheet) {
+            if let update = availableUpdate {
+                OTAUpdateView(
+                    currentVersion: connection.firmwareVersion,
+                    update: update,
+                    onStartUpdate: {}
+                )
+            }
+        }
+        .task {
+            await checkForFirmwareUpdate()
+        }
+    }
+
+    // MARK: - Firmware row
+
+    private var firmwareRow: some View {
+        Group {
+            if let update = availableUpdate {
+                Button { showOTASheet = true } label: {
+                    HStack(spacing: ScramSpacing.md) {
+                        Image(systemName: "cpu")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Color.scramGreen)
+                            .frame(width: 24)
+
+                        Text("Firmware")
+                            .font(.scramBody)
+                            .foregroundStyle(Color.scramTextPrimary)
+
+                        Spacer()
+
+                        Text("v\(update.version.versionString) verfuegbar")
+                            .font(.scramCaption)
+                            .foregroundStyle(Color.scramGreen)
+
+                        Circle()
+                            .fill(Color.scramGreen)
+                            .frame(width: 8, height: 8)
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Color.scramTextTertiary)
+                    }
+                    .padding(ScramSpacing.lg)
+                }
+            } else {
+                settingsRow(
+                    icon: "cpu",
+                    title: "Firmware",
+                    detail: connection.firmwareVersion?.versionString ?? "--"
+                )
+            }
+        }
+    }
+
+    // MARK: - OTA check
+
+    private func checkForFirmwareUpdate() async {
+        guard connection.isPaired else { return }
+        let checker = GitHubReleaseChecker()
+        let currentVersion = connection.firmwareVersion ?? FirmwareVersion(major: 0, minor: 0, patch: 0)
+        do {
+            availableUpdate = try await checker.checkForUpdate(currentVersion: currentVersion)
+        } catch {
+            // Silently ignore — update badge simply won't appear
+        }
     }
 
     // MARK: - Section wrapper
@@ -86,11 +161,7 @@ struct MehrView: View {
                     detailColor: connection.statusColor
                 )
 
-                settingsRow(
-                    icon: "cpu",
-                    title: "Firmware",
-                    detail: "--"
-                )
+                firmwareRow
 
                 Button { showUnpairConfirm = true } label: {
                     settingsRow(
@@ -225,124 +296,4 @@ struct MehrView: View {
         }
     }
 
-    // MARK: - Row helpers
-
-    private func settingsRow(
-        icon: String,
-        title: String,
-        titleColor: Color = .scramTextPrimary,
-        detail: String? = nil,
-        detailColor: Color = .scramTextSecondary,
-        chevron: Bool = false
-    ) -> some View {
-        HStack(spacing: ScramSpacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 16))
-                .foregroundStyle(titleColor == .scramRed ? Color.scramRed : Color.scramGreen)
-                .frame(width: 24)
-
-            Text(title)
-                .font(.scramBody)
-                .foregroundStyle(titleColor)
-
-            Spacer()
-
-            if let detail {
-                Text(detail)
-                    .font(.scramCaption)
-                    .foregroundStyle(detailColor)
-            }
-
-            if chevron {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.scramTextTertiary)
-            }
-        }
-        .padding(ScramSpacing.lg)
-    }
-
-    private func settingsToggleRow(
-        icon: String,
-        title: String,
-        onLabel: String,
-        offLabel: String,
-        isOn: Binding<Bool>
-    ) -> some View {
-        HStack(spacing: ScramSpacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 16))
-                .foregroundStyle(Color.scramGreen)
-                .frame(width: 24)
-
-            Text(title)
-                .font(.scramBody)
-                .foregroundStyle(Color.scramTextPrimary)
-
-            Spacer()
-
-            HStack(spacing: 0) {
-                unitButton(offLabel, selected: !isOn.wrappedValue) {
-                    isOn.wrappedValue = false
-                }
-                unitButton(onLabel, selected: isOn.wrappedValue) {
-                    isOn.wrappedValue = true
-                }
-            }
-            .background(Color.scramSurfaceElevated)
-            .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
-        }
-        .padding(ScramSpacing.lg)
-    }
-
-    private func unitButton(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(label)
-                .font(.scramCaption)
-                .foregroundStyle(selected ? Color.scramBackground : Color.scramTextSecondary)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 12)
-                .background(selected ? Color.scramGreen : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
-        }
-    }
-
-    private func settingsPickerRow(
-        icon: String,
-        title: String,
-        options: [Int],
-        labels: [String],
-        selection: Binding<Int>
-    ) -> some View {
-        HStack(spacing: ScramSpacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 16))
-                .foregroundStyle(Color.scramGreen)
-                .frame(width: 24)
-
-            Text(title)
-                .font(.scramBody)
-                .foregroundStyle(Color.scramTextPrimary)
-
-            Spacer()
-
-            Menu {
-                ForEach(Array(zip(options, labels)), id: \.0) { value, label in
-                    Button(label) {
-                        selection.wrappedValue = value
-                    }
-                }
-            } label: {
-                HStack(spacing: ScramSpacing.xs) {
-                    Text(labels[options.firstIndex(of: selection.wrappedValue) ?? 1])
-                        .font(.scramCaption)
-                        .foregroundStyle(Color.scramTextSecondary)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.scramTextTertiary)
-                }
-            }
-        }
-        .padding(ScramSpacing.lg)
-    }
 }

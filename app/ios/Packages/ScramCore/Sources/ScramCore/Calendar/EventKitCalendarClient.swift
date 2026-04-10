@@ -51,8 +51,13 @@ public struct EventKitCalendarClient: CalendarServiceClient, @unchecked Sendable
         )
         let events = store.events(matching: predicate)
 
-        // Find the earliest event by start date.
-        guard let earliest = events.min(by: { $0.startDate < $1.startDate }) else {
+        // Filter: skip all-day events and events that already started.
+        let upcoming = events.filter { event in
+            !event.isAllDay && event.startDate > now
+        }
+
+        // Find the earliest upcoming event by start date.
+        guard let earliest = upcoming.min(by: { $0.startDate < $1.startDate }) else {
             return nil
         }
 

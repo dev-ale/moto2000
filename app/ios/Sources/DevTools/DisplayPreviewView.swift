@@ -62,7 +62,7 @@ struct DisplayPreviewView: View {
             displayBezel
             displayScreen
             screenContent(for: currentScreenID)
-                .frame(width: 240, height: 240)
+                .frame(width: 252, height: 252)
                 .clipShape(Circle())
         }
     }

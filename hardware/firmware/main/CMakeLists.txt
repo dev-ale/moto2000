@@ -1,9 +1,36 @@
 idf_component_register(
     SRCS "scramscreen_main.c"
+         # LVGL screen implementations from lvgl-sim (pure LVGL, no SDL)
+         "../lvgl-sim/screens/screen_clock.c"
+         "../lvgl-sim/screens/screen_speed.c"
+         "../lvgl-sim/screens/screen_compass.c"
+         "../lvgl-sim/screens/screen_navigation.c"
+         "../lvgl-sim/screens/screen_weather.c"
+         "../lvgl-sim/screens/screen_music.c"
+         "../lvgl-sim/screens/screen_trip_stats.c"
+         "../lvgl-sim/screens/screen_lean_angle.c"
+         "../lvgl-sim/screens/screen_altitude.c"
+         "../lvgl-sim/screens/screen_calendar.c"
+         "../lvgl-sim/screens/screen_fuel.c"
+         "../lvgl-sim/screens/screen_call.c"
+         "../lvgl-sim/screens/screen_blitzer.c"
+         "../lvgl-sim/screens/screen_placeholder.c"
+         "../lvgl-sim/common/screen_manager.c"
+         "../lvgl-sim/theme/scram_theme.c"
     INCLUDE_DIRS "."
+                 "../lvgl-sim"
+                 "../lvgl-sim/screens"
+                 "../lvgl-sim/common"
+                 "../lvgl-sim/theme"
     REQUIRES
         esp_common
+        esp_timer
         log
         nvs_flash
         ble_server
+        ble_protocol
+        screen_fsm
+        ble_reconnect
+        display
+        lvgl
 )

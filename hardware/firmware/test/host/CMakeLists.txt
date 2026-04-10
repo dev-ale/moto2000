@@ -155,3 +155,16 @@ target_include_directories(test_ble_server_handlers
 )
 target_link_libraries(test_ble_server_handlers PRIVATE unity ble_server_handlers)
 add_test(NAME ble_server_handlers COMMAND test_ble_server_handlers)
+
+# ------------------------------------------------------------------------- #
+# display — header-only test (LVGL not available on host)                    #
+# ------------------------------------------------------------------------- #
+# The display component's stub and common sources require LVGL, which is not
+# part of this host-test build.  We test only that the public header compiles
+# cleanly and that the compile-time constants are correct.
+set(DISPLAY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/display")
+
+add_executable(test_display_stub test_display_stub.c)
+target_include_directories(test_display_stub PRIVATE "${DISPLAY_ROOT}/include")
+target_link_libraries(test_display_stub PRIVATE unity)
+add_test(NAME display_stub COMMAND test_display_stub)

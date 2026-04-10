@@ -1,0 +1,509 @@
+{
+  "calendarEvents": [],
+  "callEvents": [],
+  "durationSeconds": 30.0,
+  "headingSamples": [],
+  "locationSamples": [],
+  "motionSamples": [
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 0.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 0.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 1.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 1.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 2.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 2.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 3.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 3.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 4.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 4.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 5.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 5.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 6.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 6.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 7.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 7.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 8.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 8.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 9.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 9.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 10.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 10.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 11.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 11.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 12.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 12.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 13.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 13.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 14.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 14.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 15.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 15.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.707,
+      "gravityY": -0.707,
+      "gravityZ": 0.0,
+      "scenarioTime": 16.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.707,
+      "gravityY": -0.707,
+      "gravityZ": 0.0,
+      "scenarioTime": 16.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 17.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 17.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 18.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": -0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 18.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 19.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 19.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 20.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 20.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 21.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.707,
+      "gravityY": -0.707,
+      "gravityZ": 0.0,
+      "scenarioTime": 21.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.707,
+      "gravityY": -0.707,
+      "gravityZ": 0.0,
+      "scenarioTime": 22.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.643,
+      "gravityY": -0.766,
+      "gravityZ": 0.0,
+      "scenarioTime": 22.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.5,
+      "gravityY": -0.866,
+      "gravityZ": 0.0,
+      "scenarioTime": 23.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.342,
+      "gravityY": -0.94,
+      "gravityZ": 0.0,
+      "scenarioTime": 23.5,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.174,
+      "gravityY": -0.985,
+      "gravityZ": 0.0,
+      "scenarioTime": 24.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 25.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 26.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 27.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 28.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 29.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    },
+    {
+      "gravityX": 0.0,
+      "gravityY": -1.0,
+      "gravityZ": 0.0,
+      "scenarioTime": 30.0,
+      "userAccelX": 0.0,
+      "userAccelY": 0.0,
+      "userAccelZ": 0.0
+    }
+  ],
+  "name": "twisty-mountain",
+  "nowPlayingSnapshots": [],
+  "summary": "Pure motion scenario: alternating left/right leans up to 45\u00b0 for the lean-angle screen",
+  "version": 1,
+  "weatherSnapshots": []
+}

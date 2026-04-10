@@ -1,0 +1,11 @@
+{
+  "description": "Lean angle: racetrack hero pose, current 55° left, peaks 58° L / 62° R, lower confidence under hard load",
+  "screen": "leanAngle",
+  "flags": [],
+  "body": {
+    "current_lean_deg": -55.0,
+    "max_left_lean_deg": 58.0,
+    "max_right_lean_deg": 62.0,
+    "confidence_percent": 85
+  }
+}

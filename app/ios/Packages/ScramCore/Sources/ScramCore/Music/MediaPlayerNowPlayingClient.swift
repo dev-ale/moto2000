@@ -3,34 +3,41 @@ import Foundation
 #if canImport(MediaPlayer) && os(iOS)
 import MediaPlayer
 
-/// iOS-only stub for ``NowPlayingClient``.
+/// iOS ``NowPlayingClient`` backed by ``MPNowPlayingInfoCenter``.
 ///
-/// # Why is this a stub?
-///
-/// Accessing `MPNowPlayingInfoCenter.default().nowPlayingInfo` from a
-/// *non-Now-Playing-app* context is restricted by iOS: reads only return
-/// data the current process itself has published. Third-party players
-/// like Spotify never expose their metadata through that API from another
-/// app. A real integration therefore has to pick one of:
-///
-///   1. Make ScramScreen itself the Now Playing source (playing audio in
-///      our process) — wrong for a motorcycle dashboard.
-///   2. Use ``MPMusicPlayerController`` (system music player), which only
-///      sees tracks played through the Apple Music app and needs
-///      `NSAppleMusicUsageDescription` plus user consent.
-///   3. Ask the user to pair ScramScreen with a Media Remote private API
-///      — off limits for App Store submission.
-///
-/// Slice 8 ships the ``NowPlayingClient`` protocol seam so the rest of
-/// the domain (``RealNowPlayingProvider``, ``MusicService``, the BLE
-/// pipeline) can be fully tested today. A follow-up slice will wire one
-/// of the options above. Until then this client always throws
-/// ``NowPlayingClientError/notImplemented``.
+/// Reads the system now-playing info dictionary and playback state to
+/// build a ``NowPlayingClientResponse``. Returns `nil` when no track
+/// metadata is available (e.g. nothing is playing). Missing fields are
+/// handled gracefully — title falls back to `"Unknown"`, artist and
+/// album fall back to empty strings, and position/duration are `nil`
+/// when unreported.
 public final class MediaPlayerNowPlayingClient: NowPlayingClient, @unchecked Sendable {
     public init() {}
 
     public func fetchNowPlaying() async throws -> NowPlayingClientResponse? {
-        throw NowPlayingClientError.notImplemented
+        let infoCenter = MPNowPlayingInfoCenter.default()
+        guard let info = infoCenter.nowPlayingInfo else {
+            return nil
+        }
+
+        let title = info[MPMediaItemPropertyTitle] as? String ?? "Unknown"
+        let artist = info[MPMediaItemPropertyArtist] as? String ?? ""
+        let album = info[MPMediaItemPropertyAlbumTitle] as? String ?? ""
+
+        let duration = info[MPMediaItemPropertyPlaybackDuration] as? Double
+        let elapsed = info[MPNowPlayingInfoPropertyElapsedPlaybackTime] as? Double
+
+        let playbackState = infoCenter.playbackState
+        let isPlaying = playbackState == .playing
+
+        return NowPlayingClientResponse(
+            title: title,
+            artist: artist,
+            album: album,
+            isPlaying: isPlaying,
+            positionSeconds: elapsed,
+            durationSeconds: duration
+        )
     }
 }
 #else

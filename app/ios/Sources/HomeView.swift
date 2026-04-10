@@ -8,6 +8,7 @@ struct HomeView: View {
     #if DEBUG
     @State private var showSimulator = false
     @State private var showScreenPicker = false
+    @State private var showLivePreview = false
     #endif
 
     var body: some View {
@@ -217,6 +218,17 @@ struct HomeView: View {
                         ScreenPickerView()
                     }
             }
+
+            Button("Live Preview") { showLivePreview = true }
+                .font(.scramCaption)
+                .foregroundStyle(Color.scramTextSecondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, ScramSpacing.md)
+                .background(Color.scramSurfaceElevated)
+                .clipShape(RoundedRectangle(cornerRadius: ScramRadius.cardSmall))
+                .fullScreenCover(isPresented: $showLivePreview) {
+                    DisplayPreviewView()
+                }
         }
     }
     #endif

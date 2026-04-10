@@ -58,12 +58,14 @@ public struct TripStatsAccumulator: Sendable, Equatable {
         var next = self
 
         if let previous = lastSample {
-            // Distance — always.
+            // Distance — only when actually moving (filter GPS noise at standstill).
             let distance = GeoMath.haversineMeters(
                 lat1: previous.latitude, lon1: previous.longitude,
                 lat2: sample.latitude, lon2: sample.longitude
             )
-            next.distanceMeters += distance
+            if sample.speedMps > 1.0 {
+                next.distanceMeters += distance
+            }
 
             // Time — positive deltas only.
             let dt = sample.scenarioTime - previous.scenarioTime

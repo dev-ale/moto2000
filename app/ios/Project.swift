@@ -68,7 +68,7 @@ let project = Project(
                 ],
                 "NSCalendarsFullAccessUsageDescription":
                     "ScramScreen reads your calendar to show upcoming appointments on your motorcycle display.",
-                "ITSAppUsesNonExemptEncryption": false,
+                "ITSAppUsesNonExemptEncryption": .boolean(false),
                 "UIBackgroundModes": [
                     "bluetooth-central",
                     "location",

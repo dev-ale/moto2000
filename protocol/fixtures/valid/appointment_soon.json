@@ -1,0 +1,10 @@
+{
+  "description": "Appointment starting in 30 minutes: Coffee at Kaffee Lade, Basel",
+  "screen": "appointment",
+  "flags": [],
+  "body": {
+    "starts_in_minutes": 30,
+    "title": "Coffee at Kaffee Lade",
+    "location": "Basel"
+  }
+}

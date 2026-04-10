@@ -1,0 +1,5 @@
+{
+  "description": "Appointment body with a 32-byte title field completely filled with 'A' (no room for the mandatory null terminator) — must be rejected",
+  "expected_error": "unterminatedString",
+  "raw_bytes_hex": "010c00003c0000001e0041414141414141414141414141414141414141414141414141414141414141416f6b000000000000000000000000000000000000000000000000"
+}

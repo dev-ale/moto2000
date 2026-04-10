@@ -1,0 +1,10 @@
+{
+  "description": "Appointment already started 15 minutes ago, night mode",
+  "screen": "appointment",
+  "flags": ["NIGHT_MODE"],
+  "body": {
+    "starts_in_minutes": -15,
+    "title": "Lunch meeting",
+    "location": "Marktplatz"
+  }
+}

@@ -10,6 +10,7 @@
 #include "common/screen_manager.h"
 #include "screens/screen_clock.h"
 #include "screens/screen_speed.h"
+#include "screens/screen_compass.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -75,9 +76,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
             screen_speed_create(scr, &speed, speed_flags);
             break;
         }
-        case BLE_SCREEN_COMPASS:
-            screen_placeholder_create(scr, "COMPASS");
+        case BLE_SCREEN_COMPASS: {
+            ble_compass_data_t compass;
+            uint8_t compass_flags = 0;
+            rc = ble_decode_compass(data, len, &compass_flags, &compass);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: compass decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "COMPASS (decode error)");
+                break;
+            }
+            screen_compass_create(scr, &compass, compass_flags);
             break;
+        }
         case BLE_SCREEN_WEATHER:
             screen_placeholder_create(scr, "WEATHER");
             break;

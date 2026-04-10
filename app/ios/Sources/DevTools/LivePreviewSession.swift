@@ -95,8 +95,12 @@ final class LivePreviewSession {
     }
 
     func startNavigation(latitude: Double, longitude: Double) {
-        guard let locationProvider else { return }
+        guard let locationProvider else {
+            print("[Nav] No location provider")
+            return
+        }
         #if canImport(MapKit)
+        print("[Nav] Starting navigation to \(latitude), \(longitude)")
         let engine = MKDirectionsRouteEngine()
         let navService = NavigationService(
             routeEngine: engine,
@@ -108,11 +112,18 @@ final class LivePreviewSession {
             longitude: longitude
         )
         tasks.append(Task { @MainActor [weak self] in
-            try? await navService.start(destination: dest)
+            do {
+                try await navService.start(destination: dest)
+                print("[Nav] Route started, waiting for payloads")
+            } catch {
+                print("[Nav] Start failed: \(error)")
+                return
+            }
             for await data in navService.navDataPayloads {
                 guard self != nil else { return }
                 if let payload = try? ScreenPayloadCodec.decode(data),
                    case .navigation(let decoded, _) = payload {
+                    print("[Nav] Got nav payload")
                     self?.latestNav = decoded
                 }
             }

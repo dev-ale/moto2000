@@ -442,6 +442,18 @@ Decoders must fail with a clear error if any of the following hold:
   (`unknownScreenId`).
 - `setBrightness` value > 100 (`invalidCommandValue`).
 
+## GATT server implementation
+
+The ESP32 GATT server lives in
+`hardware/firmware/components/ble_server/`. It uses the NimBLE static
+GATT table approach (`ble_gatt_svc_def` arrays) with three
+characteristics matching the UUIDs above. Write callbacks in
+`ble_server.c` flatten the NimBLE mbuf and forward raw bytes to the
+pure-C dispatch layer in `ble_server_handlers.c`, which routes them
+through `ble_protocol`, `screen_fsm`, and `ble_reconnect`. The handler
+file has zero ESP-IDF dependencies and is host-tested via Unity (see
+`hardware/firmware/test/host/test_ble_server_handlers.c`).
+
 ## Status notifications
 
 Defined in Slice 2 (#3). Placeholder.

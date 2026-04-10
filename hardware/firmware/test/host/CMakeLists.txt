@@ -135,3 +135,23 @@ target_include_directories(ota_fsm
 add_executable(test_ota_fsm test_ota_fsm.c)
 target_link_libraries(test_ota_fsm PRIVATE unity ota_fsm)
 add_test(NAME ota_fsm COMMAND test_ota_fsm)
+
+# ------------------------------------------------------------------------- #
+# ble_server handlers — Slice 2 BLE GATT dispatch (host-testable part)      #
+# ------------------------------------------------------------------------- #
+set(BLE_SERVER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ble_server")
+add_library(ble_server_handlers STATIC
+    "${BLE_SERVER_ROOT}/src/ble_server_handlers.c"
+)
+target_include_directories(ble_server_handlers
+    PUBLIC "${BLE_SERVER_ROOT}/include"
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(ble_server_handlers PUBLIC ble_protocol screen_fsm ble_reconnect)
+
+add_executable(test_ble_server_handlers test_ble_server_handlers.c)
+target_include_directories(test_ble_server_handlers
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(test_ble_server_handlers PRIVATE unity ble_server_handlers)
+add_test(NAME ble_server_handlers COMMAND test_ble_server_handlers)

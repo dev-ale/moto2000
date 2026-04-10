@@ -5,4 +5,5 @@ idf_component_register(
         esp_common
         log
         nvs_flash
+        ble_server
 )

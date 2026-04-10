@@ -3,6 +3,42 @@
 Notes on iOS restrictions that affect ScramScreen's design, and the follow-up
 work each one implies.
 
+## CXCallObserver — Slice 13
+
+**Restriction.** `CXCallObserver` (CallKit framework) exposes call state
+transitions (incoming, connected, ended, on hold) but does **not** expose
+the caller's phone number or contact name to third-party apps. The
+`CXCall` object provides only `uuid`, `isOutgoing`, `hasConnected`,
+`hasEnded`, and `isOnHold`. There is no public iOS API that lets an
+arbitrary app read "who is calling" for regular cellular calls.
+
+**What Slice 13 ships.** The `CallKitClient` protocol in
+`app/ios/Packages/ScramCore/Sources/ScramCore/Calls/` defines an abstract
+"where does the current call state come from" seam. The domain consumes
+it through `RealCallObserver`, which polls a client and republishes events
+to `CallAlertService`. Tests run against `StaticCallKitClient` +
+`MockCallObserver` and never touch a system framework.
+
+A `CXCallObserverClient` stub exists and is gated on
+`#if canImport(CallKit)`. It currently always throws
+`CallKitClientError.notImplemented`.
+
+**What the `caller_handle` field carries.** Because iOS does not expose
+the real caller identity, the BLE wire format's `caller_handle` field
+(`char[30]`) carries an app-level contact alias assigned by the user
+or scenario (e.g. "contact-mom", "unknown"). In production the field may
+always be "unknown" unless a future integration with Contacts.framework
+is added.
+
+**What the user sees today.** The call overlay renders correctly in the
+host simulator against fixture data, and integration tests prove the
+whole iOS pipeline (scenario call events -> `CallAlertService` -> BLE
+payload with ALERT flag) works end-to-end using the simulator's
+scripted `CallEvent` values. Running the app against a real iPhone
+produces no call payloads until the `CXCallObserverClient` stub is
+wired; the dashboard falls back to the last-known stale payload (or
+hides the screen if none has been seen) via the Slice 17 staleness cache.
+
 ## Now Playing info (`MPNowPlayingInfoCenter`) — Slice 8
 
 **Restriction.** `MPNowPlayingInfoCenter.default().nowPlayingInfo` is

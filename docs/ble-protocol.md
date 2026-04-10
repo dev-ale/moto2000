@@ -81,7 +81,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x06` | `music`         | Music             | 8   | TBD |
 | `0x07` | `leanAngle`     | Lean Angle        | 10  | `lean_angle_data_t` |
 | `0x08` | `blitzer`       | Blitzer / Radar   | 14  | TBD |
-| `0x09` | `incomingCall`  | Incoming Call     | 13  | TBD |
+| `0x09` | `incomingCall`  | Incoming Call     | 13  | `incoming_call_data_t` |
 | `0x0A` | `fuelEstimate`  | Fuel Estimate     | 12  | `fuel_data_t` |
 | `0x0B` | `altitude`      | Altitude Profile  | 15  | `altitude_profile_data_t` |
 | `0x0C` | `appointment`   | Next Appointment  | 11  | `appointment_data_t` |
@@ -314,6 +314,37 @@ Apple Developer account with the WeatherKit capability and a signed `.p8`
 key — both infrastructure concerns outside the scope of the dashboard
 protocol work. A follow-up PR will replace the stub without touching the
 wire format.
+
+### `incoming_call_data_t` (screen `0x09`)
+
+Body size: **32 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `call_state` | `uint8` | `0x00` = incoming, `0x01` = connected, `0x02` = ended. Unknown values are rejected with `valueOutOfRange`. |
+| 1 | `reserved` | `uint8` | Must be `0x00`. |
+| 2 | `caller_handle` | `char[30]` | UTF-8, zero-padded, null-terminated. Must contain a terminator (len < 30). On iOS the carrier identity is NOT available to third-party apps, so this field carries an app-level contact alias or "unknown". See [platform-limits.md](./platform-limits.md). |
+
+#### ALERT flag interaction (Slice 13)
+
+The `ALERT` header flag (bit 0 in the `flags` byte -- see
+[Flags bitfield](#flags-bitfield)) has special meaning for incoming call
+payloads:
+
+- When `call_state` is `incoming` (`0x00`) or `connected` (`0x01`), the
+  iOS encoder **must set** the `ALERT` flag. This signals the ESP32 screen
+  FSM to treat the payload as a priority overlay: it interrupts the
+  current screen and returns to the previous screen after the call clears.
+- When `call_state` is `ended` (`0x02`), the iOS encoder **must clear**
+  the `ALERT` flag. The ESP32 FSM uses this as the signal to dismiss the
+  overlay and restore the previous screen.
+
+The ALERT flag lives in the **header**, not in the body. The body
+`call_state` field and the header `flags` byte must be consistent --
+decoders may reject a payload where `call_state == ended` but `ALERT` is
+set, or where `call_state == incoming` but `ALERT` is clear, as a
+protocol-level warning (though the current codecs do not enforce this
+for forward compatibility).
 
 Other screen body definitions are added by their respective slices and follow the
 same pattern: fixed offsets, fixed size, explicit reserved bytes.

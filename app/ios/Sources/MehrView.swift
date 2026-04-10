@@ -10,11 +10,9 @@ struct MehrView: View {
     @AppStorage("scramscreen.unit.speed")
     private var useKmh = true
     @AppStorage("scramscreen.unit.temp")
-    private var useCelsius = true
+    var useCelsius = true
     @AppStorage("scramscreen.alert.sound")
     private var alertSounds = true
-    @AppStorage("scramscreen.display.autoSleep")
-    private var autoSleepMinutes = 5
     @AppStorage("scramscreen.display.brightness")
     private var brightness: Double = 80
     @AppStorage("scramscreen.display.nightMode")
@@ -26,6 +24,8 @@ struct MehrView: View {
     @State var ekCalendars: [EKCalendar] = []
     @State private var availableUpdate: FirmwareUpdate?
     @State private var showOTASheet = false
+    @State var weatherText: String?
+    @State var weatherIcon: String = "cloud"
 
     var body: some View {
         ScrollView {
@@ -40,6 +40,12 @@ struct MehrView: View {
 
                 settingsSection("Geraet") {
                     deviceSection
+                }
+
+                // MARK: - Weather
+
+                settingsSection("Wetter") {
+                    weatherSection
                 }
 
                 // MARK: - Display
@@ -95,6 +101,7 @@ struct MehrView: View {
         }
         .task {
             await checkForFirmwareUpdate()
+            await fetchWeather()
         }
     }
 
@@ -174,14 +181,6 @@ struct MehrView: View {
                 }
             }
             .padding(ScramSpacing.lg)
-
-            settingsPickerRow(
-                icon: "moon",
-                title: "Auto-Sleep",
-                options: [2, 5, 10, 15, 30],
-                labels: ["2 Min", "5 Min", "10 Min", "15 Min", "30 Min"],
-                selection: $autoSleepMinutes
-            )
 
             nightModeRow
         }
@@ -366,4 +365,5 @@ struct MehrView: View {
             // Silently ignore — update badge simply won't appear
         }
     }
+
 }

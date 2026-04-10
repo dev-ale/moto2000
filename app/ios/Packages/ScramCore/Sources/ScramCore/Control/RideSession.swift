@@ -126,15 +126,12 @@ public actor RideSession {
         try await bleClient.send(orderData)
 
         // 3. Create the scheduler.
-        let client = bleClient
-        let sched = PayloadScheduler(send: { data in
-            try await client.send(data)
-        })
+        let sched = PayloadScheduler()
         self.scheduler = sched
 
         // Set the first screen as active.
         if let firstScreen = enabledScreenIDs.first {
-            await sched.setActiveScreen(firstScreen)
+            sched.activeScreen = firstScreen
         }
 
         // 4. Create and start services, subscribing to their output.
@@ -216,7 +213,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.encodedPayloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .speedHeading, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -230,7 +227,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.payloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .tripStats, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -244,7 +241,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.encodedPayloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .weather, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -258,7 +255,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.encodedPayloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .leanAngle, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -272,7 +269,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.encodedPayloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .music, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -286,7 +283,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.encodedPayloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .appointment, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -300,7 +297,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.payloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .fuelEstimate, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -314,7 +311,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.payloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .blitzer, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -328,7 +325,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.encodedPayloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .incomingCall, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -342,7 +339,7 @@ public actor RideSession {
             let task = Task { [weak self] in
                 for await payload in svc.payloads {
                     guard self != nil, !Task.isCancelled else { return }
-                    await scheduler.enqueue(screenID: .altitude, payload: payload)
+                    await self?.scheduleAndSend(payload)
                 }
             }
             serviceTasks.append(task)
@@ -353,7 +350,16 @@ public actor RideSession {
         guard let message = try? StatusMessage.decode(data) else { return }
         switch message {
         case .screenChanged(let screenID):
-            await scheduler?.setActiveScreen(screenID)
+            scheduler?.activeScreen = screenID
+        }
+    }
+
+    /// Route a payload through the scheduler and send results over BLE.
+    private func scheduleAndSend(_ payload: Data) async {
+        guard let scheduler else { return }
+        let outgoing = scheduler.schedule(payload)
+        for data in outgoing {
+            try? await bleClient.send(data)
         }
     }
 }

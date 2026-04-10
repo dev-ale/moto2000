@@ -26,7 +26,7 @@ public final class PayloadScheduler: @unchecked Sendable {
     public private(set) var activeAlert: ScreenID?
 
     /// The ScreenID of the most recently forwarded non-alert payload.
-    public private(set) var activeScreen: ScreenID?
+    public var activeScreen: ScreenID?
 
     /// Most recently seen navigation payload (raw Data), kept for ALERT-flag
     /// injection when a blitzer fires during navigation.

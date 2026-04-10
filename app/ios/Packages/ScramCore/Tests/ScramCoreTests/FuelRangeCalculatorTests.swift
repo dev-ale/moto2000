@@ -12,13 +12,14 @@ final class FuelRangeCalculatorTests: XCTestCase {
             currentDistanceSinceLastFillKm: 0,
             settings: FuelSettings()
         )
-        XCTAssertNil(estimate.consumptionMlPerKm)
-        XCTAssertNil(estimate.remainingMl)
-        XCTAssertNil(estimate.rangeKm)
-        XCTAssertNil(estimate.tankPercent)
+        // With default 3.5L/100km (35 mL/km), estimates are non-nil
+        XCTAssertEqual(estimate.consumptionMlPerKm, 35.0)
+        XCTAssertNotNil(estimate.remainingMl)
+        XCTAssertNotNil(estimate.rangeKm)
+        XCTAssertNotNil(estimate.tankPercent)
     }
 
-    func test_noFullFills_returnsNil() {
+    func test_noFullFills_usesDefault() {
         let partial = FuelFillEntry(
             amountMilliliters: 5000,
             distanceSinceLastFillKm: 100,
@@ -29,7 +30,8 @@ final class FuelRangeCalculatorTests: XCTestCase {
             currentDistanceSinceLastFillKm: 0,
             settings: FuelSettings()
         )
-        XCTAssertNil(estimate.consumptionMlPerKm)
+        // Default 35 mL/km used when no full fills
+        XCTAssertEqual(estimate.consumptionMlPerKm, 35.0)
     }
 
     // MARK: - Single full fill

@@ -64,7 +64,7 @@ final class TripStatsServiceTests: XCTestCase {
         let afterSeed = service.currentSnapshot
         XCTAssertEqual(afterSeed.rideTimeSeconds, 0)
 
-        mock.emit(LocationSample(scenarioTime: 101, latitude: 48.0001, longitude: 7, altitudeMeters: 260, speedMps: 0))
+        mock.emit(LocationSample(scenarioTime: 101, latitude: 48.0001, longitude: 7, altitudeMeters: 260, speedMps: 5))
         _ = await iterator.next()
         let afterSecond = service.currentSnapshot
         XCTAssertEqual(afterSecond.rideTimeSeconds, 1)

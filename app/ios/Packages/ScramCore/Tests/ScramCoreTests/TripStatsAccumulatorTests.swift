@@ -45,8 +45,8 @@ final class TripStatsAccumulatorTests: XCTestCase {
         let acc = TripStatsAccumulator().ingesting(s1).ingesting(s2)
         // Max speed is from s1 only (5 m/s = 18 km/h), s2 is skipped.
         XCTAssertEqual(acc.maxSpeedKmh, 18.0, accuracy: 0.01)
-        // But distance still accrued from coordinates.
-        XCTAssertGreaterThan(acc.distanceMeters, 0)
+        // Distance not accrued because s2 has speed < 1 m/s (GPS noise filter).
+        XCTAssertEqual(acc.distanceMeters, 0, accuracy: 0.01)
     }
 
     func test_altitudeJitterUnderOneMeter_isIgnored() {

@@ -78,9 +78,10 @@ final class FuelServiceTests: XCTestCase {
         XCTAssertNotNil(payload)
 
         if let payload, case .fuelEstimate(let fuel, _) = try ScreenPayloadCodec.decode(payload) {
-            XCTAssertEqual(fuel.estimatedRangeKm, FuelData.unknown)
-            XCTAssertEqual(fuel.consumptionMlPerKm, FuelData.unknown)
-            XCTAssertEqual(fuel.fuelRemainingMl, FuelData.unknown)
+            // Default 3.5L/100km consumption is used, so values are non-unknown
+            XCTAssertNotEqual(fuel.estimatedRangeKm, 0)
+            XCTAssertNotEqual(fuel.consumptionMlPerKm, 0)
+            XCTAssertNotEqual(fuel.fuelRemainingMl, 0)
         } else {
             XCTFail("expected fuelEstimate payload")
         }

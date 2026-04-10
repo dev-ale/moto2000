@@ -126,17 +126,18 @@ final class FuelCalculationTests: XCTestCase {
         XCTAssertEqual(estimate.rangeKm!, 275.0, accuracy: 0.1)
     }
 
-    func test_noFills_allEstimatesNil() {
+    func test_noFills_usesDefaultConsumption() {
         let estimate = FuelRangeCalculator.estimate(
             fills: [],
             currentDistanceSinceLastFillKm: 50,
             settings: FuelSettings(tankCapacityMl: 15_000)
         )
 
-        XCTAssertNil(estimate.consumptionMlPerKm)
-        XCTAssertNil(estimate.remainingMl)
-        XCTAssertNil(estimate.rangeKm)
-        XCTAssertNil(estimate.tankPercent)
+        // Default 3.5L/100km (35 mL/km) used when no fill history
+        XCTAssertEqual(estimate.consumptionMlPerKm, 35.0)
+        XCTAssertNotNil(estimate.remainingMl)
+        XCTAssertNotNil(estimate.rangeKm)
+        XCTAssertNotNil(estimate.tankPercent)
     }
 
     func test_rangeEstimate_clampsAtZero() {

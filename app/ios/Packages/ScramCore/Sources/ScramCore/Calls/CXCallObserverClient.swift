@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(CallKit)
+#if canImport(CallKit) && os(iOS)
 import CallKit
 
 /// Production ``CallKitClient`` backed by `CXCallObserver`.

@@ -1,0 +1,11 @@
+{
+  "description": "Unknown camera type, 200m away, speed limit unknown (0xFFFF), ALERT set",
+  "screen": "blitzer",
+  "flags": ["ALERT"],
+  "body": {
+    "distance_meters": 200,
+    "speed_limit_kmh_raw": 65535,
+    "current_speed_kmh": 90.0,
+    "camera_type": "unknown"
+  }
+}

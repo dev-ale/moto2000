@@ -92,6 +92,8 @@ size_t ble_expected_body_size(ble_screen_id_t screen)
             return BLE_PROTOCOL_ALTITUDE_BODY_SIZE;
         case BLE_SCREEN_INCOMING_CALL:
             return BLE_PROTOCOL_INCOMING_CALL_BODY_SIZE;
+        case BLE_SCREEN_BLITZER:
+            return BLE_PROTOCOL_BLITZER_BODY_SIZE;
         default:
             return 0;
     }

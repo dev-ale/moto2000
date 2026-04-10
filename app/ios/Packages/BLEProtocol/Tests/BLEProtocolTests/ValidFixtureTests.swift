@@ -75,6 +75,8 @@ final class ValidFixtureTests: XCTestCase {
             return .altitude(try AltitudeProfileData(parsing: body), flags: flags)
         case "incomingCall":
             return .incomingCall(try IncomingCallData(parsing: body), flags: flags)
+        case "blitzer":
+            return .blitzer(try BlitzerData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -432,6 +434,48 @@ extension IncomingCallData {
         }
         let callerHandle = (body["caller_handle"] as? String) ?? ""
         self.init(callState: callState, callerHandle: callerHandle)
+    }
+}
+
+extension BlitzerData {
+    init(parsing body: [String: Any]) throws {
+        func intValue(_ key: String, default defaultValue: Int? = nil) throws -> Int {
+            if let i = body[key] as? Int { return i }
+            if let d = body[key] as? Double { return Int(d) }
+            if let defaultValue { return defaultValue }
+            throw FixtureError.missingField(key)
+        }
+        func doubleValue(_ key: String) throws -> Double {
+            if let d = body[key] as? Double { return d }
+            if let i = body[key] as? Int { return Double(i) }
+            throw FixtureError.missingField(key)
+        }
+        let distance = try intValue("distance_meters")
+        let speedLimit: UInt16
+        if let raw = body["speed_limit_kmh_raw"] as? Int {
+            speedLimit = UInt16(raw)
+        } else {
+            speedLimit = UInt16(try intValue("speed_limit_kmh"))
+        }
+        let currentSpeed = try doubleValue("current_speed_kmh")
+        guard let typeName = body["camera_type"] as? String else {
+            throw FixtureError.missingField("camera_type")
+        }
+        let cameraType: CameraTypeWire
+        switch typeName {
+        case "fixed": cameraType = .fixed
+        case "mobile": cameraType = .mobile
+        case "redLight": cameraType = .redLight
+        case "section": cameraType = .section
+        case "unknown": cameraType = .unknown
+        default: throw FixtureError.missingField("camera_type")
+        }
+        self.init(
+            distanceMeters: UInt16(distance),
+            speedLimitKmh: speedLimit,
+            currentSpeedKmhX10: UInt16(Int(round(currentSpeed * 10))),
+            cameraType: cameraType
+        )
     }
 }
 

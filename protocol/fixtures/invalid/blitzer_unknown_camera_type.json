@@ -1,0 +1,5 @@
+{
+  "description": "Blitzer with unknown camera type 0xFF — must be rejected",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "01 08 01 00 08 00 00 00 F4 01 50 00 D0 02 FF 00"
+}

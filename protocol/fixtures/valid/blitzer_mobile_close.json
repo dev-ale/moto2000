@@ -1,0 +1,11 @@
+{
+  "description": "Mobile camera, 150m away, 60 km/h limit, current 58 km/h, ALERT set",
+  "screen": "blitzer",
+  "flags": ["ALERT"],
+  "body": {
+    "distance_meters": 150,
+    "speed_limit_kmh": 60,
+    "current_speed_kmh": 58.0,
+    "camera_type": "mobile"
+  }
+}

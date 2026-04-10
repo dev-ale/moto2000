@@ -18,6 +18,7 @@
 #include "screens/screen_lean_angle.h"
 #include "screens/screen_altitude.h"
 #include "screens/screen_calendar.h"
+#include "screens/screen_fuel.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -164,9 +165,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
         case BLE_SCREEN_INCOMING_CALL:
             screen_placeholder_create(scr, "INCOMING CALL");
             break;
-        case BLE_SCREEN_FUEL_ESTIMATE:
-            screen_placeholder_create(scr, "FUEL ESTIMATE");
+        case BLE_SCREEN_FUEL_ESTIMATE: {
+            ble_fuel_data_t fuel;
+            uint8_t fuel_flags = 0;
+            rc = ble_decode_fuel(data, len, &fuel_flags, &fuel);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: fuel decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "FUEL (decode error)");
+                break;
+            }
+            screen_fuel_create(scr, &fuel, fuel_flags);
             break;
+        }
         case BLE_SCREEN_ALTITUDE: {
             ble_altitude_profile_data_t altitude;
             uint8_t alt_flags = 0;

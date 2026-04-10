@@ -464,6 +464,18 @@ Decoders must fail with a clear error if any of the following hold:
   (`unknownScreenId`).
 - `setBrightness` value > 100 (`invalidCommandValue`).
 
+## GATT server implementation
+
+The ESP32 GATT server lives in
+`hardware/firmware/components/ble_server/`. It uses the NimBLE static
+GATT table approach (`ble_gatt_svc_def` arrays) with three
+characteristics matching the UUIDs above. Write callbacks in
+`ble_server.c` flatten the NimBLE mbuf and forward raw bytes to the
+pure-C dispatch layer in `ble_server_handlers.c`, which routes them
+through `ble_protocol`, `screen_fsm`, and `ble_reconnect`. The handler
+file has zero ESP-IDF dependencies and is host-tested via Unity (see
+`hardware/firmware/test/host/test_ble_server_handlers.c`).
+
 ## Status notifications
 
 Defined in Slice 2 (#3). The `status` characteristic sends notifications from
@@ -526,6 +538,46 @@ The staleness threshold is a property of the renderer, not the wire format —
 both sides default to 2 seconds and can be tuned per screen without a
 protocol bump. See [background-ble.md](./background-ble.md) for the full
 reconnect lifecycle.
+
+## Firmware Architecture
+
+The ESP32 firmware processes BLE data through a layered pipeline:
+
+```
+iOS App
+  |  BLE write (screen_data / control characteristic)
+  v
+ble_server          NimBLE GATT callbacks, invokes app-level handlers
+  |
+  v
+ble_server_handlers Pure-C dispatch (no ESP-IDF deps, host-testable)
+  |
+  +---> ble_protocol        Decode header, validate version/flags/body
+  +---> screen_fsm          Drive screen state (ACTIVE / ALERT_OVERLAY / SLEEP)
+  +---> ble_payload_cache   Store body per screen_id with timestamp
+  |
+  v
+screen_manager      Map screen_id to LVGL screen constructor, load screen
+  |
+  v
+screens/*           14 LVGL screen implementations (clock, speed, nav, ...)
+  |
+  v
+LVGL core           Layout, render to framebuffer
+  |
+  v
+display driver      Flush framebuffer via QSPI to Waveshare 1.75" AMOLED
+```
+
+The `screen_fsm`, `ble_reconnect`, and `ble_payload_cache` are pure C with no
+ESP-IDF dependencies. They are tested on the host via Unity (see
+`hardware/firmware/test/host/`). The `ble_server_handlers` dispatch layer is
+also pure C and host-tested, ensuring the full decode-dispatch-cache pipeline
+works without hardware.
+
+The main loop (`app_main`) calls `lv_timer_handler()` on the default FreeRTOS
+task. BLE callbacks fire on the NimBLE host task and update the shared state
+machines; rendering is driven solely by the LVGL timer in the main loop.
 
 ## Golden fixtures
 

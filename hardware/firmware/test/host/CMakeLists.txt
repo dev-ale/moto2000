@@ -66,7 +66,6 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_altitude.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_call.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_blitzer.c"
-    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_status.c"
 )
 target_include_directories(ble_protocol
     PUBLIC "${BLE_PROTOCOL_ROOT}/include"
@@ -138,27 +137,44 @@ target_link_libraries(test_ota_fsm PRIVATE unity ota_fsm)
 add_test(NAME ota_fsm COMMAND test_ota_fsm)
 
 # ------------------------------------------------------------------------- #
-# payload_cache — Slice 25 per-screen BLE payload cache                      #
+# ble_server handlers — Slice 2 BLE GATT dispatch (host-testable part)      #
 # ------------------------------------------------------------------------- #
-set(PAYLOAD_CACHE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/payload_cache")
-add_library(payload_cache STATIC
-    "${PAYLOAD_CACHE_ROOT}/src/payload_cache.c"
+set(BLE_SERVER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ble_server")
+add_library(ble_server_handlers STATIC
+    "${BLE_SERVER_ROOT}/src/ble_server_handlers.c"
 )
-target_include_directories(payload_cache PUBLIC "${PAYLOAD_CACHE_ROOT}/include")
-
-add_executable(test_payload_cache test_payload_cache.c)
-target_link_libraries(test_payload_cache PRIVATE unity payload_cache)
-add_test(NAME payload_cache COMMAND test_payload_cache)
-
-# ------------------------------------------------------------------------- #
-# screen_order — Slice 25 screen order manager + button handler              #
-# ------------------------------------------------------------------------- #
-set(SCREEN_ORDER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/screen_order")
-add_library(screen_order STATIC
-    "${SCREEN_ORDER_ROOT}/src/screen_order.c"
+target_include_directories(ble_server_handlers
+    PUBLIC "${BLE_SERVER_ROOT}/include"
+    PRIVATE "${BLE_SERVER_ROOT}/src"
 )
-target_include_directories(screen_order PUBLIC "${SCREEN_ORDER_ROOT}/include")
+target_link_libraries(ble_server_handlers PUBLIC ble_protocol screen_fsm ble_reconnect)
 
-add_executable(test_screen_order test_screen_order.c)
-target_link_libraries(test_screen_order PRIVATE unity screen_order)
-add_test(NAME screen_order COMMAND test_screen_order)
+add_executable(test_ble_server_handlers test_ble_server_handlers.c)
+target_include_directories(test_ble_server_handlers
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(test_ble_server_handlers PRIVATE unity ble_server_handlers)
+add_test(NAME ble_server_handlers COMMAND test_ble_server_handlers)
+
+# ------------------------------------------------------------------------- #
+# display — header-only test (LVGL not available on host)                    #
+# ------------------------------------------------------------------------- #
+# The display component's stub and common sources require LVGL, which is not
+# part of this host-test build.  We test only that the public header compiles
+# cleanly and that the compile-time constants are correct.
+set(DISPLAY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/display")
+
+add_executable(test_display_stub test_display_stub.c)
+target_include_directories(test_display_stub PRIVATE "${DISPLAY_ROOT}/include")
+target_link_libraries(test_display_stub PRIVATE unity)
+add_test(NAME display_stub COMMAND test_display_stub)
+
+# ------------------------------------------------------------------------- #
+# integration — full app_main wiring (no LVGL, host-only FSM + dispatch)    #
+# ------------------------------------------------------------------------- #
+add_executable(test_integration test_integration.c)
+target_include_directories(test_integration
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(test_integration PRIVATE unity ble_server_handlers)
+add_test(NAME integration COMMAND test_integration)

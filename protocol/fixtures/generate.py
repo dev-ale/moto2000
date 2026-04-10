@@ -78,6 +78,7 @@ NAV_BODY_SIZE = 56
 CLOCK_BODY_SIZE = 12
 SPEED_HEADING_BODY_SIZE = 8
 COMPASS_BODY_SIZE = 8
+TRIP_STATS_BODY_SIZE = 16
 
 COMPASS_FLAG_USE_TRUE_HEADING = 1 << 0
 COMPASS_TRUE_HEADING_UNKNOWN = 0xFFFF
@@ -188,11 +189,34 @@ def encode_compass_body(spec: dict) -> bytes:
     return body
 
 
+def encode_trip_stats_body(spec: dict) -> bytes:
+    ride_time = int(spec["ride_time_seconds"])
+    distance = int(spec["distance_meters"])
+    avg_x10 = int(round(spec["average_speed_kmh"] * 10))
+    max_x10 = int(round(spec["max_speed_kmh"] * 10))
+    ascent = int(spec["ascent_meters"])
+    descent = int(spec["descent_meters"])
+    body = struct.pack(
+        "<IIHHHH",
+        ride_time,
+        distance,
+        avg_x10,
+        max_x10,
+        ascent,
+        descent,
+    )
+    assert len(body) == TRIP_STATS_BODY_SIZE, (
+        f"trip_stats body is {len(body)} bytes, expected {TRIP_STATS_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
     "speedHeading": encode_speed_heading_body,
     "compass": encode_compass_body,
+    "tripStats": encode_trip_stats_body,
 }
 
 

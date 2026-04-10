@@ -26,6 +26,7 @@ public enum ScreenID: UInt8, Sendable, CaseIterable {
         case .navigation: return NavData.encodedSize
         case .speedHeading: return SpeedHeadingData.encodedSize
         case .compass: return CompassData.encodedSize
+        case .tripStats: return TripStatsData.encodedSize
         default: return nil
         }
     }

@@ -1,0 +1,5 @@
+{
+  "description": "Trip stats body with max_speed_kmh_x10=5000 (> 3000 max)",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "01 05 00 00 10 00 00 00 00000000 00000000 0000 8813 0000 0000"
+}

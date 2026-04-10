@@ -23,6 +23,7 @@ extern "C" {
 #define BLE_PROTOCOL_CLOCK_BODY_SIZE ((size_t)12)
 #define BLE_PROTOCOL_SPEED_HEADING_BODY_SIZE ((size_t)8)
 #define BLE_PROTOCOL_COMPASS_BODY_SIZE ((size_t)8)
+#define BLE_PROTOCOL_TRIP_STATS_BODY_SIZE ((size_t)16)
 
 /* Flag bits carried in the compass body flags byte. */
 #define BLE_COMPASS_FLAG_USE_TRUE_HEADING (1U << 0)
@@ -122,6 +123,15 @@ typedef struct {
     uint16_t       eta_minutes;
     uint16_t       remaining_km_x10;
 } ble_nav_data_t;
+
+typedef struct {
+    uint32_t ride_time_seconds;
+    uint32_t distance_meters;
+    uint16_t average_speed_kmh_x10;
+    uint16_t max_speed_kmh_x10;
+    uint16_t ascent_meters;
+    uint16_t descent_meters;
+} ble_trip_stats_data_t;
 
 typedef struct {
     ble_screen_id_t screen_id;
@@ -228,6 +238,17 @@ ble_result_t ble_encode_control(const ble_control_payload_t *in,
 ble_result_t ble_decode_control(const uint8_t         *data,
                                 size_t                 length,
                                 ble_control_payload_t *out_payload);
+
+ble_result_t ble_decode_trip_stats(const uint8_t            *data,
+                                   size_t                    length,
+                                   uint8_t                  *out_flags,
+                                   ble_trip_stats_data_t    *out);
+
+ble_result_t ble_encode_trip_stats(const ble_trip_stats_data_t *in,
+                                   uint8_t                      flags,
+                                   uint8_t                     *out_buf,
+                                   size_t                       out_cap,
+                                   size_t                      *out_written);
 
 #ifdef __cplusplus
 }

@@ -1,0 +1,13 @@
+{
+  "description": "Trip stats: 10 min city loop, 7 km, 42/68 km/h, +120/-120 m",
+  "screen": "tripStats",
+  "flags": [],
+  "body": {
+    "ride_time_seconds": 600,
+    "distance_meters": 7000,
+    "average_speed_kmh": 42.0,
+    "max_speed_kmh": 68.0,
+    "ascent_meters": 120,
+    "descent_meters": 120
+  }
+}

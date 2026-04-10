@@ -57,6 +57,7 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_speed_heading.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_compass.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_control.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_trip_stats.c"
 )
 target_include_directories(ble_protocol
     PUBLIC "${BLE_PROTOCOL_ROOT}/include"

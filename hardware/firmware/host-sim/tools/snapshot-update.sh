@@ -38,6 +38,9 @@ SNAPSHOTS=(
     "nav_straight                    nav_straight.bin"
     "nav_sharp_left                  nav_sharp_left.bin"
     "nav_arrive                      nav_arrive.bin"
+    "trip_stats_fresh                trip_stats_fresh.bin"
+    "trip_stats_city_loop            trip_stats_city_loop.bin"
+    "trip_stats_highway              trip_stats_highway.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

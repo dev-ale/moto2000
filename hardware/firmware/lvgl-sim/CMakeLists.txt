@@ -98,6 +98,7 @@ add_executable(scramscreen-lvgl-sim
     main.c
     theme/scram_theme.c
     screens/screen_clock.c
+    screens/screen_speed.c
     screens/screen_placeholder.c
     common/screen_manager.c
 )

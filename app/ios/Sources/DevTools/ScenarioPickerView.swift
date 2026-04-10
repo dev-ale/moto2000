@@ -107,12 +107,17 @@ enum ScenarioCatalog {
     /// resources so the app can read them at runtime.
     static func bundled() -> [ScenarioDescriptor] {
         guard let resourceURL = Bundle.main.resourceURL else { return [] }
+        // Tuist may nest resources under Fixtures/scenarios/ or flatten
+        // them into the bundle root. Try the nested path first, then fall
+        // back to the bundle root.
         let scenarioDir = resourceURL
             .appendingPathComponent("Fixtures/scenarios", isDirectory: true)
-        let items = (try? FileManager.default.contentsOfDirectory(
-            at: scenarioDir,
-            includingPropertiesForKeys: nil
-        )) ?? []
+        let nested = (try? FileManager.default.contentsOfDirectory(
+            at: scenarioDir, includingPropertiesForKeys: nil)) ?? []
+        let items = nested.isEmpty
+            ? ((try? FileManager.default.contentsOfDirectory(
+                at: resourceURL, includingPropertiesForKeys: nil)) ?? [])
+            : nested
         return items
             .filter { $0.pathExtension == "json" }
             .compactMap { url -> ScenarioDescriptor? in

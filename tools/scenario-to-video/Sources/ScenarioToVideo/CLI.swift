@@ -24,6 +24,7 @@ public struct CLIOptions: Equatable, Sendable {
     public var fps: Int
     public var keepFrames: Bool
     public var verbose: Bool
+    public var hexStream: Bool
 
     public init(
         scenarioPath: String,
@@ -33,7 +34,8 @@ public struct CLIOptions: Equatable, Sendable {
         screen: String?,
         fps: Int,
         keepFrames: Bool,
-        verbose: Bool
+        verbose: Bool,
+        hexStream: Bool = false
     ) {
         self.scenarioPath = scenarioPath
         self.hostSimPath = hostSimPath
@@ -43,6 +45,7 @@ public struct CLIOptions: Equatable, Sendable {
         self.fps = fps
         self.keepFrames = keepFrames
         self.verbose = verbose
+        self.hexStream = hexStream
     }
 }
 
@@ -62,6 +65,9 @@ public enum CLIParser {
           --screen <name>       Force a single screen ("speed", "clock"). Default: speed.
           --fps <n>             Frames per simulated second (default: 1).
           --keep-frames         Don't delete the intermediate PNG directory.
+          --hex-stream          Output hex-encoded BLE payloads to stdout (one per
+                                line, with real-time pacing). Pipe into
+                                scramscreen-lvgl-sim --live for a live display.
           --verbose             Log every frame to stderr.
           -h, --help            Print this help.
         """
@@ -74,6 +80,7 @@ public enum CLIParser {
         var screen: String?
         var fps: Int = 1
         var keepFrames = false
+        var hexStream = false
         var verbose = false
 
         var i = 0
@@ -108,6 +115,8 @@ public enum CLIParser {
                 fps = n
             case "--keep-frames":
                 keepFrames = true
+            case "--hex-stream":
+                hexStream = true
             case "--verbose":
                 verbose = true
             default:
@@ -117,18 +126,21 @@ public enum CLIParser {
         }
 
         guard let scenarioPath else { throw CLIError("--scenario is required\n\n\(usage)") }
-        guard let hostSimPath else { throw CLIError("--host-sim is required\n\n\(usage)") }
-        guard let outputPath else { throw CLIError("--out is required\n\n\(usage)") }
+        if !hexStream {
+            guard hostSimPath != nil else { throw CLIError("--host-sim is required\n\n\(usage)") }
+            guard outputPath != nil else { throw CLIError("--out is required\n\n\(usage)") }
+        }
 
         return CLIOptions(
             scenarioPath: scenarioPath,
-            hostSimPath: hostSimPath,
+            hostSimPath: hostSimPath ?? "",
             ffmpegPath: ffmpegPath,
-            outputPath: outputPath,
+            outputPath: outputPath ?? "",
             screen: screen,
             fps: fps,
             keepFrames: keepFrames,
-            verbose: verbose
+            verbose: verbose,
+            hexStream: hexStream
         )
     }
 
@@ -140,14 +152,38 @@ public enum CLIParser {
             return .speedHeading
         }
         switch raw {
-        case "speed", "speed-heading", "speedheading", "0x02":
+        case "speed", "speed-heading", "speedheading":
             return .speedHeading
-        case "clock", "0x0d":
+        case "clock":
             return .clock
-        case "rotate", "rotating":
+        case "compass":
+            return .compass
+        case "nav", "navigation":
+            return .navigation
+        case "weather":
+            return .weather
+        case "trip-stats", "tripstats", "trip":
+            return .tripStats
+        case "lean", "lean-angle", "leanangle":
+            return .leanAngle
+        case "appointment", "calendar":
+            return .appointment
+        case "call", "incoming-call":
+            return .incomingCall
+        case "fuel", "fuel-estimate":
+            return .fuelEstimate
+        case "altitude":
+            return .altitude
+        case "music":
+            return .music
+        case "blitzer", "radar":
+            return .blitzer
+        case "rotate", "rotating", "all":
             return .rotating(holdSeconds: 10)
         default:
-            throw CLIError("unsupported --screen value '\(raw)' (expected: speed, clock, rotate)")
+            throw CLIError(
+                "unsupported --screen value '\(raw)' (expected: speed, clock, compass, weather, trip-stats, lean, appointment, call, fuel, altitude, rotate)"
+            )
         }
     }
 }

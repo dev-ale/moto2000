@@ -77,6 +77,7 @@ let project = Project(
             // builds ship the files but never read them — trivial cost for
             // a simpler Tuist config.
             resources: [
+                .glob(pattern: "Sources/Assets.xcassets/**"),
                 .glob(pattern: "Fixtures/scenarios/**"),
             ],
             dependencies: [

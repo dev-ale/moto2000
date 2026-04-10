@@ -75,9 +75,6 @@ jobs:
         working-directory: app/ios
         run: tuist generate --no-open
 
-      - name: Install xcpretty
-        run: command -v xcpretty >/dev/null 2>&1 || gem install xcpretty
-
       - name: Pick simulator
         id: sim
         run: |
@@ -99,7 +96,6 @@ jobs:
       - name: xcodebuild test
         working-directory: app/ios
         run: |
-          set -o pipefail
           xcodebuild \
             -workspace ScramScreen.xcworkspace \
             -scheme ScramScreen \
@@ -107,4 +103,4 @@ jobs:
             -destination '${{ steps.sim.outputs.destination }}' \
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
-            test | xcpretty
+            test

@@ -10,27 +10,29 @@ struct FahrtenView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: ScramSpacing.xxl) {
-                Text("Fahrten")
-                    .font(.scramTitle)
-                    .foregroundStyle(Color.scramTextPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, ScramSpacing.xxl)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: ScramSpacing.xxl) {
+                    Text("Fahrten")
+                        .font(.scramTitle)
+                        .foregroundStyle(Color.scramTextPrimary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, ScramSpacing.xxl)
 
-                if trips.isEmpty {
-                    emptyState
-                } else {
-                    tripList
+                    if trips.isEmpty {
+                        emptyState
+                    } else {
+                        tripList
+                    }
                 }
+                .padding(.horizontal, ScramSpacing.xl)
+                .padding(.bottom, ScramSpacing.xxl)
             }
-            .padding(.horizontal, ScramSpacing.xl)
-            .padding(.bottom, ScramSpacing.xxl)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.scramBackground)
-        .onAppear {
-            trips = store.loadAll()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.scramBackground)
+            .onAppear {
+                trips = store.loadAll()
+            }
         }
     }
 
@@ -60,7 +62,10 @@ struct FahrtenView: View {
             SectionHeader(title: "Letzte Fahrten")
             VStack(spacing: ScramSpacing.md) {
                 ForEach(trips) { trip in
-                    tripCard(trip)
+                    NavigationLink(destination: TripDetailView(trip: trip)) {
+                        tripCard(trip)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -76,6 +81,11 @@ struct FahrtenView: View {
                     .font(.scramHeadline)
                     .foregroundStyle(Color.scramTextPrimary)
                 Spacer()
+                if trip.hasRoute {
+                    Image(systemName: "map")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.scramGreen)
+                }
             }
 
             // Primary stats row

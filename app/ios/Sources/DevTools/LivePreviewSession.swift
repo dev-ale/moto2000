@@ -59,6 +59,7 @@ final class LivePreviewSession {
     private var tasks: [Task<Void, Never>] = []
     private var isRunning = false
     private var locationProvider: RealLocationProvider?
+    private var routeCollector: RouteCollector?
 
     // MARK: - Lifecycle
 
@@ -82,6 +83,10 @@ final class LivePreviewSession {
             }
             #endif
         })
+
+        let collector = RouteCollector()
+        collector.start(provider: locationProvider)
+        self.routeCollector = collector
 
         startLocationServices(locationProvider)
         startMotionServices(motionProvider)
@@ -227,16 +232,31 @@ final class LivePreviewSession {
         guard isRunning else { return }
         isRunning = false
 
+        // Collect route points before tearing down
+        let routePoints = routeCollector?.stop() ?? []
+        routeCollector = nil
+
         // Save trip if we have stats
         if let tripData = latestTripStats {
+            let tripId = UUID()
+            var hasRoute = false
+
+            // Save route if we have points
+            if !routePoints.isEmpty {
+                let routeStorage = RouteStorage()
+                routeStorage.save(tripId: tripId, coordinates: routePoints)
+                hasRoute = true
+            }
+
             let summary = TripSummary(
-                id: UUID(),
+                id: tripId,
                 date: Date(),
                 duration: TimeInterval(tripData.rideTimeSeconds),
                 distanceKm: Double(tripData.distanceMeters) / 1000.0,
                 avgSpeedKmh: Double(tripData.averageSpeedKmhX10) / 10.0,
                 maxSpeedKmh: Double(tripData.maxSpeedKmhX10) / 10.0,
-                elevationGainM: Double(tripData.ascentMeters)
+                elevationGainM: Double(tripData.ascentMeters),
+                hasRoute: hasRoute
             )
             // Only save if distance > 100m
             if summary.distanceKm > 0.1 {

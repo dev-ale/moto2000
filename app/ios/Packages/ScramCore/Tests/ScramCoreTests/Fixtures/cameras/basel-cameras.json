@@ -1,0 +1,31 @@
+[
+  {
+    "latitude": 47.5506,
+    "longitude": 7.5914,
+    "speedLimitKmh": 50,
+    "cameraType": "fixed"
+  },
+  {
+    "latitude": 47.5525,
+    "longitude": 7.5903,
+    "speedLimitKmh": 30,
+    "cameraType": "redLight"
+  },
+  {
+    "latitude": 47.5497,
+    "longitude": 7.5893,
+    "cameraType": "mobile"
+  },
+  {
+    "latitude": 47.5600,
+    "longitude": 7.6000,
+    "speedLimitKmh": 80,
+    "cameraType": "section"
+  },
+  {
+    "latitude": 47.5400,
+    "longitude": 7.5800,
+    "speedLimitKmh": 120,
+    "cameraType": "fixed"
+  }
+]

@@ -1,101 +1,155 @@
 import Foundation
 import BLEProtocol
 
-/// Prioritises BLE payload delivery based on which screen is active.
+/// Applies alert priority logic to outgoing screen payloads before they reach
+/// the BLE transport.
 ///
 /// Rules:
-///   - **Active screen**: payloads forwarded immediately.
-///   - **Alert screens** (``ScreenID/incomingCall``, ``ScreenID/blitzer``):
-///     always forwarded immediately regardless of active screen.
-///   - **Background screens**: throttled to at most one payload per
-///     ``backgroundInterval`` per screen.
-///   - **Screen change**: when the active screen changes, the latest cached
-///     payload for the new screen is forwarded immediately.
+/// - **Incoming call** (``ScreenID/incomingCall``, priority 1) always overlays
+///   immediately, replacing any active alert.
+/// - **Blitzer** (``ScreenID/blitzer``, priority 2) during active navigation
+///   does NOT overlay. Instead, the scheduler re-sends the cached navigation
+///   payload with the ALERT flag (bit 0 of the flags byte) set.
+/// - **Blitzer** when navigation is NOT active overlays normally.
+/// - Only one alert overlay is active at a time; an incoming call replaces a
+///   blitzer, but a blitzer cannot replace an incoming call.
 ///
-/// The scheduler does not depend on ``BLECentralClient`` directly — it
-/// accepts a `send` closure so tests can capture writes without BLE.
-public actor PayloadScheduler {
+/// The scheduler operates on raw `Data` blobs so it can be tested without
+/// standing up the full BLE stack.
+public final class PayloadScheduler: @unchecked Sendable {
 
-    /// Screens that bypass throttling regardless of the active screen.
-    public static let alertScreenIDs: Set<ScreenID> = [.incomingCall, .blitzer]
+    /// Index of the flags byte inside every screen payload header.
+    private static let flagsOffset = 2
 
-    /// Minimum interval between background payload sends for a single screen.
-    public let backgroundInterval: TimeInterval
+    /// Which alert screen is currently overlaying, if any.
+    /// `nil` means no alert is active.
+    public private(set) var activeAlert: ScreenID?
 
-    /// The closure used to send bytes over BLE (or to a test sink).
-    private let sendHandler: @Sendable (Data) async throws -> Void
+    /// The ScreenID of the most recently forwarded non-alert payload.
+    public private(set) var activeScreen: ScreenID?
 
-    /// Latest payload cached per screen.
-    public private(set) var latestPayload: [ScreenID: Data] = [:]
+    /// Most recently seen navigation payload (raw Data), kept for ALERT-flag
+    /// injection when a blitzer fires during navigation.
+    private var cachedNavigationPayload: Data?
 
-    /// Which screen the firmware is currently displaying.
-    public private(set) var activeScreenID: ScreenID?
+    public init() {}
 
-    /// Last time a background payload was forwarded for each screen.
-    private var lastBackgroundSend: [ScreenID: ContinuousClock.Instant] = [:]
+    // MARK: - Public API
 
-    /// Clock for throttling. Tests can supply a different value.
-    private let clock: ContinuousClock
-
-    /// Creates a scheduler.
+    /// Process an incoming encoded payload and return zero, one, or more
+    /// payloads that should be written to the peripheral.
     ///
-    /// - Parameters:
-    ///   - backgroundInterval: Throttle interval for non-active, non-alert
-    ///     screens. Default is 5 seconds.
-    ///   - clock: Clock used for throttling. Default is `ContinuousClock()`.
-    ///   - send: Closure that delivers bytes. Typically wired to
-    ///     `bleClient.send(_:)`.
-    public init(
-        backgroundInterval: TimeInterval = 5.0,
-        clock: ContinuousClock = ContinuousClock(),
-        send: @escaping @Sendable (Data) async throws -> Void
-    ) {
-        self.backgroundInterval = backgroundInterval
-        self.clock = clock
-        self.sendHandler = send
+    /// The returned array is usually a single element but may be empty (e.g.
+    /// a blitzer that is suppressed by an active incoming-call alert).
+    public func schedule(_ payload: Data) -> [Data] {
+        guard let screenID = Self.peekScreenID(payload) else {
+            // Can't parse — forward as-is to avoid dropping data.
+            return [payload]
+        }
+        let isAlert = Self.peekAlertFlag(payload)
+
+        switch screenID {
+        // ------------------------------------------------------------------
+        // Incoming call — highest priority, always overlay
+        // ------------------------------------------------------------------
+        case .incomingCall:
+            if isAlert {
+                activeAlert = .incomingCall
+            } else {
+                // Call ended (ALERT flag cleared) — clear the alert.
+                if activeAlert == .incomingCall {
+                    activeAlert = nil
+                }
+            }
+            return [payload]
+
+        // ------------------------------------------------------------------
+        // Blitzer — priority 2
+        // ------------------------------------------------------------------
+        case .blitzer:
+            // A blitzer cannot replace an active incoming-call alert.
+            if activeAlert == .incomingCall {
+                return []
+            }
+
+            if isAlert {
+                // If navigation is the active screen, inject ALERT into the
+                // cached nav payload instead of sending the blitzer overlay.
+                if activeScreen == .navigation, let navPayload = cachedNavigationPayload {
+                    activeAlert = .blitzer
+                    return [Self.setAlertFlag(on: navPayload)]
+                }
+                // Not navigating — send blitzer as a normal overlay.
+                activeAlert = .blitzer
+                return [payload]
+            } else {
+                // Blitzer clear payload (ALERT flag not set).
+                if activeAlert == .blitzer {
+                    activeAlert = nil
+                }
+                // If nav is active, re-send cached nav payload with ALERT cleared
+                // so the ESP32 knows the alert is over.
+                if activeScreen == .navigation, let navPayload = cachedNavigationPayload {
+                    return [Self.clearAlertFlag(on: navPayload)]
+                }
+                return [payload]
+            }
+
+        // ------------------------------------------------------------------
+        // Navigation — cache it for later ALERT-flag injection
+        // ------------------------------------------------------------------
+        case .navigation:
+            cachedNavigationPayload = payload
+            activeScreen = .navigation
+            return [payload]
+
+        // ------------------------------------------------------------------
+        // Any other screen
+        // ------------------------------------------------------------------
+        default:
+            if !isAlert {
+                activeScreen = screenID
+                // If we moved away from navigation, drop the cached payload.
+                if screenID != .navigation {
+                    cachedNavigationPayload = nil
+                }
+            }
+            return [payload]
+        }
     }
 
-    /// Enqueue a payload for a given screen.
-    ///
-    /// The scheduler decides whether to forward immediately or throttle
-    /// based on the current active screen.
-    public func enqueue(screenID: ScreenID, payload: Data) async {
-        latestPayload[screenID] = payload
-
-        // Alert screens always forward immediately.
-        if Self.alertScreenIDs.contains(screenID) {
-            try? await sendHandler(payload)
-            return
-        }
-
-        // Active screen forwards immediately.
-        if screenID == activeScreenID {
-            try? await sendHandler(payload)
-            return
-        }
-
-        // Background screen: throttle.
-        let now = clock.now
-        let interval = Duration.seconds(backgroundInterval)
-        if let lastSend = lastBackgroundSend[screenID],
-           now - lastSend < interval {
-            // Throttled — payload is cached but not sent yet.
-            return
-        }
-        lastBackgroundSend[screenID] = now
-        try? await sendHandler(payload)
+    /// Forcibly clear the active alert state (e.g. on ride end).
+    public func clearAlert() {
+        activeAlert = nil
     }
 
-    /// Notify the scheduler that the firmware switched to a new screen.
-    ///
-    /// If there is a cached payload for the new screen, it is forwarded
-    /// immediately.
-    public func setActiveScreen(_ screenID: ScreenID) async {
-        let previousActive = activeScreenID
-        activeScreenID = screenID
-        guard screenID != previousActive else { return }
-        if let cached = latestPayload[screenID] {
-            try? await sendHandler(cached)
-        }
+    // MARK: - Header helpers
+
+    /// Read the ``ScreenID`` from byte 1 of a raw payload.
+    static func peekScreenID(_ data: Data) -> ScreenID? {
+        guard data.count > 1 else { return nil }
+        return ScreenID(rawValue: data[data.startIndex + 1])
+    }
+
+    /// Returns `true` when the ALERT bit (bit 0 of the flags byte) is set.
+    static func peekAlertFlag(_ data: Data) -> Bool {
+        guard data.count > flagsOffset else { return false }
+        return (data[data.startIndex + flagsOffset] & ScreenFlags.alert.rawValue) != 0
+    }
+
+    /// Return a copy of `data` with the ALERT bit set in the flags byte.
+    static func setAlertFlag(on data: Data) -> Data {
+        var copy = data
+        guard copy.count > flagsOffset else { return copy }
+        copy[copy.startIndex + flagsOffset] |= ScreenFlags.alert.rawValue
+        return copy
+    }
+
+    /// Return a copy of `data` with the ALERT bit cleared in the flags byte.
+    static func clearAlertFlag(on data: Data) -> Data {
+        var copy = data
+        guard copy.count > flagsOffset else { return copy }
+        copy[copy.startIndex + flagsOffset] &= ~ScreenFlags.alert.rawValue
+        return copy
     }
 }

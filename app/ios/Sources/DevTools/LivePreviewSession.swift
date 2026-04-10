@@ -41,10 +41,7 @@ final class LivePreviewSession {
         .weather,
         .music,
         .fuelEstimate,
-        .navigation,
         .appointment,
-        .incomingCall,
-        .blitzer
     ]
 
     // MARK: - Internal state

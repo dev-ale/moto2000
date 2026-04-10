@@ -116,3 +116,22 @@ target_include_directories(screen_fsm PUBLIC "${SCREEN_FSM_ROOT}/include")
 add_executable(test_screen_fsm test_screen_fsm.c)
 target_link_libraries(test_screen_fsm PRIVATE unity screen_fsm)
 add_test(NAME screen_fsm COMMAND test_screen_fsm)
+
+# ------------------------------------------------------------------------- #
+# ota_fsm — Slice 18 OTA state machine + version + HMAC-SHA256 verify       #
+# ------------------------------------------------------------------------- #
+set(OTA_FSM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ota_fsm")
+add_library(ota_fsm STATIC
+    "${OTA_FSM_ROOT}/src/ota_fsm.c"
+    "${OTA_FSM_ROOT}/src/ota_version.c"
+    "${OTA_FSM_ROOT}/src/ota_verify.c"
+    "${OTA_FSM_ROOT}/vendor/sha256.c"
+)
+target_include_directories(ota_fsm
+    PUBLIC "${OTA_FSM_ROOT}/include"
+    PRIVATE "${OTA_FSM_ROOT}/vendor"
+)
+
+add_executable(test_ota_fsm test_ota_fsm.c)
+target_link_libraries(test_ota_fsm PRIVATE unity ota_fsm)
+add_test(NAME ota_fsm COMMAND test_ota_fsm)

@@ -276,6 +276,8 @@ final class LivePreviewSession {
             client: MediaPlayerNowPlayingClient(),
             clock: clock
         )
+        services.append(nowPlayingProvider)
+        tasks.append(Task { await nowPlayingProvider.start() })
         let musicService = MusicService(provider: nowPlayingProvider)
         musicService.start()
         services.append(musicService)
@@ -291,6 +293,8 @@ final class LivePreviewSession {
             client: EventKitCalendarClient(),
             clock: clock
         )
+        services.append(calendarProvider)
+        tasks.append(Task { await calendarProvider.start() })
         let calendarService = CalendarService(provider: calendarProvider)
         calendarService.start()
         services.append(calendarService)

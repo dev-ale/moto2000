@@ -1,4 +1,5 @@
 import BLECentralClient
+import MapKit
 import SwiftUI
 
 struct HomeView: View {
@@ -31,6 +32,10 @@ struct HomeView: View {
                 } else {
                     setupCard
                 }
+
+                // MARK: - Navigation search
+
+                NavigationSearchView()
 
                 // MARK: - Quick stats (only when paired)
 

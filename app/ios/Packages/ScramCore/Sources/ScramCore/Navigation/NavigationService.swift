@@ -27,6 +27,7 @@ public actor NavigationService {
 
     private var consumerTask: Task<Void, Never>?
     private var tracker: RouteTracker?
+    private var currentDestination: NavigationRoute.LocationCoordinate?
 
     public init(
         routeEngine: any RouteEngine,
@@ -41,8 +42,17 @@ public actor NavigationService {
 
     /// Compute a route from the first observed location to `destination`
     /// and begin emitting encoded BLE payloads as new samples land.
+    ///
+    /// While running, the service monitors off-route state: when the
+    /// tracker flags ``RouteTracker/isOffRoute``, a new route is
+    /// calculated from the rider's current position to the same
+    /// destination and seamlessly swapped in.
+    ///
+    /// When the tracker detects arrival (last step, within tolerance)
+    /// the session stops silently — no notification, no splash screen.
     public func start(destination: NavigationRoute.LocationCoordinate) async throws {
         guard consumerTask == nil else { return }
+        currentDestination = destination
 
         // Grab the provider's sample stream once and split it into two
         // stages: "first sample" (used as origin) and "remaining
@@ -51,6 +61,7 @@ public actor NavigationService {
         let stream = locationProvider.samples
         let engine = routeEngine
         let ch = channel
+        let dest = destination
 
         let task = Task { [weak self] in
             var iterator = stream.makeAsyncIterator()
@@ -64,7 +75,7 @@ public actor NavigationService {
             )
             let route: NavigationRoute
             do {
-                route = try await engine.calculateRoute(from: origin, to: destination)
+                route = try await engine.calculateRoute(from: origin, to: dest)
             } catch {
                 ch.finish()
                 return
@@ -80,8 +91,27 @@ public actor NavigationService {
 
             while let sample = await iterator.next() {
                 if Task.isCancelled { break }
+
                 if let data = await Self.encode(sample: sample, tracker: localTracker) {
                     ch.emit(data)
+                }
+
+                // Arrival: silently stop the session.
+                if await localTracker.hasArrived {
+                    break
+                }
+
+                // Off-route: reroute from current position to same dest.
+                if await localTracker.isOffRoute {
+                    let newOrigin = NavigationRoute.LocationCoordinate(
+                        latitude: sample.latitude,
+                        longitude: sample.longitude
+                    )
+                    if let newRoute = try? await engine.calculateRoute(
+                        from: newOrigin, to: dest
+                    ) {
+                        await localTracker.replaceRoute(newRoute)
+                    }
                 }
             }
             ch.finish()

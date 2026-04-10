@@ -1,4 +1,5 @@
 import BLECentralClient
+import ScramCore
 import SwiftUI
 
 // swiftlint:disable:next type_body_length
@@ -15,6 +16,8 @@ struct MehrView: View {
     private var autoSleepMinutes = 5
     @AppStorage("scramscreen.display.brightness")
     private var brightness: Double = 80
+    @AppStorage("scramscreen.display.nightMode")
+    private var nightModePreference = NightModePreference.automatisch.rawValue
 
     @State private var showUnpairConfirm = false
 
@@ -152,6 +155,8 @@ struct MehrView: View {
                 labels: ["2 Min", "5 Min", "10 Min", "15 Min", "30 Min"],
                 selection: $autoSleepMinutes
             )
+
+            nightModeRow
         }
     }
 
@@ -229,6 +234,37 @@ struct MehrView: View {
                 chevron: true
             )
         }
+    }
+
+    // MARK: - Night mode
+
+    private var nightModeRow: some View {
+        HStack(spacing: ScramSpacing.md) {
+            Image(systemName: "moon.stars")
+                .font(.system(size: 16))
+                .foregroundStyle(Color.scramGreen)
+                .frame(width: 24)
+
+            Text("Nachtmodus")
+                .font(.scramBody)
+                .foregroundStyle(Color.scramTextPrimary)
+
+            Spacer()
+
+            HStack(spacing: 0) {
+                ForEach(NightModePreference.allCases, id: \.rawValue) { pref in
+                    unitButton(
+                        pref.label,
+                        selected: nightModePreference == pref.rawValue
+                    ) {
+                        nightModePreference = pref.rawValue
+                    }
+                }
+            }
+            .background(Color.scramSurfaceElevated)
+            .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
+        }
+        .padding(ScramSpacing.lg)
     }
 
     // MARK: - Row helpers

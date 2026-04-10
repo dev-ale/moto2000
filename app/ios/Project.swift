@@ -65,6 +65,8 @@ let project = Project(
                 "NSAccessorySetupKitSupports": [
                     "Bluetooth",
                 ],
+                "NSCalendarsFullAccessUsageDescription":
+                    "ScramScreen reads your calendar to show upcoming appointments on your motorcycle display.",
                 "UIBackgroundModes": [
                     "bluetooth-central",
                     "location",

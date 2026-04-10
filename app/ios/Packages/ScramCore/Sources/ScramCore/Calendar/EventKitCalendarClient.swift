@@ -1,41 +1,94 @@
 import Foundation
 import RideSimulatorKit
 
-/*
- * EventKitCalendarClient — intentional stub (Slice 11).
- *
- * Real EventKit access requires:
- *
- *   1. An `NSCalendarsFullAccessUsageDescription` key in Info.plist (iOS 17+).
- *      On iOS 16 and earlier, the key is `NSCalendarsUsageDescription`.
- *
- *   2. A call to `EKEventStore.requestFullAccessToEvents()` at runtime.
- *      Denial must be handled gracefully — the service should stop emitting
- *      events rather than crashing.
- *
- * Rather than ship a half-working integration that needs runtime permissions
- * to even compile on CI, Slice 11 ships a stub that throws
- * `CalendarServiceError.notImplemented`. The `RealCalendarProvider`
- * swallows the error and keeps polling, so the rest of the system is
- * unaffected. A follow-up PR will swap this file for a real EventKit client
- * without touching `CalendarServiceClient`, `RealCalendarProvider`, or the
- * renderer.
- *
- * The type is gated on `canImport(EventKit)` so the stub compiles on
- * Linux CI without pulling in the framework.
- */
 #if canImport(EventKit)
-#warning("EventKit integration deferred to follow-up PR — Slice 11 ships a stub that always throws .notImplemented. Requires NSCalendarsFullAccessUsageDescription in Info.plist for iOS 17+.")
+import EventKit
 
+/// Real EventKit calendar client that fetches upcoming events from the
+/// user's on-device calendars.
+///
+/// Requires `NSCalendarsFullAccessUsageDescription` in the app's Info.plist
+/// (iOS 17+). On first call, the client requests full calendar access via
+/// `EKEventStore.requestFullAccessToEvents()`. If the user denies access,
+/// the client throws ``CalendarServiceError/accessDenied`` so the caller
+/// (``RealCalendarProvider``) can swallow the error and keep polling without
+/// crashing.
 public struct EventKitCalendarClient: CalendarServiceClient, Sendable {
     private let preferences: CalendarPreferences?
+    private let store: EKEventStore
+
+    /// Look-ahead window: fetch events starting within the next 24 hours.
+    private static let lookAheadSeconds: TimeInterval = 24 * 60 * 60
 
     public init(preferences: CalendarPreferences? = nil) {
         self.preferences = preferences
+        self.store = EKEventStore()
     }
 
     public func fetchNextEvent() async throws -> CalendarServiceResponse? {
-        throw CalendarServiceError.notImplemented
+        try await requestAccessIfNeeded()
+
+        let now = Date()
+        let end = now.addingTimeInterval(Self.lookAheadSeconds)
+
+        // Build the list of calendars to search, filtered by user preferences.
+        let allCalendars = store.calendars(for: .event)
+        let selectedCalendars: [EKCalendar]
+        if let preferences {
+            selectedCalendars = allCalendars.filter { preferences.isSelected($0.calendarIdentifier) }
+        } else {
+            selectedCalendars = allCalendars
+        }
+
+        guard !selectedCalendars.isEmpty else {
+            return nil
+        }
+
+        let predicate = store.predicateForEvents(
+            withStart: now,
+            end: end,
+            calendars: selectedCalendars
+        )
+        let events = store.events(matching: predicate)
+
+        // Find the earliest event by start date.
+        guard let earliest = events.min(by: { $0.startDate < $1.startDate }) else {
+            return nil
+        }
+
+        let startsInSeconds = earliest.startDate.timeIntervalSince(now)
+        return CalendarServiceResponse(
+            title: earliest.title ?? "",
+            startsInSeconds: startsInSeconds,
+            location: earliest.location ?? ""
+        )
+    }
+
+    // MARK: - Private
+
+    private func requestAccessIfNeeded() async throws {
+        let status = EKEventStore.authorizationStatus(for: .event)
+
+        switch status {
+        case .authorized, .fullAccess:
+            return
+        case .denied, .restricted:
+            throw CalendarServiceError.accessDenied
+        case .notDetermined:
+            let granted: Bool
+            if #available(iOS 17.0, *) {
+                granted = try await store.requestFullAccessToEvents()
+            } else {
+                granted = try await store.requestAccess(to: .event)
+            }
+            guard granted else {
+                throw CalendarServiceError.accessDenied
+            }
+        case .writeOnly:
+            throw CalendarServiceError.accessDenied
+        @unknown default:
+            throw CalendarServiceError.accessDenied
+        }
     }
 }
 #endif

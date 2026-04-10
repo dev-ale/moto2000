@@ -78,7 +78,7 @@ final class AccessoryManager {
 
     // MARK: - Event handling
 
-    private func handleEvent(_ event: ASAccessoryEvent) {
+    private func handleEvent(_ event: ASAccessoryEvent) { // swiftlint:disable:this cyclomatic_complexity
         switch event.eventType {
         case .activated:
             sessionState = .activated

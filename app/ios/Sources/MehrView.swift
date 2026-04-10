@@ -65,10 +65,13 @@ struct MehrView: View {
 
                 settingsSection("Kalender") {
                     Button { showCalendarSheet = true } label: {
+                        let activeCount = ekCalendars.filter {
+                            Self.calendarPreferences.isSelected($0.calendarIdentifier)
+                        }.count
                         settingsRow(
                             icon: "calendar",
                             title: "Kalender auswaehlen",
-                            detail: "\(ekCalendars.filter { Self.calendarPreferences.isSelected($0.calendarIdentifier) }.count) aktiv",
+                            detail: "\(activeCount) aktiv",
                             chevron: true
                         )
                     }

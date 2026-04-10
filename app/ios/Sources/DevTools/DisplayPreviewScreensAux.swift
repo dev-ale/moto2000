@@ -129,8 +129,8 @@ struct MusicScreenContent: View {
         .padding(.horizontal, 8)
     }
 
-    private func fmtTime(_ s: UInt16) -> String {
-        String(format: "%d:%02d", s / 60, s % 60)
+    private func fmtTime(_ seconds: UInt16) -> String {
+        String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
 }
 

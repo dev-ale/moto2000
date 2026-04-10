@@ -107,8 +107,7 @@ struct DisplayPreviewView: View {
 
     // MARK: - Lean angle with manual calibration
 
-    @ViewBuilder
-    private var leanAngleScreen: some View {
+    @ViewBuilder private var leanAngleScreen: some View {
         if !session.leanCalibrated {
             Button {
                 session.calibrateLeanAngle()

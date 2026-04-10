@@ -9,10 +9,11 @@ import Observation
 import RideSimulatorKit
 import ScramCore
 
-/// Debug-only session that creates real providers and services without BLE,
-/// decodes each service's encoded payloads back to typed data, and publishes
-/// them for the ``DisplayPreviewView`` to render live.
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length
+// swiftlint:disable type_body_length
+// Debug-only session that creates real providers and services without BLE,
+// decodes each service's encoded payloads back to typed data, and publishes
+// them for the ``DisplayPreviewView`` to render live.
 @Observable
 @MainActor
 final class LivePreviewSession {
@@ -85,7 +86,7 @@ final class LivePreviewSession {
         startLocationServices(locationProvider)
         startMotionServices(motionProvider)
         startClockService()
-        startWeatherService()
+        startWeatherService()  // uses self.locationProvider set above
         startMusicService()
         startCalendarService()
         startCallService()
@@ -95,40 +96,107 @@ final class LivePreviewSession {
     }
 
     func startNavigation(latitude: Double, longitude: Double) {
-        guard let locationProvider else {
-            print("[Nav] No location provider")
-            return
-        }
+        guard let locationProvider else { return }
         #if canImport(MapKit)
-        print("[Nav] Starting navigation to \(latitude), \(longitude)")
         let engine = MKDirectionsRouteEngine()
-        let navService = NavigationService(
+        startNavigation(
+            latitude: latitude,
+            longitude: longitude,
             routeEngine: engine,
             locationProvider: locationProvider
         )
-        services.append(navService)
+        #endif
+    }
+
+    /// Calculate a route directly and build NavData without waiting for
+    /// NavigationService's GPS stream. This avoids hanging when no GPS
+    /// fix is available (common indoors or right after permission grant).
+    func startNavigation(
+        latitude: Double,
+        longitude: Double,
+        routeEngine: some RouteEngine,
+        locationProvider: some LocationProvider
+    ) {
         let dest = NavigationRoute.LocationCoordinate(
             latitude: latitude,
             longitude: longitude
         )
         tasks.append(Task { @MainActor [weak self] in
+            let origin = await Self.resolveOrigin(from: locationProvider)
+
+            let route: NavigationRoute
             do {
-                try await navService.start(destination: dest)
-                print("[Nav] Route started, waiting for payloads")
+                route = try await routeEngine.calculateRoute(
+                    from: origin, to: dest
+                )
             } catch {
-                print("[Nav] Start failed: \(error)")
+                self?.latestNav = Self.errorNavData(origin: origin)
                 return
             }
-            for await data in navService.navDataPayloads {
-                guard self != nil else { return }
-                if let payload = try? ScreenPayloadCodec.decode(data),
-                   case .navigation(let decoded, _) = payload {
-                    print("[Nav] Got nav payload")
-                    self?.latestNav = decoded
-                }
-            }
+
+            self?.latestNav = Self.navData(
+                from: route, origin: origin
+            )
         })
-        #endif
+    }
+
+    private static func resolveOrigin(
+        from provider: some LocationProvider
+    ) async -> NavigationRoute.LocationCoordinate {
+        if let sample = await firstSample(from: provider, timeoutSeconds: 5) {
+            return NavigationRoute.LocationCoordinate(
+                latitude: sample.latitude, longitude: sample.longitude
+            )
+        }
+        return NavigationRoute.LocationCoordinate(
+            latitude: 47.56, longitude: 7.59
+        )
+    }
+
+    private static func errorNavData(
+        origin: NavigationRoute.LocationCoordinate
+    ) -> NavData {
+        NavData(
+            latitudeE7: Int32(origin.latitude * 1e7),
+            longitudeE7: Int32(origin.longitude * 1e7),
+            speedKmhX10: 0,
+            headingDegX10: 0,
+            distanceToManeuverMeters: NavData.unknownU16,
+            maneuver: .none,
+            streetName: "Route error",
+            etaMinutes: NavData.unknownU16,
+            remainingKmX10: NavData.unknownU16
+        )
+    }
+
+    private static func navData(
+        from route: NavigationRoute,
+        origin: NavigationRoute.LocationCoordinate
+    ) -> NavData? {
+        guard let firstStep = route.steps.first else { return nil }
+        let etaMinutes = UInt16(min(
+            route.expectedTravelTimeSeconds / 60.0,
+            Double(UInt16.max - 1)
+        ))
+        let remainingKmX10 = UInt16(min(
+            (route.totalDistanceMeters / 1000.0) * 10.0,
+            Double(UInt16.max - 1)
+        ))
+        let distMeters = UInt16(min(
+            firstStep.distanceMeters,
+            Double(UInt16.max - 1)
+        ))
+        return NavData(
+            latitudeE7: Int32(origin.latitude * 1e7),
+            longitudeE7: Int32(origin.longitude * 1e7),
+            speedKmhX10: 0,
+            headingDegX10: 0,
+            distanceToManeuverMeters: distMeters,
+            maneuver: firstStep.maneuver,
+            streetName: String(firstStep.streetName.prefix(31)),
+            etaMinutes: etaMinutes,
+            remainingKmX10: remainingKmX10
+        )
     }
 
     private func listenForNavigation(locationProvider: RealLocationProvider) {
@@ -267,47 +335,73 @@ final class LivePreviewSession {
     }
 
     private func startWeatherService() {
+        guard let locationProvider else { return }
         #if canImport(WeatherKit)
-        // Direct fetch — bypass provider/service chain for reliability
+        startWeatherService(
+            client: WeatherKitClient(),
+            locationProvider: locationProvider
+        )
+        #endif
+    }
+
+    /// Fetch weather using the given client and location provider.
+    /// Retries up to 3 times on failure, with 30-second delays.
+    func startWeatherService(
+        client: some WeatherServiceClient,
+        locationProvider: some LocationProvider
+    ) {
         tasks.append(Task { @MainActor [weak self] in
-            let client = WeatherKitClient()
-            let lat = CLLocationManager().location?.coordinate.latitude ?? 47.56
-            let lon = CLLocationManager().location?.coordinate.longitude ?? 7.59
-            do {
-                let response = try await client.fetchCurrentWeather(
-                    latitude: lat, longitude: lon
-                )
-                // Manually build WeatherData from response
-                let condition: WeatherConditionWire = {
-                    switch response.condition {
-                    case .clear: return .clear
-                    case .cloudy: return .cloudy
-                    case .rain: return .rain
-                    case .snow: return .snow
-                    case .fog: return .fog
-                    case .thunderstorm: return .thunderstorm
+            // Wait for a real location from the existing provider (up to 5s).
+            let sample = await Self.firstSample(
+                from: locationProvider, timeoutSeconds: 5
+            )
+            let lat = sample?.latitude ?? 47.56
+            let lon = sample?.longitude ?? 7.59
+
+            let maxAttempts = 3
+            for attempt in 1...maxAttempts {
+                guard self != nil else { return }
+                do {
+                    let response = try await client.fetchCurrentWeather(
+                        latitude: lat, longitude: lon
+                    )
+                    self?.latestWeather = Self.weatherData(from: response)
+                    return
+                } catch {
+                    if attempt < maxAttempts {
+                        try? await Task.sleep(nanoseconds: 30_000_000_000)
+                    } else {
+                        self?.latestWeather = WeatherData(
+                            condition: .cloudy,
+                            temperatureCelsiusX10: 0,
+                            highCelsiusX10: 0,
+                            lowCelsiusX10: 0,
+                            locationName: "Fehler"
+                        )
                     }
-                }()
-                self?.latestWeather = WeatherData(
-                    condition: condition,
-                    temperatureCelsiusX10: Int16(response.temperatureCelsius * 10),
-                    highCelsiusX10: Int16(response.highCelsius * 10),
-                    lowCelsiusX10: Int16(response.lowCelsius * 10),
-                    locationName: response.locationName.isEmpty ? "Basel" : response.locationName
-                )
-            } catch {
-                // Show error on the weather screen so user can see what's wrong
-                self?.latestWeather = WeatherData(
-                    condition: .cloudy,
-                    temperatureCelsiusX10: 0,
-                    highCelsiusX10: 0,
-                    lowCelsiusX10: 0,
-                    locationName: "Fehler"
-                )
-                print("WeatherKit error: \(error)")
+                }
             }
         })
-        #endif
+    }
+
+    static func weatherData(from response: WeatherServiceResponse) -> WeatherData {
+        let condition: WeatherConditionWire = {
+            switch response.condition {
+            case .clear: return .clear
+            case .cloudy: return .cloudy
+            case .rain: return .rain
+            case .snow: return .snow
+            case .fog: return .fog
+            case .thunderstorm: return .thunderstorm
+            }
+        }()
+        return WeatherData(
+            condition: condition,
+            temperatureCelsiusX10: Int16(response.temperatureCelsius * 10),
+            highCelsiusX10: Int16(response.highCelsius * 10),
+            lowCelsiusX10: Int16(response.lowCelsius * 10),
+            locationName: response.locationName.isEmpty ? "Basel" : response.locationName
+        )
     }
 
     private func startMusicService() {
@@ -402,6 +496,32 @@ final class LivePreviewSession {
         })
     }
 
+    // MARK: - Location helper
+
+    /// Await the first sample from a location provider, returning nil if
+    /// no sample arrives within `timeoutSeconds`.
+    static func firstSample(
+        from provider: some LocationProvider,
+        timeoutSeconds: Int
+    ) async -> LocationSample? {
+        await withTaskGroup(of: LocationSample?.self) { group in
+            group.addTask {
+                var iterator = provider.samples.makeAsyncIterator()
+                return await iterator.next()
+            }
+            group.addTask {
+                try? await Task.sleep(
+                    nanoseconds: UInt64(timeoutSeconds) * 1_000_000_000
+                )
+                return nil
+            }
+            // First child to finish wins; cancel the other.
+            let result = await group.next().flatMap { $0 }
+            group.cancelAll()
+            return result
+        }
+    }
+
     // MARK: - Service teardown
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -426,3 +546,4 @@ final class LivePreviewSession {
         }
     }
 }
+// swiftlint:enable type_body_length file_length

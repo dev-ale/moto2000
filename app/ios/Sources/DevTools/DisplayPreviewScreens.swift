@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import BLEProtocol
 import SwiftUI
 
@@ -75,13 +76,13 @@ struct CompassScreenContent: View {
                 .frame(width: 190, height: 190)
 
             // Tick marks
-            ForEach(0..<36, id: \.self) { i in
-                let isMajor = i % 9 == 0
+            ForEach(0..<36, id: \.self) { tick in
+                let isMajor = tick % 9 == 0
                 Rectangle()
                     .fill(isMajor ? Color.white.opacity(0.6) : Color(hex: 0x444444))
                     .frame(width: isMajor ? 2 : 1, height: isMajor ? 10 : 5)
                     .offset(y: -90)
-                    .rotationEffect(.degrees(Double(i) * 10))
+                    .rotationEffect(.degrees(Double(tick) * 10))
             }
 
             // N S E W labels
@@ -124,11 +125,11 @@ struct CompassScreenContent: View {
 
 private struct Triangle: Shape {
     func path(in rect: CGRect) -> Path {
-        Path { p in
-            p.move(to: CGPoint(x: rect.midX, y: rect.minY))
-            p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-            p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-            p.closeSubpath()
+        Path { path in
+            path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+            path.closeSubpath()
         }
     }
 }
@@ -433,11 +434,14 @@ private struct ElevationGraph: View {
                 let range = max(maxAlt - minAlt, 1)
 
                 Path { path in
-                    for (i, sample) in filtered.enumerated() {
-                        let x = geo.size.width * CGFloat(i) / CGFloat(filtered.count - 1)
-                        let y = geo.size.height * (1.0 - (Double(sample) - minAlt) / range)
-                        if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
-                        else { path.addLine(to: CGPoint(x: x, y: y)) }
+                    for (idx, sample) in filtered.enumerated() {
+                        let px = geo.size.width * CGFloat(idx) / CGFloat(filtered.count - 1)
+                        let py = geo.size.height * (1.0 - (Double(sample) - minAlt) / range)
+                        if idx == 0 {
+                            path.move(to: CGPoint(x: px, y: py))
+                        } else {
+                            path.addLine(to: CGPoint(x: px, y: py))
+                        }
                     }
                 }
                 .stroke(green, lineWidth: 2)
@@ -465,3 +469,4 @@ struct PreviewPlaceholder: View {
             .multilineTextAlignment(.center)
     }
 }
+// swiftlint:enable file_length

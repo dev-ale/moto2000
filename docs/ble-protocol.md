@@ -84,7 +84,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x09` | `incomingCall`  | Incoming Call     | 13  | TBD |
 | `0x0A` | `fuelEstimate`  | Fuel Estimate     | 12  | TBD |
 | `0x0B` | `altitude`      | Altitude Profile  | 15  | TBD |
-| `0x0C` | `appointment`   | Next Appointment  | 11  | TBD |
+| `0x0C` | `appointment`   | Next Appointment  | 11  | `appointment_data_t` |
 | `0x0D` | `clock`         | Idle / Clock      | 2   | `clock_data_t` |
 
 All other values are reserved and must be rejected by decoders.
@@ -192,6 +192,27 @@ Body size: **86 bytes**
 See [platform-limits.md](platform-limits.md) for the iOS `MPNowPlayingInfoCenter`
 restriction — Slice 8 ships a testable protocol seam but defers the system
 framework wiring to a follow-up.
+
+### `appointment_data_t` (screen `0x0C`)
+
+Body size: **60 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `starts_in_minutes` | `int16` | Minutes until event start. Negative = already started. Range `-1440..=10080` (plus/minus 7 days). |
+| 2 | `title` | `char[32]` | UTF-8, zero-padded, null-terminated. Must contain a terminator (len < 32). |
+| 34 | `location` | `char[24]` | UTF-8, zero-padded, null-terminated. Must contain a terminator (len < 24). |
+| 58 | `reserved` | `uint16` | Must be `0x0000`. |
+
+### EventKit integration note (Slice 11)
+
+The Slice 11 iOS code ships a `CalendarServiceClient` abstraction with a
+`StaticCalendarServiceClient` for tests and an `EventKitCalendarClient` stub
+that throws `notImplemented`. Wiring the real EventKit API requires an
+`NSCalendarsFullAccessUsageDescription` key in Info.plist (iOS 17+) and a
+runtime `EKEventStore.requestFullAccessToEvents()` call, both of which are
+deferred to a follow-up PR that will swap the stub without touching the wire
+format.
 
 ### Maneuver types
 

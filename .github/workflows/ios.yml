@@ -75,7 +75,7 @@ jobs:
         working-directory: app/ios
         run: tuist generate --no-open
 
-      - name: Pick simulator
+      - name: Pick iOS 26 simulator
         id: sim
         run: |
           DEST=$(xcrun simctl list devices available -j \
@@ -83,12 +83,13 @@ jobs:
           import json, sys
           data = json.load(sys.stdin)
           for runtime, devices in data['devices'].items():
-              if 'iOS' not in runtime:
+              if 'iOS-26' not in runtime and 'iOS 26' not in runtime:
                   continue
               for d in devices:
                   if 'iPhone' in d['name'] and d['isAvailable']:
                       print(f\"platform=iOS Simulator,id={d['udid']}\")
                       sys.exit(0)
+          print('No iOS 26 iPhone simulator found', file=sys.stderr)
           sys.exit(1)
           ")
           echo "destination=$DEST" >> "$GITHUB_OUTPUT"

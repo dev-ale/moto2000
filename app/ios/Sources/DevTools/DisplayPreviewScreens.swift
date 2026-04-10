@@ -19,45 +19,37 @@ struct SpeedScreenContent: View {
         let dir = compassDirection(headingDeg)
         let alt = Int(screenData.altitudeMeters)
 
-        ZStack {
-            // Speed arc at bottom
-            Circle()
-                .trim(from: 0.55, to: 0.55 + 0.3 * min(Double(speed) / 150.0, 1.0))
-                .stroke(green, lineWidth: 4)
-                .frame(width: 200, height: 200)
-                .rotationEffect(.degrees(0))
+        VStack(spacing: 2) {
+            Spacer()
 
-            VStack(spacing: 2) {
-                Spacer().frame(height: 30)
+            Text("\(speed)")
+                .font(.system(size: 58, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
 
-                Text("\(speed)")
-                    .font(.system(size: 64, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+            Text("km/h")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(dimGray)
 
-                Text("km/h")
-                    .font(.system(size: 14, weight: .medium))
+            Spacer().frame(height: 6)
+
+            Text("\(dir) \(String(format: "%03.0f", headingDeg))\u{00B0}")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(blue)
+
+            Spacer().frame(height: 6)
+
+            HStack {
+                Text("\(alt)m")
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(dimGray)
-
-                Spacer().frame(height: 8)
-
-                Text("\(dir) \(String(format: "%03.0f", headingDeg))\u{00B0}")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(blue)
-
                 Spacer()
-
-                HStack {
-                    Text("\(alt)m")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(dimGray)
-                    Spacer()
-                    Text("\(screenData.temperatureCelsiusX10 / 10)\u{00B0}C")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(dimGray)
-                }
-                .padding(.horizontal, 30)
-                .padding(.bottom, 20)
+                Text("\(screenData.temperatureCelsiusX10 / 10)\u{00B0}C")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(dimGray)
             }
+            .padding(.horizontal, 40)
+
+            Spacer().frame(height: 12)
         }
     }
 
@@ -229,7 +221,7 @@ struct LeanAngleScreenContent: View {
         let current = Double(screenData.currentLeanDegX10) / 10.0
         let maxL = Double(screenData.maxLeftLeanDegX10) / 10.0
         let maxR = Double(screenData.maxRightLeanDegX10) / 10.0
-        let direction = current < 0 ? "links" : current > 0 ? "rechts" : "--"
+        let direction = current > 0 ? "links" : current < 0 ? "rechts" : "--"
 
         ZStack {
             // Arc gauge background

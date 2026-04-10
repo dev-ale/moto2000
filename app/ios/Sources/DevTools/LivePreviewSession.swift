@@ -248,25 +248,45 @@ final class LivePreviewSession {
 
     private func startWeatherService() {
         #if canImport(WeatherKit)
-        guard let clock = try? WallClock(speedMultiplier: 1) else { return }
-        let loc = CLLocationManager().location
-        let coord = RealWeatherProvider.Coordinate(
-            latitude: loc?.coordinate.latitude ?? 47.56,
-            longitude: loc?.coordinate.longitude ?? 7.59
-        )
-        let weatherProvider = RealWeatherProvider(
-            client: WeatherKitClient(),
-            clock: clock,
-            coordinate: coord
-        )
-        services.append(weatherProvider)
-        tasks.append(Task { await weatherProvider.start() })
-        let weatherService = WeatherService(provider: weatherProvider)
-        weatherService.start()
-        services.append(weatherService)
-        subscribe(to: weatherService.encodedPayloads) { [weak self] payload in
-            if case .weather(let decoded, _) = payload { self?.latestWeather = decoded }
-        }
+        // Direct fetch — bypass provider/service chain for reliability
+        tasks.append(Task { @MainActor [weak self] in
+            let client = WeatherKitClient()
+            let lat = CLLocationManager().location?.coordinate.latitude ?? 47.56
+            let lon = CLLocationManager().location?.coordinate.longitude ?? 7.59
+            do {
+                let response = try await client.fetchCurrentWeather(
+                    latitude: lat, longitude: lon
+                )
+                // Manually build WeatherData from response
+                let condition: WeatherConditionWire = {
+                    switch response.condition {
+                    case .clear: return .clear
+                    case .cloudy: return .cloudy
+                    case .rain: return .rain
+                    case .snow: return .snow
+                    case .fog: return .fog
+                    case .thunderstorm: return .thunderstorm
+                    }
+                }()
+                self?.latestWeather = WeatherData(
+                    condition: condition,
+                    temperatureCelsiusX10: Int16(response.temperatureCelsius * 10),
+                    highCelsiusX10: Int16(response.highCelsius * 10),
+                    lowCelsiusX10: Int16(response.lowCelsius * 10),
+                    locationName: response.locationName.isEmpty ? "Basel" : response.locationName
+                )
+            } catch {
+                // Show error on the weather screen so user can see what's wrong
+                self?.latestWeather = WeatherData(
+                    condition: .cloudy,
+                    temperatureCelsiusX10: 0,
+                    highCelsiusX10: 0,
+                    lowCelsiusX10: 0,
+                    locationName: "Fehler"
+                )
+                print("WeatherKit error: \(error)")
+            }
+        })
         #endif
     }
 

@@ -83,6 +83,7 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_appointment.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_fuel.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_altitude.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_call.c"
 )
 target_include_directories(ble_protocol
     PUBLIC  "${BLE_PROTOCOL_ROOT}/include"

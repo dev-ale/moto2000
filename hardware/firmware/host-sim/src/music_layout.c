@@ -45,10 +45,7 @@ size_t host_sim_music_truncate_with_ellipsis(const char *in, char *out, size_t o
     /* Need room for "..\0". If out_len < 3 we can only write as much as
      * fits plus NUL. */
     if (out_len < 4U) {
-        size_t fit = out_len - 1U;
-        if (fit > 2U) {
-            fit = 2U;
-        }
+        const size_t fit = out_len - 1U;
         for (size_t i = 0; i < fit; ++i) {
             out[i] = '.';
         }

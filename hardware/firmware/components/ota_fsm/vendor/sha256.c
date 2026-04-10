@@ -39,6 +39,7 @@ static const uint32_t k[64] = {
 
 static void sha256_transform(sha256_ctx_t *ctx, const uint8_t *data)
 {
+    // cppcheck-suppress variableScope
     uint32_t a, b, c, d, e, f, g, h, t1, t2, m[64];
 
     for (int i = 0; i < 16; i++) {

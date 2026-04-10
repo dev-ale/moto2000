@@ -40,6 +40,7 @@ void tearDown(void) {}
 static bool load_fixture(const char *subdir, const char *name, fixture_blob_t *out)
 {
     char path[512];
+    // cppcheck-suppress invalidPrintfArgType_s
     snprintf(path, sizeof(path), "%s/%s/%s.bin", SCRAMSCREEN_FIXTURES_DIR, subdir, name);
     FILE *fp = fopen(path, "rb");
     if (fp == NULL) {

@@ -134,7 +134,7 @@ target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
 # Snapshot diff helper (separate tiny C executable).
 # ---------------------------------------------------------------------------
 add_executable(snapshot-diff tests/snapshot_diff.c)
-target_link_libraries(snapshot-diff PRIVATE stb_image)
+target_link_libraries(snapshot-diff PRIVATE stb_image m)
 
 # ---------------------------------------------------------------------------
 # Snapshot tests.

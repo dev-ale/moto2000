@@ -79,6 +79,8 @@ final class ControlFixtureTests: XCTestCase {
             return .wake
         case "clearAlertOverlay":
             return .clearAlertOverlay
+        case "checkOTAUpdate":
+            return .checkForOTAUpdate
         default:
             throw FixtureError.unsupportedScreen(command)
         }

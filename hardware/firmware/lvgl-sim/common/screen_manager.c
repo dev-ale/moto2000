@@ -14,6 +14,7 @@
 #include "screens/screen_navigation.h"
 #include "screens/screen_weather.h"
 #include "screens/screen_music.h"
+#include "screens/screen_trip_stats.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -115,9 +116,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
             screen_weather_create(scr, &weather, weather_flags);
             break;
         }
-        case BLE_SCREEN_TRIP_STATS:
-            screen_placeholder_create(scr, "TRIP STATS");
+        case BLE_SCREEN_TRIP_STATS: {
+            ble_trip_stats_data_t trip;
+            uint8_t trip_flags = 0;
+            rc = ble_decode_trip_stats(data, len, &trip_flags, &trip);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: trip_stats decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "TRIP STATS (decode error)");
+                break;
+            }
+            screen_trip_stats_create(scr, &trip, trip_flags);
             break;
+        }
         case BLE_SCREEN_MUSIC: {
             ble_music_data_t music;
             uint8_t music_flags = 0;

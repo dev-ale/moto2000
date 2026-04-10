@@ -239,6 +239,45 @@ sunset:
    ctest --test-dir hardware/firmware/host-sim/build -R night
    ```
 
+## Workflow: design iteration with the LVGL simulator
+
+Slice 20 ships a production-quality LVGL v9 simulator under
+`hardware/firmware/lvgl-sim/`. Unlike the host-sim (which uses a bitmap
+font rasteriser for deterministic CI snapshots), the LVGL simulator uses
+real anti-aliased fonts, smooth arcs, and proper LVGL styling — the same
+C code that will flash to the ESP32 unchanged.
+
+**Build and run:**
+
+```sh
+cmake -S hardware/firmware/lvgl-sim -B hardware/firmware/lvgl-sim/build
+cmake --build hardware/firmware/lvgl-sim/build
+
+# One-shot: renders a fixture in an SDL window (press Q to quit)
+./hardware/firmware/lvgl-sim/build/scramscreen-lvgl-sim \
+    --in protocol/fixtures/valid/clock_basel_winter.bin
+
+# Live mode: paste hex-encoded payloads on stdin to re-render
+./hardware/firmware/lvgl-sim/build/scramscreen-lvgl-sim --live
+```
+
+**When to use which tool:**
+
+- Use `host-sim` for CI snapshot tests and automated visual regression
+  checks. It is headless, deterministic, and runs on ubuntu-latest.
+- Use `lvgl-sim` for interactive design iteration, tweaking styles,
+  verifying the production look of screens, and developing new screen
+  layouts. It opens an SDL window and renders exactly what the round
+  AMOLED will show.
+
+**Adding a new screen to the LVGL sim:**
+
+1. Create `screens/screen_foo.c` with pure LVGL code (no SDL).
+2. Wire it up in `common/screen_manager.c`.
+3. Add to `CMakeLists.txt`, rebuild, and test with a fixture.
+
+See `hardware/firmware/lvgl-sim/README.md` for the full guide.
+
 ## What doesn't work yet
 
 - **Real data sources** — each real provider (wrapping `CLLocationManager`,

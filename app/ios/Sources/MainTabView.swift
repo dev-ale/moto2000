@@ -62,7 +62,7 @@ struct MainTabView: View {
         case .screens:
             ScreensView()
         case .fahrten:
-            PlaceholderTab(title: "Fahrten", icon: "road.lanes", subtitle: "Deine Fahrten werden hier angezeigt")
+            FahrtenView()
         case .tank:
             PlaceholderTab(title: "Tank", icon: "fuelpump", subtitle: "Tankstopps und Verbrauch tracken")
         case .mehr:

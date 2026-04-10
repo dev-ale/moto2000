@@ -1,14 +1,20 @@
 import BLECentralClient
 import SwiftUI
 
+// swiftlint:disable:next type_body_length
 struct MehrView: View {
     @State var connection: ConnectionViewModel
 
-    @AppStorage("scramscreen.unit.speed") private var useKmh = true
-    @AppStorage("scramscreen.unit.temp") private var useCelsius = true
-    @AppStorage("scramscreen.alert.sound") private var alertSounds = true
-    @AppStorage("scramscreen.display.autoSleep") private var autoSleepMinutes = 5
-    @AppStorage("scramscreen.display.brightness") private var brightness: Double = 80
+    @AppStorage("scramscreen.unit.speed")
+    private var useKmh = true
+    @AppStorage("scramscreen.unit.temp")
+    private var useCelsius = true
+    @AppStorage("scramscreen.alert.sound")
+    private var alertSounds = true
+    @AppStorage("scramscreen.display.autoSleep")
+    private var autoSleepMinutes = 5
+    @AppStorage("scramscreen.display.brightness")
+    private var brightness: Double = 80
 
     @State private var showUnpairConfirm = false
 

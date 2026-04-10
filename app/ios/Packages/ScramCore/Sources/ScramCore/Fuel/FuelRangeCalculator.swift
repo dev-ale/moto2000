@@ -69,15 +69,9 @@ public enum FuelRangeCalculator {
         currentDistanceSinceLastFillKm: Double,
         settings: FuelSettings
     ) -> Estimate {
-        guard let consumption = averageConsumptionMlPerKm(fills: fills) else {
-            // No consumption rate yet (need 2+ full fills), but if we have
-            // a full fill and no distance driven, show 100% tank.
-            let hasFullFill = fills.contains(where: \.isFull)
-            if hasFullFill && currentDistanceSinceLastFillKm < 0.1 {
-                return Estimate(tankPercent: 100)
-            }
-            return Estimate()
-        }
+        // Default consumption: 3.5 L/100km = 35 mL/km
+        let defaultConsumptionMlPerKm: Double = 35.0
+        let consumption = averageConsumptionMlPerKm(fills: fills) ?? defaultConsumptionMlPerKm
 
         // Fuel consumed since last fill
         let consumedSinceLastFill = consumption * currentDistanceSinceLastFillKm

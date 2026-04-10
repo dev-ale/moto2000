@@ -81,8 +81,7 @@ void host_sim_render_blitzer(host_sim_canvas_t *canvas, const ble_blitzer_data_t
     const char exclaim[] = "!";
     const int ex_scale = 4;
     const int ex_w = host_sim_measure_text(exclaim, ex_scale);
-    host_sim_draw_text(canvas, exclaim, cx - ex_w / 2, 60 + 12, ex_scale, night ? 0x00U : 0x00U,
-                       night ? 0x00U : 0x00U, night ? 0x00U : 0x00U);
+    host_sim_draw_text(canvas, exclaim, cx - ex_w / 2, 60 + 12, ex_scale, 0x00U, 0x00U, 0x00U);
 
     /* ---- Distance (hero text) ---- */
     char dist_buf[16];

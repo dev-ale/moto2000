@@ -98,7 +98,7 @@ void host_sim_render_call(host_sim_canvas_t *canvas, const ble_incoming_call_dat
     const int avatar_radius = 35;
     fill_circle(canvas, cx, avatar_y, avatar_radius, accent_r, accent_g, accent_b);
 
-    char initial_buf[2] = { call_avatar_initial(call->caller_handle), '\0' };
+    const char initial_buf[2] = { call_avatar_initial(call->caller_handle), '\0' };
     const int initial_scale = 6;
     const int initial_w = host_sim_measure_text(initial_buf, initial_scale);
     host_sim_draw_text(canvas, initial_buf, cx - initial_w / 2, avatar_y - (8 * initial_scale) / 2,

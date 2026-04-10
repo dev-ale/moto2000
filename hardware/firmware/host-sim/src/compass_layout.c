@@ -7,6 +7,10 @@
 
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include "ble_protocol.h"
 
 uint16_t host_sim_compass_normalize_deg_x10(int32_t raw)

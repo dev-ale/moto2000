@@ -38,7 +38,7 @@ void host_sim_weather_uppercase_location(const char *in, char *out, size_t out_l
     }
     const size_t max_chars = WEATHER_LAYOUT_MAX_LOCATION_CHARS;
     size_t i = 0U;
-    while (in[i] != '\0' && i < max_chars && (i + 1U) < out_len) {
+    while (i < max_chars && (i + 1U) < out_len && in[i] != '\0') {
         const char c = in[i];
         if (c >= 'a' && c <= 'z') {
             out[i] = (char)(c - 'a' + 'A');

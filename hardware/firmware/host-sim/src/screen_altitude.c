@@ -81,7 +81,7 @@ void host_sim_render_altitude(host_sim_canvas_t *canvas, const ble_altitude_prof
     const uint8_t fill_b = night ? (uint8_t)0x08U : (uint8_t)0x88U;
 
     /* Marker (current position) color. */
-    const uint8_t mark_r = night ? (uint8_t)0xFFU : (uint8_t)0xFFU;
+    const uint8_t mark_r = (uint8_t)0xFFU;
     const uint8_t mark_g = night ? (uint8_t)0x44U : (uint8_t)0xFFU;
     const uint8_t mark_b = night ? (uint8_t)0x44U : (uint8_t)0x00U;
 

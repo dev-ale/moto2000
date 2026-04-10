@@ -204,7 +204,7 @@ void host_sim_render_navigation(host_sim_canvas_t *canvas, const ble_nav_data_t 
         host_sim_canvas_fill(canvas, 0x08, 0x14, 0x24);
     }
 
-    const uint8_t fg_r = night ? 0xFFU : 0xFFU;
+    const uint8_t fg_r = 0xFFU;
     const uint8_t fg_g = night ? 0x33U : 0xFFU;
     const uint8_t fg_b = night ? 0x33U : 0xFFU;
     const uint8_t dim_r = night ? 0x66U : 0x99U;

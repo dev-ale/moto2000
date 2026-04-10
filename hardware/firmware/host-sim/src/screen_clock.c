@@ -34,7 +34,7 @@ void host_sim_render_clock(host_sim_canvas_t *canvas, const ble_clock_data_t *cl
         host_sim_canvas_fill(canvas, 0x0A, 0x1C, 0x3A);
     }
 
-    const uint8_t fg_r = night ? 0xFFU : 0xFFU;
+    const uint8_t fg_r = 0xFFU;
     const uint8_t fg_g = night ? 0x33U : 0xFFU;
     const uint8_t fg_b = night ? 0x33U : 0xFFU;
 

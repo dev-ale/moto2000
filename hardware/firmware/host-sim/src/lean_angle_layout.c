@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 /* Visual range of the gauge arc, in tenths of a degree.
  * The needle is clipped to this range before being projected so the
  * tip never wanders past the visible scale. */

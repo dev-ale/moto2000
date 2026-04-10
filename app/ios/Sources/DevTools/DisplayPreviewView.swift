@@ -1,4 +1,3 @@
-#if DEBUG
 import BLEProtocol
 import SwiftUI
 
@@ -204,4 +203,3 @@ struct DisplayPreviewView: View {
         }
     }
 }
-#endif

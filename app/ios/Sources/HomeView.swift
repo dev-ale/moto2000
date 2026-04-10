@@ -5,10 +5,10 @@ import SwiftUI
 struct HomeView: View {
     @State var connection: ConnectionViewModel
 
+    @State private var showLivePreview = false
     #if DEBUG
     @State private var showSimulator = false
     @State private var showScreenPicker = false
-    @State private var showLivePreview = false
     #endif
 
     var body: some View {
@@ -50,6 +50,10 @@ struct HomeView: View {
                         StatCard(value: "--", label: "Firmware")
                     }
                 }
+
+                // MARK: - Live Preview
+
+                livePreviewSection
 
                 #if DEBUG
                 debugSection
@@ -188,6 +192,37 @@ struct HomeView: View {
         .clipShape(RoundedRectangle(cornerRadius: ScramRadius.card))
     }
 
+    // MARK: - Live Preview
+
+    private var livePreviewSection: some View {
+        VStack(spacing: ScramSpacing.sm) {
+            SectionHeader(title: "Display Vorschau")
+
+            Button {
+                showLivePreview = true
+            } label: {
+                HStack(spacing: ScramSpacing.sm) {
+                    Image(systemName: "circle.circle")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.scramGreen)
+                    Text("Live Preview starten")
+                        .font(.scramBody)
+                        .foregroundStyle(Color.scramTextPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.scramTextTertiary)
+                }
+                .padding(ScramSpacing.lg)
+                .background(Color.scramSurface)
+                .clipShape(RoundedRectangle(cornerRadius: ScramRadius.card))
+            }
+            .fullScreenCover(isPresented: $showLivePreview) {
+                DisplayPreviewView()
+            }
+        }
+    }
+
     // MARK: - Debug
 
     #if DEBUG
@@ -219,16 +254,6 @@ struct HomeView: View {
                     }
             }
 
-            Button("Live Preview") { showLivePreview = true }
-                .font(.scramCaption)
-                .foregroundStyle(Color.scramTextSecondary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, ScramSpacing.md)
-                .background(Color.scramSurfaceElevated)
-                .clipShape(RoundedRectangle(cornerRadius: ScramRadius.cardSmall))
-                .fullScreenCover(isPresented: $showLivePreview) {
-                    DisplayPreviewView()
-                }
         }
     }
     #endif

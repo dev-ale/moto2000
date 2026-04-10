@@ -1,4 +1,3 @@
-#if DEBUG
 import BLEProtocol
 import Foundation
 import Observation
@@ -277,4 +276,3 @@ final class LivePreviewSession {
         }
     }
 }
-#endif

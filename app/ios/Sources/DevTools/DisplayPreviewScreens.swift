@@ -1,4 +1,3 @@
-#if DEBUG
 import BLEProtocol
 import SwiftUI
 
@@ -321,4 +320,3 @@ struct MusicScreenContent: View {
         .padding(.top, 4)
     }
 }
-#endif

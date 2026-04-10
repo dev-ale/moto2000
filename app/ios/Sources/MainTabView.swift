@@ -1,4 +1,5 @@
 import BLECentralClient
+import ScramCore
 import SwiftUI
 
 enum ScramTab: String, CaseIterable {
@@ -64,7 +65,7 @@ struct MainTabView: View {
         case .fahrten:
             PlaceholderTab(title: "Fahrten", icon: "road.lanes", subtitle: "Deine Fahrten werden hier angezeigt")
         case .tank:
-            PlaceholderTab(title: "Tank", icon: "fuelpump", subtitle: "Tankstopps und Verbrauch tracken")
+            TankView(fuelLog: FuelLog(store: DocumentsFuelLogStore()))
         case .mehr:
             MehrView(connection: connection)
         }

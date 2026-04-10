@@ -68,7 +68,7 @@ struct TripDetailView: View {
             })
             .stroke(Color.scramGreen, lineWidth: 3)
         }
-        .mapStyle(.standard)
+        .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
         .frame(height: 400)
         .clipShape(RoundedRectangle(cornerRadius: ScramRadius.card))
         .onAppear {

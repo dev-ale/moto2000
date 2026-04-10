@@ -168,3 +168,13 @@ add_executable(test_display_stub test_display_stub.c)
 target_include_directories(test_display_stub PRIVATE "${DISPLAY_ROOT}/include")
 target_link_libraries(test_display_stub PRIVATE unity)
 add_test(NAME display_stub COMMAND test_display_stub)
+
+# ------------------------------------------------------------------------- #
+# integration — full app_main wiring (no LVGL, host-only FSM + dispatch)    #
+# ------------------------------------------------------------------------- #
+add_executable(test_integration test_integration.c)
+target_include_directories(test_integration
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(test_integration PRIVATE unity ble_server_handlers)
+add_test(NAME integration COMMAND test_integration)

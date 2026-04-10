@@ -88,6 +88,8 @@ size_t ble_expected_body_size(ble_screen_id_t screen)
             return BLE_PROTOCOL_APPOINTMENT_BODY_SIZE;
         case BLE_SCREEN_FUEL_ESTIMATE:
             return BLE_PROTOCOL_FUEL_BODY_SIZE;
+        case BLE_SCREEN_ALTITUDE:
+            return BLE_PROTOCOL_ALTITUDE_BODY_SIZE;
         default:
             return 0;
     }

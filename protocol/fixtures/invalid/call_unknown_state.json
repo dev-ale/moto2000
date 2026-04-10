@@ -1,0 +1,5 @@
+{
+  "description": "Incoming call with unknown call_state 0xFF — must be rejected",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "0109010020000000ff00636f6e746163742d6d6f6d00000000000000000000000000000000000000"
+}

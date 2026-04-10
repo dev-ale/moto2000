@@ -705,6 +705,77 @@ static void test_altitude_too_many_samples_rejected(void)
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
+/* ---- incoming call (Slice 13) ------------------------------------------ */
+
+static void assert_incoming_call_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t                  flags = 0xFF;
+    ble_incoming_call_data_t decoded_body;
+    const ble_result_t decoded =
+        ble_decode_incoming_call(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_incoming_call(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_call_incoming_roundtrip(void)
+{
+    assert_incoming_call_fixture_roundtrips("call_incoming");
+}
+
+static void test_call_connected_roundtrip(void)
+{
+    assert_incoming_call_fixture_roundtrips("call_connected");
+}
+
+static void test_call_ended_roundtrip(void)
+{
+    assert_incoming_call_fixture_roundtrips("call_ended");
+}
+
+static void test_call_incoming_has_alert_flag(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("valid", "call_incoming", &blob));
+    uint8_t                  flags = 0;
+    ble_incoming_call_data_t call;
+    const ble_result_t result =
+        ble_decode_incoming_call(blob.bytes, blob.length, &flags, &call);
+    TEST_ASSERT_EQUAL(BLE_OK, result);
+    TEST_ASSERT_BITS_HIGH(BLE_FLAG_ALERT, flags);
+}
+
+static void test_call_ended_no_alert_flag(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("valid", "call_ended", &blob));
+    uint8_t                  flags = 0xFF;
+    ble_incoming_call_data_t call;
+    const ble_result_t result =
+        ble_decode_incoming_call(blob.bytes, blob.length, &flags, &call);
+    TEST_ASSERT_EQUAL(BLE_OK, result);
+    TEST_ASSERT_BITS_LOW(BLE_FLAG_ALERT, flags);
+}
+
+static void test_call_unknown_state_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "call_unknown_state", &blob));
+    ble_incoming_call_data_t call;
+    const ble_result_t result =
+        ble_decode_incoming_call(blob.bytes, blob.length, NULL, &call);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
+
 /* ------------------------------------------------------------------------- */
 
 int main(void)
@@ -769,5 +840,11 @@ int main(void)
     RUN_TEST(test_altitude_mountain_pass_roundtrip);
     RUN_TEST(test_altitude_start_roundtrip);
     RUN_TEST(test_altitude_too_many_samples_rejected);
+    RUN_TEST(test_call_incoming_roundtrip);
+    RUN_TEST(test_call_connected_roundtrip);
+    RUN_TEST(test_call_ended_roundtrip);
+    RUN_TEST(test_call_incoming_has_alert_flag);
+    RUN_TEST(test_call_ended_no_alert_flag);
+    RUN_TEST(test_call_unknown_state_rejected);
     return UNITY_END();
 }

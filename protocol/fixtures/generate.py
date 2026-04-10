@@ -113,6 +113,15 @@ FUEL_UNKNOWN_U16 = 0xFFFF
 ALTITUDE_BODY_SIZE = 128
 ALTITUDE_MAX_SAMPLES = 60
 
+INCOMING_CALL_BODY_SIZE = 32
+CALLER_HANDLE_FIELD_LEN = 30
+
+CALL_STATES = {
+    "incoming": 0x00,
+    "connected": 0x01,
+    "ended": 0x02,
+}
+
 
 def encode_flags(flags: list[str]) -> int:
     value = 0
@@ -375,6 +384,19 @@ def encode_altitude_body(spec: dict) -> bytes:
     return body
 
 
+def encode_incoming_call_body(spec: dict) -> bytes:
+    state_name = spec["call_state"]
+    if state_name not in CALL_STATES:
+        raise ValueError(f"unknown call state: {state_name}")
+    call_state = CALL_STATES[state_name]
+    caller_handle = encode_fixed_string(spec.get("caller_handle", ""), CALLER_HANDLE_FIELD_LEN)
+    body = struct.pack("<BB", call_state, 0) + caller_handle
+    assert len(body) == INCOMING_CALL_BODY_SIZE, (
+        f"incoming_call body is {len(body)} bytes, expected {INCOMING_CALL_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
@@ -387,6 +409,7 @@ BODY_ENCODERS = {
     "appointment": encode_appointment_body,
     "fuelEstimate": encode_fuel_body,
     "altitude": encode_altitude_body,
+    "incomingCall": encode_incoming_call_body,
 }
 
 

@@ -73,6 +73,8 @@ final class ValidFixtureTests: XCTestCase {
             return .fuelEstimate(try FuelData(parsing: body), flags: flags)
         case "altitude":
             return .altitude(try AltitudeProfileData(parsing: body), flags: flags)
+        case "incomingCall":
+            return .incomingCall(try IncomingCallData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -413,6 +415,23 @@ extension AltitudeProfileData {
             sampleCount: UInt8(sampleCount),
             profile: padded
         )
+    }
+}
+
+extension IncomingCallData {
+    init(parsing body: [String: Any]) throws {
+        guard let stateName = body["call_state"] as? String else {
+            throw FixtureError.missingField("call_state")
+        }
+        let callState: CallStateWire
+        switch stateName {
+        case "incoming": callState = .incoming
+        case "connected": callState = .connected
+        case "ended": callState = .ended
+        default: throw FixtureError.missingField("call_state")
+        }
+        let callerHandle = (body["caller_handle"] as? String) ?? ""
+        self.init(callState: callState, callerHandle: callerHandle)
     }
 }
 

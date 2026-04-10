@@ -266,6 +266,22 @@ int host_sim_render_payload(host_sim_canvas_t *canvas,
             host_sim_render_altitude(canvas, &alt, flags);
             return 0;
         }
+        case BLE_SCREEN_INCOMING_CALL: {
+            ble_incoming_call_data_t call;
+            uint8_t         flags = 0;
+            const ble_result_t res =
+                ble_decode_incoming_call(payload, length, &flags, &call);
+            if (res != BLE_OK) {
+                fprintf(stderr,
+                        "host-sim: failed to decode incoming call body: %s\n",
+                        ble_result_name(res));
+                host_sim_canvas_fill(canvas, 200, 0, 0);
+                host_sim_canvas_apply_round_mask(canvas);
+                return 3;
+            }
+            host_sim_render_call(canvas, &call, flags);
+            return 0;
+        }
         default:
             host_sim_render_placeholder(canvas, (uint8_t)header.screen_id);
             return 0;

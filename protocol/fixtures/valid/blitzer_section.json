@@ -1,0 +1,11 @@
+{
+  "description": "Section control camera, 300m away, 120 km/h limit, current 115 km/h, ALERT set",
+  "screen": "blitzer",
+  "flags": ["ALERT"],
+  "body": {
+    "distance_meters": 300,
+    "speed_limit_kmh": 120,
+    "current_speed_kmh": 115.0,
+    "camera_type": "section"
+  }
+}

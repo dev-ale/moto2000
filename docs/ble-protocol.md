@@ -80,7 +80,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x05` | `tripStats`     | Trip Stats        | 9   | `trip_stats_data_t` |
 | `0x06` | `music`         | Music             | 8   | TBD |
 | `0x07` | `leanAngle`     | Lean Angle        | 10  | `lean_angle_data_t` |
-| `0x08` | `blitzer`       | Blitzer / Radar   | 14  | TBD |
+| `0x08` | `blitzer`       | Blitzer / Radar   | 14  | `blitzer_data_t` |
 | `0x09` | `incomingCall`  | Incoming Call     | 13  | `incoming_call_data_t` |
 | `0x0A` | `fuelEstimate`  | Fuel Estimate     | 12  | `fuel_data_t` |
 | `0x0B` | `altitude`      | Altitude Profile  | 15  | `altitude_profile_data_t` |
@@ -345,6 +345,55 @@ decoders may reject a payload where `call_state == ended` but `ALERT` is
 set, or where `call_state == incoming` but `ALERT` is clear, as a
 protocol-level warning (though the current codecs do not enforce this
 for forward compatibility).
+
+### `blitzer_data_t` (screen `0x08`)
+
+Body size: **8 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `distance_meters` | `uint16` | Distance to the nearest camera in metres. |
+| 2 | `speed_limit_kmh` | `uint16` | Speed limit at the camera in km/h. `0xFFFF` = unknown. |
+| 4 | `current_speed_kmh_x10` | `uint16` | Current GPS speed × 10. |
+| 6 | `camera_type` | `uint8` | See Camera types below. |
+| 7 | `reserved` | `uint8` | Must be `0x00`. |
+
+### Camera types
+
+| ID | Name |
+|---|---|
+| `0x00` | `fixed` |
+| `0x01` | `mobile` |
+| `0x02` | `redLight` |
+| `0x03` | `section` |
+| `0x04` | `unknown` |
+
+Unknown values are rejected with `valueOutOfRange` (field `blitzer.camera_type`).
+
+#### ALERT flag interaction (Slice 14)
+
+The `ALERT` header flag (bit 0) is used to control the priority overlay
+lifecycle, following the same pattern as `incoming_call_data_t` (Slice 13):
+
+- When the rider is within the configured alert radius of a speed camera,
+  the iOS encoder **must set** the `ALERT` flag. The ESP32 screen FSM
+  treats this as a priority overlay that interrupts the current screen.
+- When no camera is in range (and the previous emission had `ALERT` set),
+  the iOS encoder emits one final payload with `ALERT` **cleared**. The
+  ESP32 uses this to dismiss the overlay and restore the previous screen.
+
+The iOS `BlitzerAlertService` controls the enter/exit logic. The default
+alert radius is 500 metres, configurable via `BlitzerSettings`.
+
+#### Swiss legal status
+
+Passive radar-warning apps that display the positions of fixed speed
+cameras from open databases (e.g. OpenStreetMap `highway=speed_camera`
+nodes) were ruled legal in Switzerland by the Bundesgericht in 2024. The
+ruling distinguishes passive lookup of known positions from active radar
+detection, which remains illegal under SVG Art. 98a. This feature relies
+solely on the passive lookup model. The camera database is loaded from a
+local JSON file on the iPhone; no active detection hardware is involved.
 
 Other screen body definitions are added by their respective slices and follow the
 same pattern: fixed offsets, fixed size, explicit reserved bytes.

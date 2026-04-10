@@ -66,6 +66,10 @@ SNAPSHOTS=(
     "call_incoming                   call_incoming.bin"
     "call_connected                  call_connected.bin"
     "call_ended                      call_ended.bin"
+    "blitzer_fixed_500m              blitzer_fixed_500m.bin"
+    "blitzer_mobile_close            blitzer_mobile_close.bin"
+    "blitzer_section                 blitzer_section.bin"
+    "blitzer_unknown_limit           blitzer_unknown_limit.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

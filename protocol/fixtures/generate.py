@@ -116,6 +116,16 @@ ALTITUDE_MAX_SAMPLES = 60
 INCOMING_CALL_BODY_SIZE = 32
 CALLER_HANDLE_FIELD_LEN = 30
 
+BLITZER_BODY_SIZE = 8
+BLITZER_CAMERA_TYPES = {
+    "fixed": 0x00,
+    "mobile": 0x01,
+    "redLight": 0x02,
+    "section": 0x03,
+    "unknown": 0x04,
+}
+BLITZER_UNKNOWN_SPEED_LIMIT = 0xFFFF
+
 CALL_STATES = {
     "incoming": 0x00,
     "connected": 0x01,
@@ -397,6 +407,31 @@ def encode_incoming_call_body(spec: dict) -> bytes:
     return body
 
 
+def encode_blitzer_body(spec: dict) -> bytes:
+    distance = int(spec["distance_meters"])
+    if "speed_limit_kmh_raw" in spec:
+        speed_limit = int(spec["speed_limit_kmh_raw"]) & 0xFFFF
+    else:
+        speed_limit = int(spec["speed_limit_kmh"]) & 0xFFFF
+    current_speed_x10 = int(round(spec["current_speed_kmh"] * 10))
+    camera_type_name = spec["camera_type"]
+    if camera_type_name not in BLITZER_CAMERA_TYPES:
+        raise ValueError(f"unknown camera type: {camera_type_name}")
+    camera_type = BLITZER_CAMERA_TYPES[camera_type_name]
+    body = struct.pack(
+        "<HHHBB",
+        distance,
+        speed_limit,
+        current_speed_x10,
+        camera_type,
+        0,  # reserved
+    )
+    assert len(body) == BLITZER_BODY_SIZE, (
+        f"blitzer body is {len(body)} bytes, expected {BLITZER_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
@@ -410,6 +445,7 @@ BODY_ENCODERS = {
     "fuelEstimate": encode_fuel_body,
     "altitude": encode_altitude_body,
     "incomingCall": encode_incoming_call_body,
+    "blitzer": encode_blitzer_body,
 }
 
 

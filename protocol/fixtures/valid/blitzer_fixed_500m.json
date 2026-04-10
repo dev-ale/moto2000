@@ -1,0 +1,11 @@
+{
+  "description": "Fixed camera, 500m away, 80 km/h limit, current 72 km/h, ALERT set",
+  "screen": "blitzer",
+  "flags": ["ALERT"],
+  "body": {
+    "distance_meters": 500,
+    "speed_limit_kmh": 80,
+    "current_speed_kmh": 72.0,
+    "camera_type": "fixed"
+  }
+}

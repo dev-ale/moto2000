@@ -31,6 +31,7 @@ extern "C" {
 #define BLE_PROTOCOL_FUEL_BODY_SIZE ((size_t)8)
 #define BLE_PROTOCOL_ALTITUDE_BODY_SIZE ((size_t)128)
 #define BLE_PROTOCOL_INCOMING_CALL_BODY_SIZE ((size_t)32)
+#define BLE_PROTOCOL_BLITZER_BODY_SIZE ((size_t)8)
 
 /* Altitude profile constants. */
 #define BLE_ALTITUDE_MAX_SAMPLES  60
@@ -227,6 +228,24 @@ typedef struct {
     char             caller_handle[30]; /* null-terminated UTF-8 */
 } ble_incoming_call_data_t;
 
+typedef enum {
+    BLE_CAMERA_TYPE_FIXED     = 0x00,
+    BLE_CAMERA_TYPE_MOBILE    = 0x01,
+    BLE_CAMERA_TYPE_RED_LIGHT = 0x02,
+    BLE_CAMERA_TYPE_SECTION   = 0x03,
+    BLE_CAMERA_TYPE_UNKNOWN   = 0x04,
+} ble_camera_type_t;
+
+/* Sentinel for unknown speed limit at a camera. */
+#define BLE_BLITZER_UNKNOWN_SPEED_LIMIT ((uint16_t)0xFFFFU)
+
+typedef struct {
+    uint16_t          distance_meters;
+    uint16_t          speed_limit_kmh;       /* 0xFFFF = unknown */
+    uint16_t          current_speed_kmh_x10;
+    ble_camera_type_t camera_type;
+} ble_blitzer_data_t;
+
 typedef struct {
     ble_screen_id_t screen_id;
     uint8_t         flags;
@@ -420,6 +439,17 @@ ble_result_t ble_encode_incoming_call(const ble_incoming_call_data_t *in,
                                       uint8_t                        *out_buf,
                                       size_t                          out_cap,
                                       size_t                         *out_written);
+
+ble_result_t ble_decode_blitzer(const uint8_t          *data,
+                                size_t                  length,
+                                uint8_t                *out_flags,
+                                ble_blitzer_data_t     *out_blitzer);
+
+ble_result_t ble_encode_blitzer(const ble_blitzer_data_t *in,
+                                uint8_t                   flags,
+                                uint8_t                  *out_buf,
+                                size_t                    out_cap,
+                                size_t                   *out_written);
 
 #ifdef __cplusplus
 }

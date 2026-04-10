@@ -776,6 +776,70 @@ static void test_call_unknown_state_rejected(void)
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
+/* ---- blitzer (Slice 14) ------------------------------------------------ */
+
+static void assert_blitzer_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t              flags = 0xFF;
+    ble_blitzer_data_t   decoded_body;
+    const ble_result_t decoded =
+        ble_decode_blitzer(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_blitzer(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_blitzer_fixed_500m_roundtrip(void)
+{
+    assert_blitzer_fixture_roundtrips("blitzer_fixed_500m");
+}
+
+static void test_blitzer_mobile_close_roundtrip(void)
+{
+    assert_blitzer_fixture_roundtrips("blitzer_mobile_close");
+}
+
+static void test_blitzer_section_roundtrip(void)
+{
+    assert_blitzer_fixture_roundtrips("blitzer_section");
+}
+
+static void test_blitzer_unknown_limit_roundtrip(void)
+{
+    assert_blitzer_fixture_roundtrips("blitzer_unknown_limit");
+}
+
+static void test_blitzer_fixed_500m_has_alert_flag(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("valid", "blitzer_fixed_500m", &blob));
+    uint8_t             flags = 0;
+    ble_blitzer_data_t  blitzer;
+    const ble_result_t result =
+        ble_decode_blitzer(blob.bytes, blob.length, &flags, &blitzer);
+    TEST_ASSERT_EQUAL(BLE_OK, result);
+    TEST_ASSERT_BITS_HIGH(BLE_FLAG_ALERT, flags);
+}
+
+static void test_blitzer_unknown_camera_type_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "blitzer_unknown_camera_type", &blob));
+    ble_blitzer_data_t body;
+    const ble_result_t result =
+        ble_decode_blitzer(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
+
 /* ------------------------------------------------------------------------- */
 
 int main(void)
@@ -846,5 +910,11 @@ int main(void)
     RUN_TEST(test_call_incoming_has_alert_flag);
     RUN_TEST(test_call_ended_no_alert_flag);
     RUN_TEST(test_call_unknown_state_rejected);
+    RUN_TEST(test_blitzer_fixed_500m_roundtrip);
+    RUN_TEST(test_blitzer_mobile_close_roundtrip);
+    RUN_TEST(test_blitzer_section_roundtrip);
+    RUN_TEST(test_blitzer_unknown_limit_roundtrip);
+    RUN_TEST(test_blitzer_fixed_500m_has_alert_flag);
+    RUN_TEST(test_blitzer_unknown_camera_type_rejected);
     return UNITY_END();
 }

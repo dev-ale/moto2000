@@ -34,6 +34,7 @@ public enum ScreenID: UInt8, Sendable, CaseIterable {
         case .fuelEstimate: return FuelData.encodedSize
         case .altitude: return AltitudeProfileData.encodedSize
         case .incomingCall: return IncomingCallData.encodedSize
+        case .blitzer: return BlitzerData.encodedSize
         default: return nil
         }
     }

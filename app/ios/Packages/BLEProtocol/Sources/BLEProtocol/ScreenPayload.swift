@@ -14,6 +14,7 @@ public enum ScreenPayload: Equatable, Sendable {
     case fuelEstimate(FuelData, flags: ScreenFlags)
     case altitude(AltitudeProfileData, flags: ScreenFlags)
     case incomingCall(IncomingCallData, flags: ScreenFlags)
+    case blitzer(BlitzerData, flags: ScreenFlags)
 
     public var screenID: ScreenID {
         switch self {
@@ -29,6 +30,7 @@ public enum ScreenPayload: Equatable, Sendable {
         case .fuelEstimate: return .fuelEstimate
         case .altitude: return .altitude
         case .incomingCall: return .incomingCall
+        case .blitzer: return .blitzer
         }
     }
 
@@ -45,7 +47,8 @@ public enum ScreenPayload: Equatable, Sendable {
              .appointment(_, let flags),
              .fuelEstimate(_, let flags),
              .altitude(_, let flags),
-             .incomingCall(_, let flags):
+             .incomingCall(_, let flags),
+             .blitzer(_, let flags):
             return flags
         }
     }
@@ -126,6 +129,8 @@ public enum ScreenPayloadCodec {
             return .altitude(try AltitudeProfileData.decode(body), flags: flags)
         case .incomingCall:
             return .incomingCall(try IncomingCallData.decode(body), flags: flags)
+        case .blitzer:
+            return .blitzer(try BlitzerData.decode(body), flags: flags)
         default:
             // The other screens are reserved by Slice 1 but their bodies
             // land with their owning slices. Decoding one today is a bug.
@@ -161,6 +166,8 @@ public enum ScreenPayloadCodec {
             body = try altitude.encode()
         case .incomingCall(let call, _):
             body = try call.encode()
+        case .blitzer(let blitzer, _):
+            body = try blitzer.encode()
         }
         guard body.count <= Int(UInt16.max) else {
             throw BLEProtocolError.valueOutOfRange(field: "body.count")

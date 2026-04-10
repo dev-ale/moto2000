@@ -2,7 +2,7 @@
 
 A custom-built, waterproof, round AMOLED display that replaces the stock Royal Enfield Tripper Navigation pod on a Scram 411. It connects via BLE to an iOS companion app, turning the locked-down OEM navigation puck into a fully programmable motorcycle dashboard.
 
-**Status:** Concept / Hardware prototyping
+**Status:** iOS app implemented, firmware rendering complete, hardware integration next
 **Owner:** Alejandro
 **Target:** Personal use (single unit), open-source potential
 
@@ -26,7 +26,7 @@ The Royal Enfield Tripper Pod is locked to the proprietary RE app with Google Ma
 └─────────────────┘                        └──────────────────────┘
 ```
 
-The ESP32 is a dumb display — all logic, data fetching, and routing lives on the iPhone. The firmware just decodes incoming BLE payloads and renders the corresponding LVGL screen.
+The ESP32 is a dumb display — all logic, data fetching, and routing lives on the iPhone. The firmware decodes incoming BLE payloads, caches them per screen, and renders via LVGL. A handlebar button cycles through screens locally using the cached payloads (no BLE round-trip). iOS is notified of screen changes via `SCREEN_CHANGED` status notifications.
 
 ## Hardware
 
@@ -49,7 +49,7 @@ Power is tapped from the bike's 12V ignition-switched accessory line through a b
 **Alerts (overlay)** — Radar/Blitzer, Incoming Call, Fuel Estimate
 **Passive (idle)** — Altitude Profile, Next Appointment, Clock
 
-Screens auto-switch on context (nav starts → nav screen, call comes in → call overlay, Blitzer in range → alert) and can be manually cycled from the iOS app.
+Screens are cycled via a **handlebar button** wired to the ESP32 GPIO. No auto-rotation — the rider controls which screen is visible. Alerts (incoming call, speed camera) interrupt via overlay: incoming call always overlays; speed camera during navigation sets an ALERT flag in the nav payload instead of hiding turn instructions.
 
 ## BLE Protocol
 
@@ -59,7 +59,7 @@ A custom GATT service with three characteristics:
 |---|---|---|
 | `screen_data` | Phone → ESP32 | Screen payload: binary struct with screen ID + data |
 | `control` | Phone → ESP32 | Switch screen, set brightness, sleep/wake |
-| `status` | ESP32 → Phone | Device status: voltage, uptime, display state |
+| `status` | ESP32 → Phone | Device status, `SCREEN_CHANGED` notifications |
 
 Payloads are packed binary structs, not JSON, to keep BLE writes small and fast. Navigation/Speed/Lean update at 1 Hz; Weather/Calendar/Fuel update on change or every 60s; alerts push immediately.
 
@@ -71,32 +71,44 @@ See [`scram-display-prd.md`](scram-display-prd.md) for full struct definitions a
 - ESP-IDF v5.3 targeting `esp32s3` ([ADR-0001](docs/adr/0001-esp-idf-over-arduino.md))
 - LVGL v9.2 for UI — round display support, partial redraws, smooth anims ([ADR-0003](docs/adr/0003-lvgl-v9.md))
 - Unity host-test harness runs core firmware logic on Linux CI with no hardware
-- Simple FSM per screen; OTA updates via WiFi when available
+- Screen FSM (active, alert overlay, sleep) + payload cache + screen order manager
+- Handlebar button GPIO handler cycles screens locally from cached payloads
+- OTA firmware updates via BLE (binaries hosted on GitHub Releases)
 
 **iOS companion app**
 - Swift 6, iOS 18+ minimum ([ADR-0005](docs/adr/0005-ios-18-minimum.md))
 - Project generated with Tuist, no `.xcodeproj` in git ([ADR-0002](docs/adr/0002-tuist-and-swiftpm.md))
 - No server, no accounts — pure local app
 - `CoreBluetooth`, `CoreLocation`, `CoreMotion`, `WeatherKit`, `CallKit`, `EventKit`, `MediaPlayer`, `MapKit`
-- Runs in background with `bluetooth-central` + location background modes to keep pushing data during rides
+- `RideSession` actor orchestrates all 13 data services, `PayloadScheduler` manages BLE bandwidth
+- Runs in background with `bluetooth-central` + `location` modes during rides
+- Full implementation details: [`docs/ios-app-prd.md`](docs/ios-app-prd.md)
 
 ## Navigation
 
-Start with **MapKit Directions API** — pre-calculate route, track position along the polyline, derive next maneuver from route steps. Upgrade to self-hosted OSRM/Valhalla later if needed.
+Uses **MapKit Directions API**. Rider enters a destination in the app before riding (MKLocalSearchCompleter autocomplete). Route is tracked along the polyline with automatic rerouting when >100m off-route for >10 seconds. Navigation ends silently on arrival.
 
 ## Blitzer / Radar Warnings
 
-Legal in Switzerland (Bundesgericht ruling, 2024) for passive proximity warnings. Data imported from OpenStreetMap (`highway=speed_camera`) + community datasets, queried locally against GPS position, alert fires at a configurable radius (default 500m).
+Legal in Switzerland (Bundesgericht ruling, 2024) for passive proximity warnings. 1,249 Swiss speed cameras bundled as SQLite from OpenStreetMap (`highway=speed_camera`), queried locally against GPS position, alert fires at a configurable radius (default 500m). Database updated with each app release via `tools/fetch-speed-cameras/`.
 
 ## Roadmap
 
-1. **Hardware PoC** — Order parts, fit test in Tripper shell, flash LVGL demo, validate 12V power
-2. **BLE + Clock** — GATT server on ESP32, minimal iOS central, render clock screen
-3. **Speed + Compass** — CoreLocation → binary struct → LVGL gauges
-4. **Navigation** — MapKit route → maneuver tracking → turn arrows
-5. **Secondary screens** — Weather, music, trip stats, lean angle, fuel, calendar
-6. **Alerts** — Call detection, Blitzer DB + proximity overlay
-7. **Polish + Waterproof** — Final housing, night mode, OTA, extended ride testing
+**Completed:**
+- BLE protocol codec (Swift + C) with 13 screen types + golden fixtures
+- All 13 LVGL screen renderers (host simulator + snapshot tests)
+- iOS app: RideSession orchestration, all data services, PayloadScheduler with alert priority
+- iOS app: Navigation search + auto-reroute, lean angle auto-calibration, fuel tracking, trip history
+- iOS app: Calendar selection, night mode override, OTA update UI, background execution
+- Firmware: payload cache, screen order manager, button handler components
+- Speed camera database: 1,249 Swiss cameras from OSM
+
+**Next:**
+1. **Hardware bring-up** — Order parts, fit test in Tripper shell, validate 12V power
+2. **BLE server + LVGL integration** — Wire firmware components to real hardware
+3. **Handlebar button wiring** — GPIO interrupt on real hardware
+4. **Extended ride testing** — 8+ hour rides, rain, vibration
+5. **Waterproof housing** — Final seal and assembly
 
 ## Success Criteria
 
@@ -118,23 +130,37 @@ Legal in Switzerland (Bundesgericht ruling, 2024) for passive proximity warnings
 
 ```
 .
-├── app/ios/              # SwiftUI companion app (Tuist + XCTest)
+├── app/ios/                  # SwiftUI companion app (Tuist + XCTest)
+│   ├── Sources/              #   App views (HomeView, FahrtenView, TankView, MehrView, ...)
+│   ├── Packages/
+│   │   ├── BLEProtocol/      #   BLE codec (13 screen types + control + status)
+│   │   ├── BLECentralClient/ #   CoreBluetooth wrapper + reconnect FSM
+│   │   ├── ScramCore/        #   Business logic (RideSession, 15 services, PayloadScheduler)
+│   │   └── RideSimulatorKit/ #   Scenario playback for testing
+│   └── Project.swift         #   Tuist project definition
 ├── hardware/
-│   ├── firmware/         # ESP-IDF project for ESP32-S3 + Unity host tests
-│   └── cad/              # Enclosure CAD and 3D print files
+│   ├── firmware/             # ESP-IDF project for ESP32-S3
+│   │   ├── components/       #   ble_protocol, screen_fsm, payload_cache, screen_order, ota_fsm
+│   │   ├── host-sim/         #   LVGL host simulator + snapshot tests (all 13 screens)
+│   │   └── test/host/        #   Unity C unit tests
+│   └── cad/                  # Enclosure CAD and 3D print files
 ├── protocol/
-│   └── fixtures/         # Shared binary fixtures for BLE codec round-trip tests
+│   └── fixtures/             # Shared golden binary fixtures for codec round-trip tests
+├── tools/
+│   └── fetch-speed-cameras/  # Overpass API → SQLite build script (Switzerland)
 ├── docs/
-│   ├── prd.md            # Product requirements doc
-│   ├── ble-protocol.md   # BLE wire format spec
-│   ├── contributing.md   # Dev setup, commit style, branch protection
-│   └── adr/              # Architecture decision records
-└── .github/workflows/    # iOS, firmware, commit-lint CI
+│   ├── prd.md                # Product requirements doc
+│   ├── ios-app-prd.md        # iOS app implementation PRD
+│   ├── ble-protocol.md       # BLE wire format spec
+│   ├── contributing.md       # Dev setup, commit style, branch protection
+│   └── adr/                  # Architecture decision records
+└── .github/workflows/        # iOS, firmware, commit-lint CI
 ```
 
 Start here:
 
-- [`docs/prd.md`](docs/prd.md) — Full product requirements doc
+- [`docs/prd.md`](docs/prd.md) — Product requirements doc
+- [`docs/ios-app-prd.md`](docs/ios-app-prd.md) — iOS app implementation PRD (all design decisions)
 - [`docs/contributing.md`](docs/contributing.md) — First-time setup, tests, and the bar for merging
 - [`docs/ble-protocol.md`](docs/ble-protocol.md) — BLE wire format spec
 - [`docs/adr/`](docs/adr) — Stack decisions

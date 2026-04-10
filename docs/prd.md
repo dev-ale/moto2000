@@ -5,8 +5,9 @@
 **ScramScreen** is a custom-built, waterproof, round AMOLED display that replaces the stock Royal Enfield Tripper Navigation pod on a Scram 411. It connects via BLE to an iOS companion app, turning the locked-down OEM navigation puck into a fully programmable motorcycle dashboard.
 
 **Owner:** Alejandro
-**Status:** Concept / Hardware prototyping
+**Status:** iOS app implemented, firmware rendering complete, hardware integration next
 **Target:** Personal use (single unit), open-source potential
+**iOS implementation details:** [ios-app-prd.md](ios-app-prd.md)
 
 ---
 
@@ -82,7 +83,7 @@ The Royal Enfield Tripper Pod is locked to the proprietary RE app with limited f
 |---|---|---|---|
 | 1 | **Navigation** | iPhone (CLLocationManager + MapKit/nav provider) | Turn arrow, distance to next maneuver, street name, ETA, remaining distance |
 | 2 | **Speed + Heading** | iPhone (CLLocation.speed, course) | Current GPS speed, compass heading, elevation, temperature |
-| 3 | **Compass** | iPhone (CLHeading) | Full compass rose with heading indicator |
+| 3 | **Compass** | iPhone (CLLocation.course — GPS course, not magnetic) | Full compass rose with heading indicator |
 
 ### Secondary (glanceable info)
 
@@ -107,12 +108,14 @@ The Royal Enfield Tripper Pod is locked to the proprietary RE app with limited f
 |---|---|---|---|
 | 11 | **Altitude Profile** | iPhone (route elevation data from nav) | Elevation graph with current position marker, ascent/descent totals |
 | 12 | **Next Appointment** | iPhone (EventKit / Calendar) | Next 1-2 calendar events, time until, location |
-| 13 | **Idle / Clock** | ESP32 internal RTC (synced via BLE) | Date, time, location, temp, BLE/WiFi connection status |
+| 13 | **Idle / Clock** | iPhone (system clock, sent every 30s) | Date, time, timezone — no RTC on ESP32, iOS is sole time source |
 
 ### Screen Switching Logic
 
-- **Auto-switch:** Navigation screen activates when nav session starts. Incoming call overlays any screen. Blitzer alert overlays when within range. Returns to previous screen after alert clears.
-- **Manual switch:** Swipe or button in iOS app cycles through screens. Potential future: handlebar-mounted button wired to ESP32 GPIO for phone-free switching.
+- **Handlebar button:** Physical button wired to ESP32 GPIO is the primary screen-cycling mechanism. Firmware stores the ordered list of enabled screens (via `setScreenOrder` command from iOS) and cycles through them locally using cached payloads — no BLE round-trip needed. iOS is notified of changes via `SCREEN_CHANGED` status notifications.
+- **No auto-rotation:** The rider controls which screen is visible. No timer-based cycling (safety risk — showing wrong screen at wrong time).
+- **No auto-switch on navigation:** Navigation does not take over the display when a route starts. The rider switches to it manually.
+- **Alerts:** Incoming call always overlays (priority 1). Speed camera overlays on non-navigation screens; during navigation, sets ALERT flag in the nav payload header so firmware shows a subtle indicator without hiding turn instructions (priority 2). Only one overlay at a time; call replaces blitzer.
 
 ---
 
@@ -183,7 +186,7 @@ typedef struct {
 - **UI Library:** LVGL v9 — round display support, smooth animations, efficient partial redraws on AMOLED
 - **State Machine:** Simple FSM per screen. On receiving `screen_data`, decode `screen_id`, update corresponding LVGL screen object, trigger redraw.
 - **Night Mode:** AMOLED brightness PWM control. Auto-dim based on flag from iPhone (ambient light sensor) or time-based.
-- **OTA Updates:** Via WiFi when available (connect to known network, pull firmware from local server or GitHub release).
+- **OTA Updates:** Via BLE from iOS app. Firmware binaries hosted on GitHub Releases (tag format `fw-vX.Y.Z`). iOS checks on launch (24h cache), offers update in Mehr tab, transfers via chunked BLE write.
 
 ### iOS Companion App
 
@@ -319,7 +322,6 @@ Radar warning apps are **legal to use** in Switzerland as of 2024 (Bundesgericht
 
 ## Future Ideas (Post-MVP)
 
-- **Handlebar button** wired to ESP32 GPIO for screen switching without phone
 - **Group ride mode** — show distance/direction to riding buddy via shared GPS over internet
 - **Dashcam trigger** — BLE command to start/stop recording on a GoPro
 - **Tire pressure** — BLE TPMS sensors → ESP32 → display

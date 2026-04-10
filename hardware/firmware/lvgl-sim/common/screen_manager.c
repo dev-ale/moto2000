@@ -9,6 +9,7 @@
  */
 #include "common/screen_manager.h"
 #include "screens/screen_clock.h"
+#include "screens/screen_speed.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -61,9 +62,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
         case BLE_SCREEN_NAVIGATION:
             screen_placeholder_create(scr, "NAVIGATION");
             break;
-        case BLE_SCREEN_SPEED_HEADING:
-            screen_placeholder_create(scr, "SPEED + HEADING");
+        case BLE_SCREEN_SPEED_HEADING: {
+            ble_speed_heading_data_t speed;
+            uint8_t speed_flags = 0;
+            rc = ble_decode_speed_heading(data, len, &speed_flags, &speed);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: speed_heading decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "SPEED (decode error)");
+                break;
+            }
+            screen_speed_create(scr, &speed, speed_flags);
             break;
+        }
         case BLE_SCREEN_COMPASS:
             screen_placeholder_create(scr, "COMPASS");
             break;

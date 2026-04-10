@@ -35,6 +35,9 @@ let package = Package(
                 "BLEProtocol",
                 "RideSimulatorKit",
             ],
+            resources: [
+                .copy("Resources/speed_cameras.sqlite"),
+            ],
             swiftSettings: [
                 .enableUpcomingFeature("StrictConcurrency"),
                 .enableUpcomingFeature("ExistentialAny"),

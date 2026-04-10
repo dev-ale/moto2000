@@ -324,6 +324,7 @@ typedef enum {
     BLE_CONTROL_CMD_SLEEP             = 0x03,
     BLE_CONTROL_CMD_WAKE              = 0x04,
     BLE_CONTROL_CMD_CLEAR_ALERT       = 0x05,
+    BLE_CONTROL_CMD_CHECK_OTA_UPDATE  = 0x06,
 } ble_control_command_t;
 
 typedef struct {

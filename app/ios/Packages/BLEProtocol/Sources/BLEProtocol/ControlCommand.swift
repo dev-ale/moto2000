@@ -26,6 +26,8 @@ public enum ControlCommand: Equatable, Sendable {
     /// Clear any active alert overlay and return to the previously selected
     /// screen.
     case clearAlertOverlay
+    /// Trigger the ESP32 to check for an OTA firmware update.
+    case checkForOTAUpdate
 
     /// Wire-format size of every encoded command in bytes.
     public static let encodedSize: Int = 4
@@ -38,6 +40,7 @@ public enum ControlCommand: Equatable, Sendable {
         case .sleep:           return 0x03
         case .wake:            return 0x04
         case .clearAlertOverlay: return 0x05
+        case .checkForOTAUpdate: return 0x06
         }
     }
 
@@ -53,7 +56,7 @@ public enum ControlCommand: Equatable, Sendable {
         case .setBrightness(let percent):
             writer.writeUInt8(percent)
             writer.writeUInt8(0)
-        case .sleep, .wake, .clearAlertOverlay:
+        case .sleep, .wake, .clearAlertOverlay, .checkForOTAUpdate:
             writer.writeUInt8(0)
             writer.writeUInt8(0)
         }
@@ -106,6 +109,11 @@ public enum ControlCommand: Equatable, Sendable {
                 throw BLEProtocolError.invalidReserved
             }
             return .clearAlertOverlay
+        case 0x06:
+            guard value0 == 0, value1 == 0 else {
+                throw BLEProtocolError.invalidReserved
+            }
+            return .checkForOTAUpdate
         default:
             throw BLEProtocolError.unknownCommand(cmd)
         }

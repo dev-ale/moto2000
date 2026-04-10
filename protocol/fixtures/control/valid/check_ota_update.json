@@ -1,0 +1,4 @@
+{
+  "description": "Trigger OTA firmware update check",
+  "command": "checkOTAUpdate"
+}

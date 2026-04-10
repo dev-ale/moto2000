@@ -113,3 +113,6 @@ On `main`:
 
 - `TUIST_DEVELOPMENT_TEAM` — your Apple Developer Team ID, consumed by the iOS
   workflow so Tuist-generated projects carry a signing identity in CI.
+- `OTA_SIGNING_KEY` — 32-byte hex-encoded HMAC-SHA256 key used to sign
+  firmware binaries on tagged releases. Generate with `openssl rand -hex 32`.
+  See `docs/ota.md` for details.

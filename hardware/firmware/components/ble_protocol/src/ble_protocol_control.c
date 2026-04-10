@@ -47,6 +47,7 @@ ble_result_t ble_encode_control(const ble_control_payload_t *in,
     case BLE_CONTROL_CMD_SLEEP:
     case BLE_CONTROL_CMD_WAKE:
     case BLE_CONTROL_CMD_CLEAR_ALERT:
+    case BLE_CONTROL_CMD_CHECK_OTA_UPDATE:
         /* No value bytes; already zeroed. */
         break;
     default:
@@ -101,6 +102,7 @@ ble_result_t ble_decode_control(const uint8_t         *data,
     case BLE_CONTROL_CMD_SLEEP:
     case BLE_CONTROL_CMD_WAKE:
     case BLE_CONTROL_CMD_CLEAR_ALERT:
+    case BLE_CONTROL_CMD_CHECK_OTA_UPDATE:
         if (value0 != 0 || value1 != 0) {
             return BLE_ERR_INVALID_RESERVED;
         }

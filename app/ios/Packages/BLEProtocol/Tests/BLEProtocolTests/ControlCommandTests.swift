@@ -29,6 +29,24 @@ final class ControlCommandTests: XCTestCase {
         try roundTrip(.clearAlertOverlay)
     }
 
+    func test_checkForOTAUpdate_roundTrip() throws {
+        try roundTrip(.checkForOTAUpdate)
+    }
+
+    func test_checkForOTAUpdate_encodedBytesAreFixedLayout() {
+        let bytes = ControlCommand.checkForOTAUpdate.encode()
+        XCTAssertEqual(Array(bytes), [0x01, 0x06, 0x00, 0x00])
+    }
+
+    func test_checkForOTAUpdate_withNonZeroValue_isRejected() {
+        let bytes = Data([0x01, 0x06, 0x01, 0x00])
+        XCTAssertThrowsError(try ControlCommand.decode(bytes)) { error in
+            guard case BLEProtocolError.invalidReserved = error else {
+                return XCTFail("expected invalidReserved, got \(error)")
+            }
+        }
+    }
+
     func test_setActiveScreen_encodedBytesAreFixedLayout() {
         let bytes = ControlCommand.setActiveScreen(.clock).encode()
         XCTAssertEqual(Array(bytes), [0x01, 0x01, 0x0D, 0x00])

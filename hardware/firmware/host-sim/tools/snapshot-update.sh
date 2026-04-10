@@ -63,6 +63,9 @@ SNAPSHOTS=(
     "altitude_flat                   altitude_flat.bin"
     "altitude_mountain_pass          altitude_mountain_pass.bin"
     "altitude_start                  altitude_start.bin"
+    "call_incoming                   call_incoming.bin"
+    "call_connected                  call_connected.bin"
+    "call_ended                      call_ended.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

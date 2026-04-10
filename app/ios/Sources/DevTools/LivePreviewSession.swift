@@ -34,6 +34,8 @@ final class LivePreviewSession {
     var latestBlitzer: BlitzerData?
 
     var activeScreenID: ScreenID = .speedHeading
+    var leanCalibrated = false
+    private var leanReferenceAngle: Double = 0
 
     /// The ordered list of screens the user can swipe through.
     let availableScreens: [ScreenID] = [
@@ -137,6 +139,24 @@ final class LivePreviewSession {
         guard isRunning else { return }
         isRunning = false
 
+        // Save trip if we have stats
+        if let tripData = latestTripStats {
+            let summary = TripSummary(
+                id: UUID(),
+                date: Date(),
+                duration: TimeInterval(tripData.rideTimeSeconds),
+                distanceKm: Double(tripData.distanceMeters) / 1000.0,
+                avgSpeedKmh: Double(tripData.averageSpeedKmhX10) / 10.0,
+                maxSpeedKmh: Double(tripData.maxSpeedKmhX10) / 10.0,
+                elevationGainM: Double(tripData.ascentMeters)
+            )
+            // Only save if distance > 100m
+            if summary.distanceKm > 0.1 {
+                let store = TripHistoryStore()
+                store.save(summary)
+            }
+        }
+
         for task in tasks { task.cancel() }
         tasks.removeAll()
         stopAllServices()
@@ -161,6 +181,16 @@ final class LivePreviewSession {
 
     func displayName(for screenID: ScreenID) -> String {
         Self.screenNames[screenID] ?? "Unknown"
+    }
+
+    func calibrateLeanAngle() {
+        if let current = latestLeanAngle {
+            leanReferenceAngle = Double(current.currentLeanDegX10) / 10.0
+            leanCalibrated = true
+        } else {
+            leanReferenceAngle = 0
+            leanCalibrated = true
+        }
     }
 
     // MARK: - Service creation helpers
@@ -197,7 +227,13 @@ final class LivePreviewSession {
         leanService.start()
         services.append(leanService)
         subscribe(to: leanService.encodedPayloads) { [weak self] payload in
-            if case .leanAngle(let decoded, _) = payload { self?.latestLeanAngle = decoded }
+            guard let self, case .leanAngle(var decoded, _) = payload else { return }
+            if self.leanCalibrated {
+                let raw = Double(decoded.currentLeanDegX10) / 10.0
+                let adjusted = raw - self.leanReferenceAngle
+                decoded.currentLeanDegX10 = Int16(max(-900, min(900, adjusted * 10)))
+            }
+            self.latestLeanAngle = decoded
         }
     }
 

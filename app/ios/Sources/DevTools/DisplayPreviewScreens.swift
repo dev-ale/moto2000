@@ -186,17 +186,18 @@ struct ClockScreenContent: View {
         }
     }
 
-    private func formatTime(date: Date, timeZone: TimeZone, is24Hour: Bool) -> String {
+    private func formatTime(date: Date, timeZone: TimeZone, is24Hour _: Bool) -> String {
         let formatter = DateFormatter()
         formatter.timeZone = timeZone
-        formatter.dateFormat = is24Hour ? "HH:mm" : "h:mm a"
+        formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
     }
 
     private func formatDate(date: Date, timeZone: TimeZone) -> String {
         let formatter = DateFormatter()
         formatter.timeZone = timeZone
-        formatter.dateFormat = "EEE, d MMM"
+        formatter.locale = Locale(identifier: "de_CH")
+        formatter.dateFormat = "EEE, d. MMM"
         return formatter.string(from: date)
     }
 }

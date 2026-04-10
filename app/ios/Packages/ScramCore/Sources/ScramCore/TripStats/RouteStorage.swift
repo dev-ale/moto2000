@@ -18,7 +18,7 @@ public struct RoutePoint: Codable, Equatable, Sendable {
 /// so files stay small (at most ``maxStoredPoints`` points).
 public final class RouteStorage: Sendable {
     /// Maximum number of points persisted per route.
-    public static let maxStoredPoints = 500
+    public static let maxStoredPoints = 2000
 
     private let baseURL: URL
 

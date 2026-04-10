@@ -62,7 +62,7 @@ final class RouteStorageTests: XCTestCase {
 
     // MARK: - Downsampling
 
-    func test_downsample_keepsAtMost500Points() {
+    func test_downsample_keepsAtMostMaxPoints() {
         // Create 7200 points (simulating a 2-hour ride at 1Hz)
         var points: [RoutePoint] = []
         for i in 0..<7200 {

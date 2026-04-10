@@ -27,6 +27,13 @@ public protocol BLECentralClient: Sendable {
     /// torn down.
     var stateStream: AsyncStream<ConnectionState> { get }
 
+    /// An async sequence of raw status notifications from the ESP32
+    /// (`status` characteristic). Each element is the raw bytes of one
+    /// notification; callers decode with ``StatusMessage.decode(_:)``.
+    ///
+    /// The stream finishes when the client is torn down.
+    var statusStream: AsyncStream<Data> { get }
+
     /// Current state, sampled synchronously. Mostly for tests and UI hot
     /// paths where awaiting the stream is awkward.
     func currentState() async -> ConnectionState

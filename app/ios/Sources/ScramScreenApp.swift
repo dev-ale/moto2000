@@ -21,6 +21,7 @@ struct ScramScreenApp: App {
             MainTabView(connection: connection)
                 .onAppear {
                     rideCoordinator.startObserving()
+                    SampleTripSeeder.seedIfNeeded()
                 }
         }
     }

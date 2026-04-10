@@ -55,14 +55,14 @@ public struct WeatherKitClient: WeatherServiceClient, Sendable {
     ///
     /// WeatherKit exposes many granular conditions; we bucket them into the
     /// six categories the ScramScreen hardware supports.
-    static func mapCondition(_ condition: WeatherKit.WeatherCondition) -> WeatherCondition {
+    static func mapCondition(_ condition: WeatherKit.WeatherCondition) -> RideSimulatorKit.WeatherCondition {
         switch condition {
         // Clear
         case .clear, .hot, .mostlyClear:
             return .clear
 
         // Cloudy
-        case .cloudy, .mostlyCloudy, .partlyCloudy, .haze, .smoky, .dust, .windy, .breezy:
+        case .cloudy, .mostlyCloudy, .partlyCloudy, .haze, .smoky, .windy, .breezy:
             return .cloudy
 
         // Rain

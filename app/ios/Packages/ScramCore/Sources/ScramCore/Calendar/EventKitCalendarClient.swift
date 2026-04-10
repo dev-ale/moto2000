@@ -13,7 +13,7 @@ import EventKit
 /// the client throws ``CalendarServiceError/accessDenied`` so the caller
 /// (``RealCalendarProvider``) can swallow the error and keep polling without
 /// crashing.
-public struct EventKitCalendarClient: CalendarServiceClient, Sendable {
+public struct EventKitCalendarClient: CalendarServiceClient, @unchecked Sendable {
     private let preferences: CalendarPreferences?
     private let store: EKEventStore
 

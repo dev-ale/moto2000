@@ -50,7 +50,6 @@ let project = Project(
             product: .app,
             bundleId: "com.alejandro.moto2000.ScramScreen",
             deploymentTargets: .iOS("26.0"),
-            entitlements: .file(path: "ScramScreen.entitlements"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "ScramScreen",
                 "UILaunchScreen": [:],
@@ -83,6 +82,7 @@ let project = Project(
                 .glob(pattern: "Sources/Assets.xcassets/**"),
                 .glob(pattern: "Fixtures/scenarios/**"),
             ],
+            entitlements: .file(path: "ScramScreen.entitlements"),
             dependencies: [
                 .package(product: "BLEProtocol"),
                 .package(product: "BLECentralClient"),

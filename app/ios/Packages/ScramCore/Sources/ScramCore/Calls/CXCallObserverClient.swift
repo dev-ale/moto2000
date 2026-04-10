@@ -25,9 +25,7 @@ public final class CXCallObserverClient: NSObject, CallKitClient, CXCallObserver
     // MARK: - CallKitClient
 
     public func fetchCallState() async throws -> CallKitClientResponse? {
-        lock.lock()
-        let call = latestCall
-        lock.unlock()
+        let call = lock.withLock { latestCall }
 
         // Also check the observer's current calls in case the delegate
         // hasn't fired yet (e.g. a call was already in progress at launch).
@@ -38,11 +36,11 @@ public final class CXCallObserverClient: NSObject, CallKitClient, CXCallObserver
 
         // A call that has ended is no longer useful after we report it once.
         if target.hasEnded {
-            lock.lock()
-            if latestCall?.uuid == target.uuid {
-                latestCall = nil
+            lock.withLock {
+                if latestCall?.uuid == target.uuid {
+                    latestCall = nil
+                }
             }
-            lock.unlock()
             return CallKitClientResponse(
                 state: .ended,
                 callerHandle: ""

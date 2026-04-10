@@ -124,6 +124,8 @@ add_executable(scramscreen-host-sim
     src/altitude_layout.c
     src/screen_call.c
     src/call_layout.c
+    src/screen_blitzer.c
+    src/blitzer_layout.c
 )
 target_include_directories(scramscreen-host-sim PRIVATE include)
 target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
@@ -195,6 +197,10 @@ add_snapshot_test(altitude_start                 altitude_start.bin)
 add_snapshot_test(call_incoming                   call_incoming.bin)
 add_snapshot_test(call_connected                  call_connected.bin)
 add_snapshot_test(call_ended                      call_ended.bin)
+add_snapshot_test(blitzer_fixed_500m              blitzer_fixed_500m.bin)
+add_snapshot_test(blitzer_mobile_close            blitzer_mobile_close.bin)
+add_snapshot_test(blitzer_section                 blitzer_section.bin)
+add_snapshot_test(blitzer_unknown_limit           blitzer_unknown_limit.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
@@ -303,3 +309,11 @@ add_executable(test_call_layout
 target_include_directories(test_call_layout PRIVATE include src)
 target_link_libraries(test_call_layout PRIVATE unity ble_protocol)
 add_test(NAME call_layout COMMAND test_call_layout)
+
+add_executable(test_blitzer_layout
+    tests/test_blitzer_layout.c
+    src/blitzer_layout.c
+)
+target_include_directories(test_blitzer_layout PRIVATE include src)
+target_link_libraries(test_blitzer_layout PRIVATE unity ble_protocol)
+add_test(NAME blitzer_layout COMMAND test_blitzer_layout)

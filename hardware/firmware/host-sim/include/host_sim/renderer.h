@@ -98,6 +98,10 @@ void host_sim_render_call(host_sim_canvas_t              *canvas,
                           const ble_incoming_call_data_t *call,
                           uint8_t                         header_flags);
 
+void host_sim_render_blitzer(host_sim_canvas_t          *canvas,
+                             const ble_blitzer_data_t   *blitzer,
+                             uint8_t                     header_flags);
+
 /* Placeholder for screens that have not been implemented yet. Draws a
  * "screen 0xNN pending" message on a dark background. */
 void host_sim_render_placeholder(host_sim_canvas_t *canvas, uint8_t screen_id);

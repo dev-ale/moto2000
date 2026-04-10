@@ -1,0 +1,11 @@
+{
+  "description": "Fuel: low fuel warning, 10%, 35 km range, 38 mL/km consumption, 1300 mL remaining",
+  "screen": "fuelEstimate",
+  "flags": [],
+  "body": {
+    "tank_percent": 10,
+    "estimated_range_km": 35,
+    "consumption_ml_per_km": 38,
+    "fuel_remaining_ml": 1300
+  }
+}

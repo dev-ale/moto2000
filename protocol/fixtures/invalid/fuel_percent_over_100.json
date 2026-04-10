@@ -1,0 +1,5 @@
+{
+  "description": "Fuel body with tank_percent = 101 (> 100 max)",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "01 0a 00 00 08 00 00 00 65 00 5e 01 26 00 14 05"
+}

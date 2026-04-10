@@ -81,6 +81,7 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_lean_angle.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_music.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_appointment.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_fuel.c"
 )
 target_include_directories(ble_protocol
     PUBLIC  "${BLE_PROTOCOL_ROOT}/include"
@@ -114,6 +115,8 @@ add_executable(scramscreen-host-sim
     src/music_layout.c
     src/screen_appointment.c
     src/appointment_layout.c
+    src/screen_fuel.c
+    src/fuel_layout.c
 )
 target_include_directories(scramscreen-host-sim PRIVATE include)
 target_link_libraries(scramscreen-host-sim PRIVATE ble_protocol stb_image m)
@@ -176,6 +179,9 @@ add_snapshot_test(music_unknown_duration         music_unknown_duration.bin)
 add_snapshot_test(appointment_soon               appointment_soon.bin)
 add_snapshot_test(appointment_now                appointment_now.bin)
 add_snapshot_test(appointment_past               appointment_past.bin)
+add_snapshot_test(fuel_full_tank                 fuel_full_tank.bin)
+add_snapshot_test(fuel_half_tank                 fuel_half_tank.bin)
+add_snapshot_test(fuel_low                       fuel_low.bin)
 
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
@@ -260,3 +266,11 @@ add_executable(test_appointment_layout
 target_include_directories(test_appointment_layout PRIVATE include)
 target_link_libraries(test_appointment_layout PRIVATE unity)
 add_test(NAME appointment_layout COMMAND test_appointment_layout)
+
+add_executable(test_fuel_layout
+    tests/test_fuel_layout.c
+    src/fuel_layout.c
+)
+target_include_directories(test_fuel_layout PRIVATE include src)
+target_link_libraries(test_fuel_layout PRIVATE unity)
+add_test(NAME fuel_layout COMMAND test_fuel_layout)

@@ -1,78 +1,147 @@
 import BLEProtocol
 import SwiftUI
 
-// MARK: - Individual screen renderers for the live display preview
+private let gold = Color(hex: 0xEBAB00)
+private let blue = Color(hex: 0x5BACF5)
+private let green = Color(hex: 0x4CD964)
+private let red = Color(hex: 0xE24B4A)
+private let dimGray = Color(hex: 0x666666)
+private let lightGray = Color(hex: 0x999999)
 
-/// Shared gold accent color for the AMOLED display preview.
-private let previewGold = Color(hex: 0xEBAB00)
+// MARK: - Speed + Heading
 
 struct SpeedScreenContent: View {
     let screenData: SpeedHeadingData
 
     var body: some View {
-        let speedKmh = Double(screenData.speedKmhX10) / 10.0
+        let speed = Int(screenData.speedKmhX10 / 10)
         let headingDeg = Double(screenData.headingDegX10) / 10.0
+        let dir = compassDirection(headingDeg)
+        let alt = Int(screenData.altitudeMeters)
 
-        VStack(spacing: 4) {
-            Text(String(format: "%.0f", speedKmh))
-                .font(.system(size: 72, weight: .bold, design: .monospaced))
-                .foregroundStyle(previewGold)
-                .minimumScaleFactor(0.5)
+        ZStack {
+            // Speed arc at bottom
+            Circle()
+                .trim(from: 0.55, to: 0.55 + 0.3 * min(Double(speed) / 150.0, 1.0))
+                .stroke(green, lineWidth: 4)
+                .frame(width: 200, height: 200)
+                .rotationEffect(.degrees(0))
 
-            Text("km/h")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(Color(hex: 0x666666))
+            VStack(spacing: 2) {
+                Spacer().frame(height: 30)
 
-            HStack(spacing: 16) {
-                Label(
-                    String(format: "%.0f\u{00B0}", headingDeg),
-                    systemImage: "location.north.fill"
-                )
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundStyle(.white)
+                Text("\(speed)")
+                    .font(.system(size: 64, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
 
-                Label(
-                    "\(screenData.altitudeMeters) m",
-                    systemImage: "mountain.2.fill"
-                )
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundStyle(.white)
+                Text("km/h")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(dimGray)
+
+                Spacer().frame(height: 8)
+
+                Text("\(dir) \(String(format: "%03.0f", headingDeg))\u{00B0}")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(blue)
+
+                Spacer()
+
+                HStack {
+                    Text("\(alt)m")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(dimGray)
+                    Spacer()
+                    Text("\(screenData.temperatureCelsiusX10 / 10)\u{00B0}C")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(dimGray)
+                }
+                .padding(.horizontal, 30)
+                .padding(.bottom, 20)
             }
-            .padding(.top, 8)
         }
     }
+
+    private func compassDirection(_ deg: Double) -> String {
+        let dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+        let index = Int(round(deg / 45.0)) % 8
+        return dirs[max(0, min(index, dirs.count - 1))]
+    }
 }
+
+// MARK: - Compass
 
 struct CompassScreenContent: View {
     let screenData: CompassData
 
     var body: some View {
-        let heading = screenData.useTrueHeading
-            && screenData.trueHeadingDegX10 != CompassData.trueHeadingUnknown
-            ? Double(screenData.trueHeadingDegX10) / 10.0
-            : Double(screenData.magneticHeadingDegX10) / 10.0
+        let heading = Double(screenData.magneticHeadingDegX10) / 10.0
 
-        VStack(spacing: 8) {
-            Text(compassDirection(from: heading))
-                .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(previewGold)
+        ZStack {
+            // Compass circle
+            Circle()
+                .stroke(Color(hex: 0x333333), lineWidth: 1)
+                .frame(width: 190, height: 190)
 
-            Text(String(format: "%.0f\u{00B0}", heading))
-                .font(.system(size: 48, weight: .bold, design: .monospaced))
+            // Tick marks
+            ForEach(0..<36, id: \.self) { i in
+                let isMajor = i % 9 == 0
+                Rectangle()
+                    .fill(isMajor ? Color.white.opacity(0.6) : Color(hex: 0x444444))
+                    .frame(width: isMajor ? 2 : 1, height: isMajor ? 10 : 5)
+                    .offset(y: -90)
+                    .rotationEffect(.degrees(Double(i) * 10))
+            }
+
+            // N S E W labels
+            compassLabel("N", angle: 0, color: red)
+            compassLabel("E", angle: 90, color: lightGray)
+            compassLabel("S", angle: 180, color: lightGray)
+            compassLabel("W", angle: 270, color: lightGray)
+
+            // Needle
+            VStack(spacing: 0) {
+                Triangle()
+                    .fill(red)
+                    .frame(width: 12, height: 50)
+                Circle()
+                    .fill(Color(hex: 0x222222))
+                    .frame(width: 8, height: 8)
+                Triangle()
+                    .fill(Color(hex: 0x555555))
+                    .frame(width: 12, height: 50)
+                    .rotationEffect(.degrees(180))
+            }
+            .rotationEffect(.degrees(-heading))
+
+            // Degree readout
+            Text(String(format: "%03.0f\u{00B0}", heading))
+                .font(.system(size: 18, weight: .semibold, design: .monospaced))
                 .foregroundStyle(.white)
-
-            Text(screenData.useTrueHeading ? "TRUE" : "MAG")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(Color(hex: 0x666666))
+                .offset(y: -5)
         }
     }
 
-    private func compassDirection(from degrees: Double) -> String {
-        let dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-        let index = Int(((degrees + 22.5).truncatingRemainder(dividingBy: 360)) / 45.0)
-        return dirs[max(0, min(index, dirs.count - 1))]
+    private func compassLabel(_ text: String, angle: Double, color: Color) -> some View {
+        Text(text)
+            .font(.system(size: 16, weight: .bold))
+            .foregroundStyle(color)
+            .offset(y: -105)
+            .rotationEffect(.degrees(angle))
     }
 }
+
+private struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { p in
+            p.move(to: CGPoint(x: rect.midX, y: rect.minY))
+            p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+            p.closeSubpath()
+        }
+    }
+}
+
+// MARK: - Trip Stats
 
 struct TripStatsScreenContent: View {
     let screenData: TripStatsData
@@ -80,91 +149,171 @@ struct TripStatsScreenContent: View {
     var body: some View {
         let hours = screenData.rideTimeSeconds / 3600
         let minutes = (screenData.rideTimeSeconds % 3600) / 60
-        let seconds = screenData.rideTimeSeconds % 60
         let distKm = Double(screenData.distanceMeters) / 1000.0
+        let avg = Double(screenData.averageSpeedKmhX10) / 10.0
+        let maxSpd = Double(screenData.maxSpeedKmhX10) / 10.0
 
-        VStack(spacing: 6) {
-            metricRow("TIME", String(format: "%d:%02d:%02d", hours, minutes, seconds))
-            metricRow("DIST", String(format: "%.1f km", distKm))
-            metricRow(
-                "AVG",
-                String(format: "%.1f km/h", Double(screenData.averageSpeedKmhX10) / 10.0)
-            )
-            metricRow(
-                "MAX",
-                String(format: "%.1f km/h", Double(screenData.maxSpeedKmhX10) / 10.0)
-            )
+        VStack(spacing: 4) {
+            Text("AKTIVE FAHRT")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(green)
+                .tracking(1.5)
 
-            HStack(spacing: 12) {
-                Label("\(screenData.ascentMeters)m", systemImage: "arrow.up")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Color(hex: 0x5BACF5))
-                Label("\(screenData.descentMeters)m", systemImage: "arrow.down")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Color(hex: 0xE24B4A))
+            Text(String(format: "%d:%02dh", hours, minutes))
+                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+
+            Text("Fahrzeit")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(dimGray)
+
+            Divider().background(Color(hex: 0x333333)).padding(.horizontal, 20).padding(.vertical, 4)
+
+            HStack(spacing: 0) {
+                VStack(spacing: 2) {
+                    Text(String(format: "%.1f", distKm))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                    Text("km")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(dimGray)
+                }
+                .frame(maxWidth: .infinity)
+
+                Rectangle().fill(Color(hex: 0x333333)).frame(width: 1, height: 40)
+
+                VStack(spacing: 2) {
+                    Text(String(format: "%.0f", avg))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                    Text("avg km/h")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(dimGray)
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            HStack(spacing: 0) {
+                VStack(spacing: 2) {
+                    Text("\(screenData.ascentMeters)m")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(green)
+                    Text("Hoehenmeter")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(dimGray)
+                }
+                .frame(maxWidth: .infinity)
+
+                VStack(spacing: 2) {
+                    Text(String(format: "%.0f", maxSpd))
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(gold)
+                    Text("max km/h")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(dimGray)
+                }
+                .frame(maxWidth: .infinity)
             }
             .padding(.top, 2)
         }
-    }
-
-    private func metricRow(_ label: String, _ value: String) -> some View {
-        HStack {
-            Text(label)
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(Color(hex: 0x666666))
-                .frame(width: 36, alignment: .trailing)
-            Text(value)
-                .font(.system(size: 16, weight: .bold, design: .monospaced))
-                .foregroundStyle(.white)
-        }
+        .padding(.horizontal, 8)
     }
 }
+
+// MARK: - Lean Angle
 
 struct LeanAngleScreenContent: View {
     let screenData: LeanAngleData
 
     var body: some View {
         let current = Double(screenData.currentLeanDegX10) / 10.0
-        let direction: String = {
-            if current < 0 { return "LEFT" }
-            if current > 0 { return "RIGHT" }
-            return "--"
-        }()
+        let maxL = Double(screenData.maxLeftLeanDegX10) / 10.0
+        let maxR = Double(screenData.maxRightLeanDegX10) / 10.0
+        let direction = current < 0 ? "links" : current > 0 ? "rechts" : "--"
 
-        VStack(spacing: 8) {
-            Text(String(format: "%.1f\u{00B0}", abs(current)))
-                .font(.system(size: 56, weight: .bold, design: .monospaced))
-                .foregroundStyle(previewGold)
+        ZStack {
+            // Arc gauge background
+            Circle()
+                .trim(from: 0.15, to: 0.85)
+                .stroke(Color(hex: 0x333333), lineWidth: 3)
+                .frame(width: 180, height: 180)
+                .rotationEffect(.degrees(0))
 
-            Text(direction)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white)
-
-            HStack(spacing: 20) {
-                leanMaxColumn(
-                    label: "L MAX",
-                    value: Double(screenData.maxLeftLeanDegX10) / 10.0
+            // Colored zones (green/amber)
+            Circle()
+                .trim(from: 0.15, to: 0.35)
+                .stroke(
+                    LinearGradient(colors: [gold, green], startPoint: .leading, endPoint: .trailing),
+                    lineWidth: 6
                 )
-                leanMaxColumn(
-                    label: "R MAX",
-                    value: Double(screenData.maxRightLeanDegX10) / 10.0
+                .frame(width: 180, height: 180)
+
+            Circle()
+                .trim(from: 0.65, to: 0.85)
+                .stroke(
+                    LinearGradient(colors: [green, gold], startPoint: .leading, endPoint: .trailing),
+                    lineWidth: 6
                 )
+                .frame(width: 180, height: 180)
+
+            // Needle
+            Rectangle()
+                .fill(.white)
+                .frame(width: 2, height: 70)
+                .offset(y: -35)
+                .rotationEffect(.degrees(current * 2.0))
+
+            // Center dot
+            Circle()
+                .fill(.white)
+                .frame(width: 6, height: 6)
+
+            VStack(spacing: 2) {
+                Text("NEIGUNG")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(dimGray)
+                    .tracking(1.5)
+                    .padding(.top, 10)
+
+                Spacer()
+
+                Text(String(format: "%.0f\u{00B0}", abs(current)))
+                    .font(.system(size: 42, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+
+                Text(direction)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(green)
+
+                Spacer().frame(height: 4)
+
+                HStack {
+                    VStack(spacing: 0) {
+                        Text(String(format: "%.0f\u{00B0}", abs(maxL)))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(gold)
+                        Text("max L")
+                            .font(.system(size: 9))
+                            .foregroundStyle(dimGray)
+                    }
+                    Spacer()
+                    VStack(spacing: 0) {
+                        Text(String(format: "%.0f\u{00B0}", abs(maxR)))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(gold)
+                        Text("max R")
+                            .font(.system(size: 9))
+                            .foregroundStyle(dimGray)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 16)
             }
-            .padding(.top, 4)
-        }
-    }
-
-    private func leanMaxColumn(label: String, value: Double) -> some View {
-        VStack(spacing: 2) {
-            Text(label)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(Color(hex: 0x666666))
-            Text(String(format: "%.1f\u{00B0}", value))
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
-                .foregroundStyle(.white)
         }
     }
 }
+
+// MARK: - Clock
 
 struct ClockScreenContent: View {
     let screenData: ClockData
@@ -172,153 +321,155 @@ struct ClockScreenContent: View {
     var body: some View {
         let date = Date(timeIntervalSince1970: TimeInterval(screenData.unixTime))
         let tz = TimeZone(secondsFromGMT: Int(screenData.tzOffsetMinutes) * 60) ?? .current
-        let timeString = formatTime(date: date, timeZone: tz, is24Hour: screenData.is24Hour)
-        let dateString = formatDate(date: date, timeZone: tz)
 
-        VStack(spacing: 8) {
-            Text(timeString)
-                .font(.system(size: 52, weight: .bold, design: .monospaced))
-                .foregroundStyle(previewGold)
+        let timeFmt = DateFormatter()
+        timeFmt.timeZone = tz
+        timeFmt.dateFormat = "HH:mm"
 
-            Text(dateString)
-                .font(.system(size: 14, weight: .medium))
+        let dateFmt = DateFormatter()
+        dateFmt.timeZone = tz
+        dateFmt.locale = Locale(identifier: "de_CH")
+        dateFmt.dateFormat = "EEE, d. MMMM"
+
+        return VStack(spacing: 6) {
+            Spacer()
+
+            Text(dateFmt.string(from: date).uppercased())
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(dimGray)
+                .tracking(0.5)
+
+            Text(timeFmt.string(from: date))
+                .font(.system(size: 56, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
+
+            Text("Basel — 18\u{00B0}C")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(dimGray)
+
+            Spacer().frame(height: 12)
+
+            HStack(spacing: 16) {
+                HStack(spacing: 4) {
+                    Circle().fill(green).frame(width: 6, height: 6)
+                    Text("BLE")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(dimGray)
+                }
+                HStack(spacing: 4) {
+                    Circle().fill(blue).frame(width: 6, height: 6)
+                    Text("WiFi")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(dimGray)
+                }
+            }
+
+            Spacer()
         }
     }
-
-    private func formatTime(date: Date, timeZone: TimeZone, is24Hour _: Bool) -> String {
-        let formatter = DateFormatter()
-        formatter.timeZone = timeZone
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
-    }
-
-    private func formatDate(date: Date, timeZone: TimeZone) -> String {
-        let formatter = DateFormatter()
-        formatter.timeZone = timeZone
-        formatter.locale = Locale(identifier: "de_CH")
-        formatter.dateFormat = "EEE, d. MMM"
-        return formatter.string(from: date)
-    }
 }
+
+// MARK: - Altitude
 
 struct AltitudeScreenContent: View {
     let screenData: AltitudeProfileData
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text("\(screenData.currentAltitudeM)")
-                    .font(.system(size: 52, weight: .bold, design: .monospaced))
-                    .foregroundStyle(previewGold)
+        VStack(spacing: 4) {
+            Text("HOEHENPROFIL")
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(dimGray)
+                .tracking(1.5)
+                .padding(.top, 8)
+
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text(formatAltitude(screenData.currentAltitudeM))
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
                 Text("m")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(Color(hex: 0x999999))
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(lightGray)
             }
 
-            HStack(spacing: 16) {
-                Label("\(screenData.totalAscentM)m", systemImage: "arrow.up")
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Color(hex: 0x5BACF5))
-                Label("\(screenData.totalDescentM)m", systemImage: "arrow.down")
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Color(hex: 0xE24B4A))
+            // Elevation profile graph
+            ElevationGraph(samples: screenData.profile)
+                .frame(height: 60)
+                .padding(.horizontal, 16)
+
+            HStack {
+                VStack(spacing: 0) {
+                    Text("\u{2191} \(formatAltitude(Int32(screenData.totalAscentM)))m")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(green)
+                    Text("Aufstieg")
+                        .font(.system(size: 9))
+                        .foregroundStyle(dimGray)
+                }
+                Spacer()
+                VStack(spacing: 0) {
+                    Text("\u{2193} \(formatAltitude(Int32(screenData.totalDescentM)))m")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(gold)
+                    Text("Abstieg")
+                        .font(.system(size: 9))
+                        .foregroundStyle(dimGray)
+                }
             }
-            .padding(.top, 4)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 10)
+        }
+    }
+
+    private func formatAltitude(_ value: some BinaryInteger) -> String {
+        let num = Int(value)
+        if num >= 1000 {
+            return "\(num / 1000)'\(String(format: "%03d", num % 1000))"
+        }
+        return "\(num)"
+    }
+}
+
+private struct ElevationGraph: View {
+    let samples: [Int16]
+
+    var body: some View {
+        GeometryReader { geo in
+            let filtered = samples.filter { $0 != 0 }
+            if filtered.count > 1 {
+                let minAlt = Double(filtered.min() ?? 0)
+                let maxAlt = Double(filtered.max() ?? 1)
+                let range = max(maxAlt - minAlt, 1)
+
+                Path { path in
+                    for (i, sample) in filtered.enumerated() {
+                        let x = geo.size.width * CGFloat(i) / CGFloat(filtered.count - 1)
+                        let y = geo.size.height * (1.0 - (Double(sample) - minAlt) / range)
+                        if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
+                        else { path.addLine(to: CGPoint(x: x, y: y)) }
+                    }
+                }
+                .stroke(green, lineWidth: 2)
+            }
         }
     }
 }
 
-struct WeatherScreenContent: View {
-    let screenData: WeatherData
+// MARK: - Waiting / Placeholder
 
-    private static let weatherIcons: [WeatherConditionWire: String] = [
-        .clear: "sun.max.fill",
-        .cloudy: "cloud.fill",
-        .rain: "cloud.rain.fill",
-        .snow: "cloud.snow.fill",
-        .fog: "cloud.fog.fill",
-        .thunderstorm: "cloud.bolt.fill"
-    ]
-
+struct PreviewWaitingIndicator: View {
     var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: Self.weatherIcons[screenData.condition] ?? "questionmark")
-                .font(.system(size: 36))
-                .foregroundStyle(previewGold)
-
-            Text(String(
-                format: "%.1f\u{00B0}C",
-                Double(screenData.temperatureCelsiusX10) / 10.0
-            ))
-            .font(.system(size: 40, weight: .bold, design: .monospaced))
-            .foregroundStyle(.white)
-
-            HStack(spacing: 12) {
-                Text(String(format: "H:%.0f\u{00B0}", Double(screenData.highCelsiusX10) / 10.0))
-                    .foregroundStyle(Color(hex: 0xE24B4A))
-                Text(String(format: "L:%.0f\u{00B0}", Double(screenData.lowCelsiusX10) / 10.0))
-                    .foregroundStyle(Color(hex: 0x5BACF5))
-            }
-            .font(.system(size: 12, weight: .medium, design: .monospaced))
-
-            if !screenData.locationName.isEmpty {
-                Text(screenData.locationName)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(Color(hex: 0x666666))
-            }
-        }
+        ProgressView()
+            .progressViewStyle(CircularProgressViewStyle(tint: gold))
+            .scaleEffect(1.2)
     }
 }
 
-struct MusicScreenContent: View {
-    let screenData: MusicData
-
+struct PreviewPlaceholder: View {
+    let text: String
     var body: some View {
-        VStack(spacing: 8) {
-            Image(
-                systemName: screenData.isPlaying
-                    ? "play.circle.fill"
-                    : "pause.circle.fill"
-            )
-            .font(.system(size: 28))
-            .foregroundStyle(previewGold)
-
-            Text(screenData.title.isEmpty ? "--" : screenData.title)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-
-            Text(screenData.artist.isEmpty ? "--" : screenData.artist)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(Color(hex: 0x999999))
-                .lineLimit(1)
-
-            if screenData.durationSeconds != MusicData.unknownU16
-                && screenData.durationSeconds > 0 {
-                progressBar
-            }
-        }
-        .padding(.horizontal, 16)
-    }
-
-    private var progressBar: some View {
-        let progress = screenData.positionSeconds == MusicData.unknownU16
-            ? 0.0
-            : Double(screenData.positionSeconds) / Double(screenData.durationSeconds)
-
-        return GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color(hex: 0x333333))
-                    .frame(height: 3)
-
-                Capsule()
-                    .fill(previewGold)
-                    .frame(width: geo.size.width * min(progress, 1.0), height: 3)
-            }
-        }
-        .frame(width: 140, height: 3)
-        .padding(.top, 4)
+        Text(text)
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(dimGray)
+            .multilineTextAlignment(.center)
     }
 }

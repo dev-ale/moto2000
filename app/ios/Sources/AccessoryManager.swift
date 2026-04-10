@@ -50,7 +50,7 @@ final class AccessoryManager {
     func showPicker() {
         let descriptor = ASDiscoveryDescriptor()
         descriptor.bluetoothServiceUUID = CBUUID(
-            string: "12345678-1234-5678-1234-56789ABCDEF0"
+            string: "b6ca8101-b172-4d33-8518-8b1700235ed2"
         )
         descriptor.bluetoothNameSubstring = "ScramScreen"
         descriptor.supportedOptions = .bluetoothPairingLE

@@ -2,7 +2,7 @@ import Foundation
 import RideSimulatorKit
 
 /// Real (non-simulator) ``WeatherProvider`` that polls a
-/// ``WeatherServiceClient`` on a refresh interval driven by a
+/// ``WeatherServiceClient`` on a 10-minute refresh interval driven by a
 /// ``SimulatedClock``.
 ///
 /// The provider emits ``WeatherSnapshot`` values on its ``snapshots`` stream.
@@ -37,7 +37,7 @@ public final class RealWeatherProvider: WeatherProvider, @unchecked Sendable {
         client: any WeatherServiceClient,
         clock: any SimulatedClock,
         coordinate: Coordinate,
-        refreshInterval: Double = 60.0
+        refreshInterval: Double = 600.0
     ) {
         self.client = client
         self.clock = clock

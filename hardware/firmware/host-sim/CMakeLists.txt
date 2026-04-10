@@ -202,6 +202,11 @@ add_snapshot_test(blitzer_mobile_close            blitzer_mobile_close.bin)
 add_snapshot_test(blitzer_section                 blitzer_section.bin)
 add_snapshot_test(blitzer_unknown_limit           blitzer_unknown_limit.bin)
 
+# Night-mode variants (Slice 16)
+add_snapshot_test(speed_urban_45kmh_night         speed_urban_45kmh_night.bin)
+add_snapshot_test(compass_north_magnetic_night     compass_north_magnetic_night.bin)
+add_snapshot_test(nav_straight_night               nav_straight_night.bin)
+
 # ---------------------------------------------------------------------------
 # Unity host tests for pure C logic inside the simulator (time formatting).
 # ---------------------------------------------------------------------------

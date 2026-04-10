@@ -70,6 +70,12 @@ public enum FuelRangeCalculator {
         settings: FuelSettings
     ) -> Estimate {
         guard let consumption = averageConsumptionMlPerKm(fills: fills) else {
+            // No consumption rate yet (need 2+ full fills), but if we have
+            // a full fill and no distance driven, show 100% tank.
+            let hasFullFill = fills.contains(where: \.isFullTank)
+            if hasFullFill && currentDistanceSinceLastFillKm < 0.1 {
+                return Estimate(tankPercent: 100)
+            }
             return Estimate()
         }
 

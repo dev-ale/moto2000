@@ -17,8 +17,6 @@
  *   - Heading with cardinal direction (e.g. "NE 042")
  *   - Altitude (left) and temperature (right) at the bottom
  */
-void screen_speed_create(lv_obj_t *parent,
-                         const ble_speed_heading_data_t *data,
-                         uint8_t flags);
+void screen_speed_create(lv_obj_t *parent, const ble_speed_heading_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_SPEED_H */

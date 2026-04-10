@@ -46,37 +46,37 @@ extern "C" {
 #endif
 
 typedef enum {
-    SCREEN_FSM_ACTIVE        = 0,
+    SCREEN_FSM_ACTIVE = 0,
     SCREEN_FSM_ALERT_OVERLAY = 1,
-    SCREEN_FSM_SLEEP         = 2,
+    SCREEN_FSM_SLEEP = 2,
 } screen_fsm_state_t;
 
 typedef enum {
-    SCREEN_FSM_EVT_CONTROL_SET_ACTIVE   = 0,
-    SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT  = 1,
-    SCREEN_FSM_EVT_CONTROL_SLEEP        = 2,
-    SCREEN_FSM_EVT_CONTROL_WAKE         = 3,
-    SCREEN_FSM_EVT_ALERT_INCOMING       = 4,
-    SCREEN_FSM_EVT_DATA_ARRIVED         = 5,
+    SCREEN_FSM_EVT_CONTROL_SET_ACTIVE = 0,
+    SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT = 1,
+    SCREEN_FSM_EVT_CONTROL_SLEEP = 2,
+    SCREEN_FSM_EVT_CONTROL_WAKE = 3,
+    SCREEN_FSM_EVT_ALERT_INCOMING = 4,
+    SCREEN_FSM_EVT_DATA_ARRIVED = 5,
 } screen_fsm_event_t;
 
 typedef struct {
     screen_fsm_state_t state;
-    uint8_t            active_screen_id;
-    uint8_t            current_display_id;
-    uint8_t            alert_priority;
+    uint8_t active_screen_id;
+    uint8_t current_display_id;
+    uint8_t alert_priority;
 } screen_fsm_t;
 
 typedef enum {
-    SCREEN_FSM_ACTION_NONE          = 0,
+    SCREEN_FSM_ACTION_NONE = 0,
     SCREEN_FSM_ACTION_RENDER_SCREEN = 1,
-    SCREEN_FSM_ACTION_DIM_DISPLAY   = 2,
-    SCREEN_FSM_ACTION_WAKE_DISPLAY  = 3,
+    SCREEN_FSM_ACTION_DIM_DISPLAY = 2,
+    SCREEN_FSM_ACTION_WAKE_DISPLAY = 3,
 } screen_fsm_action_t;
 
 typedef struct {
     screen_fsm_action_t kind;
-    uint8_t             screen_id;
+    uint8_t screen_id;
 } screen_fsm_outcome_t;
 
 void screen_fsm_init(screen_fsm_t *fsm, uint8_t initial_active_screen_id);
@@ -95,17 +95,14 @@ void screen_fsm_init(screen_fsm_t *fsm, uint8_t initial_active_screen_id);
  *   - DATA_ARRIVED        : data = screen id of the payload that arrived
  *   - CLEAR_ALERT/SLEEP/WAKE: data is ignored
  */
-screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t      *fsm,
-                                       screen_fsm_event_t event,
-                                       uint8_t            data);
+screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t *fsm, screen_fsm_event_t event, uint8_t data);
 
 /*
  * Convenience wrapper for an incoming alert. Equivalent to:
  *   set fsm internal "next alert priority" then handle ALERT_INCOMING.
  */
-screen_fsm_outcome_t screen_fsm_handle_alert(screen_fsm_t *fsm,
-                                             uint8_t       alert_screen_id,
-                                             uint8_t       priority);
+screen_fsm_outcome_t screen_fsm_handle_alert(screen_fsm_t *fsm, uint8_t alert_screen_id,
+                                             uint8_t priority);
 
 #ifdef __cplusplus
 }

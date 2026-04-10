@@ -8,7 +8,7 @@
 
 #include "host_sim/time_format.h"
 
-void setUp(void)   {}
+void setUp(void) {}
 void tearDown(void) {}
 
 static void test_format_24h_basel_winter(void)

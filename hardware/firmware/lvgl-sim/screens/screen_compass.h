@@ -18,8 +18,6 @@
  *   - Digital heading readout (e.g. "042")
  *   - MAG/TRU indicator
  */
-void screen_compass_create(lv_obj_t *parent,
-                           const ble_compass_data_t *data,
-                           uint8_t flags);
+void screen_compass_create(lv_obj_t *parent, const ble_compass_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_COMPASS_H */

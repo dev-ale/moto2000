@@ -8,7 +8,7 @@
 
 #include "host_sim/speed_layout.h"
 
-void setUp(void)    {}
+void setUp(void) {}
 void tearDown(void) {}
 
 /* ------------------------------- speed ------------------------------ */

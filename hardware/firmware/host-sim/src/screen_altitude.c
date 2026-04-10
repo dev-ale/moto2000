@@ -23,8 +23,7 @@
 
 #include "ble_protocol.h"
 
-static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
-                      uint8_t r, uint8_t g, uint8_t b)
+static void put_pixel(host_sim_canvas_t *canvas, int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height) {
         return;
@@ -36,9 +35,8 @@ static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
 }
 
 /* Fill a vertical column from y_top to y_bottom with a dimmer shade. */
-static void fill_column(host_sim_canvas_t *canvas, int x,
-                        int y_top, int y_bottom,
-                        uint8_t r, uint8_t g, uint8_t b)
+static void fill_column(host_sim_canvas_t *canvas, int x, int y_top, int y_bottom, uint8_t r,
+                        uint8_t g, uint8_t b)
 {
     for (int y = y_top; y <= y_bottom; ++y) {
         put_pixel(canvas, x, y, r, g, b);
@@ -46,8 +44,8 @@ static void fill_column(host_sim_canvas_t *canvas, int x,
 }
 
 /* Draw a small filled circle as the current position marker. */
-static void draw_dot(host_sim_canvas_t *canvas, int cx, int cy, int radius,
-                     uint8_t r, uint8_t g, uint8_t b)
+static void draw_dot(host_sim_canvas_t *canvas, int cx, int cy, int radius, uint8_t r, uint8_t g,
+                     uint8_t b)
 {
     for (int dy = -radius; dy <= radius; ++dy) {
         for (int dx = -radius; dx <= radius; ++dx) {
@@ -58,9 +56,8 @@ static void draw_dot(host_sim_canvas_t *canvas, int cx, int cy, int radius,
     }
 }
 
-void host_sim_render_altitude(host_sim_canvas_t                   *canvas,
-                              const ble_altitude_profile_data_t   *alt,
-                              uint8_t                              header_flags)
+void host_sim_render_altitude(host_sim_canvas_t *canvas, const ble_altitude_profile_data_t *alt,
+                              uint8_t header_flags)
 {
     const int night = (header_flags & BLE_FLAG_NIGHT_MODE) != 0U;
     if (night) {
@@ -91,9 +88,9 @@ void host_sim_render_altitude(host_sim_canvas_t                   *canvas,
     const int cx = canvas->width / 2;
 
     /* Graph area. */
-    const int graph_left   = 80;
-    const int graph_right  = 386;
-    const int graph_top    = 60;
+    const int graph_left = 80;
+    const int graph_right = 386;
+    const int graph_top = 60;
     const int graph_bottom = 280;
 
     const int count = (int)alt->sample_count;
@@ -123,79 +120,72 @@ void host_sim_render_altitude(host_sim_canvas_t                   *canvas,
         /* Draw fill under the line first (so the line is on top). */
         for (int i = 0; i < count; ++i) {
             const int px = altitude_graph_x(i, count, graph_left, graph_right);
-            const int py = altitude_graph_y(alt->profile[i], min_alt, max_alt,
-                                            graph_top, graph_bottom);
+            const int py =
+                altitude_graph_y(alt->profile[i], min_alt, max_alt, graph_top, graph_bottom);
             fill_column(canvas, px, py, graph_bottom, fill_r, fill_g, fill_b);
         }
 
         /* Draw connected line segments. */
         for (int i = 0; i < count - 1; ++i) {
             const int x0 = altitude_graph_x(i, count, graph_left, graph_right);
-            const int y0 = altitude_graph_y(alt->profile[i], min_alt, max_alt,
-                                            graph_top, graph_bottom);
+            const int y0 =
+                altitude_graph_y(alt->profile[i], min_alt, max_alt, graph_top, graph_bottom);
             const int x1 = altitude_graph_x(i + 1, count, graph_left, graph_right);
-            const int y1 = altitude_graph_y(alt->profile[i + 1], min_alt, max_alt,
-                                            graph_top, graph_bottom);
+            const int y1 =
+                altitude_graph_y(alt->profile[i + 1], min_alt, max_alt, graph_top, graph_bottom);
             draw_line(canvas, x0, y0, x1, y1, line_r, line_g, line_b);
         }
 
         /* Current position marker at rightmost sample. */
         {
             const int last_idx = count - 1;
-            const int mx = altitude_graph_x(last_idx, count,
-                                            graph_left, graph_right);
-            const int my = altitude_graph_y(alt->profile[last_idx],
-                                            min_alt, max_alt,
-                                            graph_top, graph_bottom);
+            const int mx = altitude_graph_x(last_idx, count, graph_left, graph_right);
+            const int my =
+                altitude_graph_y(alt->profile[last_idx], min_alt, max_alt, graph_top, graph_bottom);
             draw_dot(canvas, mx, my, 5, mark_r, mark_g, mark_b);
         }
 
         /* Y-axis labels: max at top, min at bottom. */
         {
-            char max_buf[12] = {0};
-            char min_buf[12] = {0};
+            char max_buf[12] = { 0 };
+            char min_buf[12] = { 0 };
             format_altitude_label(max_alt, max_buf, sizeof(max_buf));
             format_altitude_label(min_alt, min_buf, sizeof(min_buf));
             const int label_scale = 2;
-            host_sim_draw_text(canvas, max_buf,
-                               graph_left - 2, graph_top - 2,
-                               label_scale, text_r, text_g, text_b);
-            host_sim_draw_text(canvas, min_buf,
-                               graph_left - 2, graph_bottom + 4,
-                               label_scale, text_r, text_g, text_b);
+            host_sim_draw_text(canvas, max_buf, graph_left - 2, graph_top - 2, label_scale, text_r,
+                               text_g, text_b);
+            host_sim_draw_text(canvas, min_buf, graph_left - 2, graph_bottom + 4, label_scale,
+                               text_r, text_g, text_b);
         }
     }
 
     /* ---- Below graph: current altitude ---- */
     {
-        char alt_buf[16] = {0};
-        (void)snprintf(alt_buf, sizeof(alt_buf), "ALT %dM",
-                       (int)alt->current_altitude_m);
+        char alt_buf[16] = { 0 };
+        (void)snprintf(alt_buf, sizeof(alt_buf), "ALT %dM", (int)alt->current_altitude_m);
         const int alt_scale = 5;
         const int alt_w = host_sim_measure_text(alt_buf, alt_scale);
         const int alt_y = 310;
-        host_sim_draw_text(canvas, alt_buf, cx - alt_w / 2, alt_y, alt_scale,
-                           text_r, text_g, text_b);
+        host_sim_draw_text(canvas, alt_buf, cx - alt_w / 2, alt_y, alt_scale, text_r, text_g,
+                           text_b);
     }
 
     /* ---- Ascent / descent row ---- */
     {
-        char asc_buf[12] = {0};
-        char desc_buf[12] = {0};
-        format_altitude_delta((int16_t)alt->total_ascent_m, 1,
-                              asc_buf, sizeof(asc_buf));
-        format_altitude_delta((int16_t)alt->total_descent_m, 0,
-                              desc_buf, sizeof(desc_buf));
+        char asc_buf[12] = { 0 };
+        char desc_buf[12] = { 0 };
+        format_altitude_delta((int16_t)alt->total_ascent_m, 1, asc_buf, sizeof(asc_buf));
+        format_altitude_delta((int16_t)alt->total_descent_m, 0, desc_buf, sizeof(desc_buf));
 
         /* Ascent and descent side by side with a gap. */
-        char combined[28] = {0};
+        char combined[28] = { 0 };
         (void)snprintf(combined, sizeof(combined), "%s  %s", asc_buf, desc_buf);
 
         const int row_scale = 3;
         const int row_w = host_sim_measure_text(combined, row_scale);
         const int row_y = 360;
-        host_sim_draw_text(canvas, combined, cx - row_w / 2, row_y, row_scale,
-                           text_r, text_g, text_b);
+        host_sim_draw_text(canvas, combined, cx - row_w / 2, row_y, row_scale, text_r, text_g,
+                           text_b);
     }
 
     host_sim_canvas_apply_round_mask(canvas);

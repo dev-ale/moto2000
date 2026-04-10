@@ -25,7 +25,8 @@ int main(int argc, char **argv)
     unsigned char *g = stbi_load(argv[2], &gw, &gh, &gc, 3);
     if (a == NULL) {
         fprintf(stderr, "failed to load %s: %s\n", argv[1], stbi_failure_reason());
-        if (g != NULL) stbi_image_free(g);
+        if (g != NULL)
+            stbi_image_free(g);
         return 3;
     }
     if (g == NULL) {
@@ -35,29 +36,25 @@ int main(int argc, char **argv)
     }
     int rc = 0;
     if (aw != gw || ah != gh) {
-        fprintf(stderr,
-                "snapshot-diff: dimensions mismatch (%dx%d vs %dx%d)\n",
-                aw, ah, gw, gh);
+        fprintf(stderr, "snapshot-diff: dimensions mismatch (%dx%d vs %dx%d)\n", aw, ah, gw, gh);
         rc = 4;
     } else {
         long long diff_pixels = 0;
-        long long worst       = 0;
+        long long worst = 0;
         const long long total = (long long)aw * (long long)ah;
         for (long long i = 0; i < total; ++i) {
             const int dr = (int)a[i * 3 + 0] - (int)g[i * 3 + 0];
             const int dg = (int)a[i * 3 + 1] - (int)g[i * 3 + 1];
             const int db = (int)a[i * 3 + 2] - (int)g[i * 3 + 2];
-            const int mag = (dr < 0 ? -dr : dr)
-                          + (dg < 0 ? -dg : dg)
-                          + (db < 0 ? -db : db);
+            const int mag = (dr < 0 ? -dr : dr) + (dg < 0 ? -dg : dg) + (db < 0 ? -db : db);
             if (mag != 0) {
                 diff_pixels++;
-                if (mag > worst) worst = mag;
+                if (mag > worst)
+                    worst = mag;
             }
         }
         if (diff_pixels != 0) {
-            fprintf(stderr,
-                    "snapshot-diff: %lld / %lld pixels differ (worst delta=%lld)\n",
+            fprintf(stderr, "snapshot-diff: %lld / %lld pixels differ (worst delta=%lld)\n",
                     diff_pixels, total, worst);
             rc = 5;
         }

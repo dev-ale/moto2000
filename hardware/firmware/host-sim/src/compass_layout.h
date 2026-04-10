@@ -30,11 +30,8 @@ typedef struct {
  * is at the top. `cx`,`cy` is the dial centre and `radius` is the distance
  * from the centre in pixels.
  */
-compass_point_t host_sim_compass_point_on_dial(uint16_t heading_deg_x10,
-                                               uint16_t tick_deg_x10,
-                                               int      cx,
-                                               int      cy,
-                                               int      radius);
+compass_point_t host_sim_compass_point_on_dial(uint16_t heading_deg_x10, uint16_t tick_deg_x10,
+                                               int cx, int cy, int radius);
 
 /*
  * Normalise an arbitrary heading-in-tenths-of-a-degree into the canonical
@@ -53,8 +50,7 @@ uint16_t host_sim_compass_heading_to_whole_deg(uint16_t heading_deg_x10);
  * body. Returns the magnetic value when the true-heading flag is not set
  * or when the true heading is the 0xFFFF unknown sentinel.
  */
-uint16_t host_sim_compass_displayed_heading_x10(uint16_t magnetic_deg_x10,
-                                                uint16_t true_deg_x10,
-                                                uint8_t  compass_flags);
+uint16_t host_sim_compass_displayed_heading_x10(uint16_t magnetic_deg_x10, uint16_t true_deg_x10,
+                                                uint8_t compass_flags);
 
 #endif /* HOST_SIM_COMPASS_LAYOUT_H */

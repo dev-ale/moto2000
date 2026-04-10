@@ -60,8 +60,7 @@ static void test_init_sets_active(void)
 static void test_active_set_active_renders_new_screen(void)
 {
     screen_fsm_t fsm = make_active(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, COMPASS);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, COMPASS);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_RENDER_SCREEN, out.kind);
     TEST_ASSERT_EQUAL_UINT8(COMPASS, out.screen_id);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTIVE, fsm.state);
@@ -84,8 +83,7 @@ static void test_active_alert_incoming_enters_overlay(void)
 static void test_active_clear_alert_is_noop(void)
 {
     screen_fsm_t fsm = make_active(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTIVE, fsm.state);
 }
@@ -93,8 +91,7 @@ static void test_active_clear_alert_is_noop(void)
 static void test_active_sleep_dims(void)
 {
     screen_fsm_t fsm = make_active(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SLEEP, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SLEEP, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_DIM_DISPLAY, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_SLEEP, fsm.state);
 }
@@ -102,8 +99,7 @@ static void test_active_sleep_dims(void)
 static void test_active_wake_is_noop(void)
 {
     screen_fsm_t fsm = make_active(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTIVE, fsm.state);
 }
@@ -111,8 +107,7 @@ static void test_active_wake_is_noop(void)
 static void test_active_data_arrived_for_active_renders(void)
 {
     screen_fsm_t fsm = make_active(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, CLOCK);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, CLOCK);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_RENDER_SCREEN, out.kind);
     TEST_ASSERT_EQUAL_UINT8(CLOCK, out.screen_id);
 }
@@ -120,8 +115,7 @@ static void test_active_data_arrived_for_active_renders(void)
 static void test_active_data_arrived_for_other_is_ignored(void)
 {
     screen_fsm_t fsm = make_active(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, COMPASS);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, COMPASS);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL_UINT8(CLOCK, fsm.current_display_id);
 }
@@ -131,8 +125,7 @@ static void test_active_data_arrived_for_other_is_ignored(void)
 static void test_overlay_set_active_updates_return_to_only(void)
 {
     screen_fsm_t fsm = make_overlay(CLOCK, ALERT_A, 5);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, NAV);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, NAV);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ALERT_OVERLAY, fsm.state);
     TEST_ASSERT_EQUAL_UINT8(NAV, fsm.active_screen_id);
@@ -171,8 +164,7 @@ static void test_overlay_clear_returns_to_active(void)
     screen_fsm_t fsm = make_overlay(CLOCK, ALERT_A, 5);
     /* Mid-overlay the user picked NAV; we should return to NAV. */
     (void)screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, NAV);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_RENDER_SCREEN, out.kind);
     TEST_ASSERT_EQUAL_UINT8(NAV, out.screen_id);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTIVE, fsm.state);
@@ -182,8 +174,7 @@ static void test_overlay_clear_returns_to_active(void)
 static void test_overlay_sleep_dims(void)
 {
     screen_fsm_t fsm = make_overlay(CLOCK, ALERT_A, 5);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SLEEP, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SLEEP, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_DIM_DISPLAY, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_SLEEP, fsm.state);
     TEST_ASSERT_EQUAL_UINT8(0u, fsm.alert_priority);
@@ -192,8 +183,7 @@ static void test_overlay_sleep_dims(void)
 static void test_overlay_wake_is_noop(void)
 {
     screen_fsm_t fsm = make_overlay(CLOCK, ALERT_A, 5);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ALERT_OVERLAY, fsm.state);
 }
@@ -201,8 +191,7 @@ static void test_overlay_wake_is_noop(void)
 static void test_overlay_data_arrived_is_ignored(void)
 {
     screen_fsm_t fsm = make_overlay(CLOCK, ALERT_A, 5);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, CLOCK);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, CLOCK);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL_UINT8(ALERT_A, fsm.current_display_id);
 }
@@ -212,8 +201,7 @@ static void test_overlay_data_arrived_is_ignored(void)
 static void test_sleep_wake_renders_active(void)
 {
     screen_fsm_t fsm = make_sleeping(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_WAKE_DISPLAY, out.kind);
     TEST_ASSERT_EQUAL_UINT8(CLOCK, out.screen_id);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTIVE, fsm.state);
@@ -222,15 +210,13 @@ static void test_sleep_wake_renders_active(void)
 static void test_sleep_set_active_remembers_only(void)
 {
     screen_fsm_t fsm = make_sleeping(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, NAV);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, NAV);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_SLEEP, fsm.state);
     TEST_ASSERT_EQUAL_UINT8(NAV, fsm.active_screen_id);
 
     /* On wake, the new screen is what gets rendered. */
-    screen_fsm_outcome_t wake_out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
+    screen_fsm_outcome_t wake_out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_WAKE_DISPLAY, wake_out.kind);
     TEST_ASSERT_EQUAL_UINT8(NAV, wake_out.screen_id);
 }
@@ -238,8 +224,7 @@ static void test_sleep_set_active_remembers_only(void)
 static void test_sleep_sleep_again_is_noop(void)
 {
     screen_fsm_t fsm = make_sleeping(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SLEEP, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_SLEEP, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_SLEEP, fsm.state);
 }
@@ -247,8 +232,7 @@ static void test_sleep_sleep_again_is_noop(void)
 static void test_sleep_clear_alert_is_noop(void)
 {
     screen_fsm_t fsm = make_sleeping(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
 }
 
@@ -264,8 +248,7 @@ static void test_sleep_alert_incoming_is_ignored(void)
 static void test_sleep_data_arrived_is_ignored(void)
 {
     screen_fsm_t fsm = make_sleeping(CLOCK);
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, CLOCK);
+    screen_fsm_outcome_t out = screen_fsm_handle(&fsm, SCREEN_FSM_EVT_DATA_ARRIVED, CLOCK);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
     TEST_ASSERT_EQUAL(SCREEN_FSM_SLEEP, fsm.state);
 }
@@ -274,8 +257,7 @@ static void test_sleep_data_arrived_is_ignored(void)
 
 static void test_null_fsm_returns_none(void)
 {
-    screen_fsm_outcome_t out =
-        screen_fsm_handle(NULL, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
+    screen_fsm_outcome_t out = screen_fsm_handle(NULL, SCREEN_FSM_EVT_CONTROL_WAKE, 0);
     TEST_ASSERT_EQUAL(SCREEN_FSM_ACTION_NONE, out.kind);
 
     screen_fsm_outcome_t alert_out = screen_fsm_handle_alert(NULL, ALERT_A, 1);

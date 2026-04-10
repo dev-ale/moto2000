@@ -28,9 +28,8 @@ extern "C" {
  *
  * `bar_width` must be non-negative.
  */
-int host_sim_music_progress_fill_width(uint16_t position_seconds,
-                                       uint16_t duration_seconds,
-                                       int      bar_width);
+int host_sim_music_progress_fill_width(uint16_t position_seconds, uint16_t duration_seconds,
+                                       int bar_width);
 
 /*
  * Truncate ASCII `in` into `out` with trailing ".." if it would overflow.
@@ -42,17 +41,13 @@ int host_sim_music_progress_fill_width(uint16_t position_seconds,
  *
  * Returns the number of bytes written excluding the terminator.
  */
-size_t host_sim_music_truncate_with_ellipsis(const char *in,
-                                             char       *out,
-                                             size_t      out_len);
+size_t host_sim_music_truncate_with_ellipsis(const char *in, char *out, size_t out_len);
 
 /*
  * Uppercase-in-place up to `out_len - 1` bytes and NUL-terminate. The
  * bundled 8x8 font is uppercase-only ASCII. Input and output may alias.
  */
-void host_sim_music_uppercase_ascii(const char *in,
-                                    char       *out,
-                                    size_t      out_len);
+void host_sim_music_uppercase_ascii(const char *in, char *out, size_t out_len);
 
 /*
  * Format a `M:SS` or `MM:SS` time string into `buf`.
@@ -63,9 +58,7 @@ void host_sim_music_uppercase_ascii(const char *in,
  * Returns the number of bytes written excluding the terminator, or 0 on
  * buffer-too-small. A 12-byte buffer is always enough.
  */
-size_t host_sim_music_format_time(uint16_t seconds,
-                                  char    *buf,
-                                  size_t   buf_len);
+size_t host_sim_music_format_time(uint16_t seconds, char *buf, size_t buf_len);
 
 #ifdef __cplusplus
 }

@@ -34,8 +34,7 @@ typedef struct {
     uint8_t b;
 } rgb_t;
 
-static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
-                      uint8_t r, uint8_t g, uint8_t b)
+static void put_pixel(host_sim_canvas_t *canvas, int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height) {
         return;
@@ -46,9 +45,7 @@ static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
     canvas->pixels[idx + 2U] = b;
 }
 
-static void fill_rect(host_sim_canvas_t *canvas,
-                      int x, int y, int w, int h,
-                      rgb_t c)
+static void fill_rect(host_sim_canvas_t *canvas, int x, int y, int w, int h, rgb_t c)
 {
     for (int yy = y; yy < y + h; ++yy) {
         for (int xx = x; xx < x + w; ++xx) {
@@ -57,9 +54,7 @@ static void fill_rect(host_sim_canvas_t *canvas,
     }
 }
 
-static void fill_disc(host_sim_canvas_t *canvas,
-                      int cx, int cy, int radius,
-                      rgb_t c)
+static void fill_disc(host_sim_canvas_t *canvas, int cx, int cy, int radius, rgb_t c)
 {
     const int r2 = radius * radius;
     for (int y = cy - radius; y <= cy + radius; ++y) {
@@ -154,8 +149,8 @@ static void draw_fog(host_sim_canvas_t *canvas, int ax, int ay, rgb_t c)
 {
     /* Four horizontal fog bars of varying length. */
     fill_rect(canvas, ax - 28, ay - 16, 56, 5, c);
-    fill_rect(canvas, ax - 22, ay - 4,  48, 5, c);
-    fill_rect(canvas, ax - 28, ay + 8,  56, 5, c);
+    fill_rect(canvas, ax - 22, ay - 4, 48, 5, c);
+    fill_rect(canvas, ax - 28, ay + 8, 56, 5, c);
     fill_rect(canvas, ax - 18, ay + 20, 44, 5, c);
 }
 
@@ -165,60 +160,56 @@ static void draw_thunderstorm(host_sim_canvas_t *canvas, int ax, int ay, rgb_t c
     /* A blocky lightning bolt below the cloud. */
     const int bx = ax - 4;
     const int by = ay + 8;
-    fill_rect(canvas, bx + 4, by,      8, 6, bolt);
-    fill_rect(canvas, bx,     by + 4,  12, 6, bolt);
-    fill_rect(canvas, bx - 2, by + 8,  10, 6, bolt);
+    fill_rect(canvas, bx + 4, by, 8, 6, bolt);
+    fill_rect(canvas, bx, by + 4, 12, 6, bolt);
+    fill_rect(canvas, bx - 2, by + 8, 10, 6, bolt);
     fill_rect(canvas, bx + 2, by + 12, 12, 4, bolt);
     fill_rect(canvas, bx + 4, by + 14, 4, 12, bolt);
 }
 
-static void draw_condition_glyph(host_sim_canvas_t      *canvas,
-                                 ble_weather_condition_t cond,
-                                 int                     ax,
-                                 int                     ay,
-                                 bool                    night)
+static void draw_condition_glyph(host_sim_canvas_t *canvas, ble_weather_condition_t cond, int ax,
+                                 int ay, bool night)
 {
-    const rgb_t day_sun    = {0xFF, 0xD1, 0x3A};
-    const rgb_t day_cloud  = {0xE8, 0xEF, 0xF7};
-    const rgb_t day_rain   = {0x6E, 0xB8, 0xFF};
-    const rgb_t day_bolt   = {0xFF, 0xE0, 0x40};
-    const rgb_t night_red  = {0x88, 0x11, 0x11};
-    const rgb_t night_dim  = {0x55, 0x00, 0x00};
+    const rgb_t day_sun = { 0xFF, 0xD1, 0x3A };
+    const rgb_t day_cloud = { 0xE8, 0xEF, 0xF7 };
+    const rgb_t day_rain = { 0x6E, 0xB8, 0xFF };
+    const rgb_t day_bolt = { 0xFF, 0xE0, 0x40 };
+    const rgb_t night_red = { 0x88, 0x11, 0x11 };
+    const rgb_t night_dim = { 0x55, 0x00, 0x00 };
 
-    const rgb_t sun_c   = night ? night_red : day_sun;
+    const rgb_t sun_c = night ? night_red : day_sun;
     const rgb_t cloud_c = night ? night_red : day_cloud;
-    const rgb_t rain_c  = night ? night_dim : day_rain;
-    const rgb_t bolt_c  = night ? night_red : day_bolt;
+    const rgb_t rain_c = night ? night_dim : day_rain;
+    const rgb_t bolt_c = night ? night_red : day_bolt;
 
     switch (cond) {
-        case BLE_WEATHER_CLEAR:
-            draw_sun(canvas, ax, ay, sun_c);
-            break;
-        case BLE_WEATHER_CLOUDY:
-            draw_cloudy(canvas, ax, ay, cloud_c);
-            break;
-        case BLE_WEATHER_RAIN:
-            draw_rain(canvas, ax, ay, cloud_c, rain_c);
-            break;
-        case BLE_WEATHER_SNOW:
-            draw_snow(canvas, ax, ay, cloud_c);
-            break;
-        case BLE_WEATHER_FOG:
-            draw_fog(canvas, ax, ay, cloud_c);
-            break;
-        case BLE_WEATHER_THUNDERSTORM:
-            draw_thunderstorm(canvas, ax, ay, cloud_c, bolt_c);
-            break;
-        default:
-            break;
+    case BLE_WEATHER_CLEAR:
+        draw_sun(canvas, ax, ay, sun_c);
+        break;
+    case BLE_WEATHER_CLOUDY:
+        draw_cloudy(canvas, ax, ay, cloud_c);
+        break;
+    case BLE_WEATHER_RAIN:
+        draw_rain(canvas, ax, ay, cloud_c, rain_c);
+        break;
+    case BLE_WEATHER_SNOW:
+        draw_snow(canvas, ax, ay, cloud_c);
+        break;
+    case BLE_WEATHER_FOG:
+        draw_fog(canvas, ax, ay, cloud_c);
+        break;
+    case BLE_WEATHER_THUNDERSTORM:
+        draw_thunderstorm(canvas, ax, ay, cloud_c, bolt_c);
+        break;
+    default:
+        break;
     }
 }
 
 /* ------------------------------------------------------------------ */
 
-void host_sim_render_weather(host_sim_canvas_t        *canvas,
-                             const ble_weather_data_t *weather,
-                             uint8_t                   header_flags)
+void host_sim_render_weather(host_sim_canvas_t *canvas, const ble_weather_data_t *weather,
+                             uint8_t header_flags)
 {
     const bool night = (header_flags & BLE_FLAG_NIGHT_MODE) != 0U;
     if (night) {
@@ -231,7 +222,7 @@ void host_sim_render_weather(host_sim_canvas_t        *canvas,
     const uint8_t text_g = night ? 0x11U : 0xFFU;
     const uint8_t text_b = night ? 0x11U : 0xFFU;
 
-    const int cx = canvas->width  / 2;
+    const int cx = canvas->width / 2;
 
     /* Glyph: centered horizontally, anchored ~30% from the top. */
     const int glyph_ay = 150;
@@ -239,38 +230,34 @@ void host_sim_render_weather(host_sim_canvas_t        *canvas,
 
     /* Hero temperature, e.g. "22^" or "-3^". The caret maps to the
      * degree glyph in font8x8.h. */
-    char temp_buf[8] = {0};
-    host_sim_weather_format_temperature(weather->temperature_celsius_x10,
-                                        temp_buf, sizeof(temp_buf));
-    char hero[16] = {0};
+    char temp_buf[8] = { 0 };
+    host_sim_weather_format_temperature(weather->temperature_celsius_x10, temp_buf,
+                                        sizeof(temp_buf));
+    char hero[16] = { 0 };
     (void)snprintf(hero, sizeof(hero), "%s^", temp_buf);
 
     const int hero_scale = 8;
-    const int hero_w     = host_sim_measure_text(hero, hero_scale);
-    const int hero_h     = 8 * hero_scale;
-    const int hero_y     = 220;
-    host_sim_draw_text(canvas, hero, cx - hero_w / 2, hero_y, hero_scale,
-                       text_r, text_g, text_b);
+    const int hero_w = host_sim_measure_text(hero, hero_scale);
+    const int hero_h = 8 * hero_scale;
+    const int hero_y = 220;
+    host_sim_draw_text(canvas, hero, cx - hero_w / 2, hero_y, hero_scale, text_r, text_g, text_b);
 
     /* High/low line. */
-    char hilo[16] = {0};
-    host_sim_weather_format_high_low(weather->high_celsius_x10,
-                                     weather->low_celsius_x10,
-                                     hilo, sizeof(hilo));
+    char hilo[16] = { 0 };
+    host_sim_weather_format_high_low(weather->high_celsius_x10, weather->low_celsius_x10, hilo,
+                                     sizeof(hilo));
     const int hilo_scale = 3;
-    const int hilo_w     = host_sim_measure_text(hilo, hilo_scale);
-    const int hilo_y     = hero_y + hero_h + 16;
-    host_sim_draw_text(canvas, hilo, cx - hilo_w / 2, hilo_y, hilo_scale,
-                       text_r, text_g, text_b);
+    const int hilo_w = host_sim_measure_text(hilo, hilo_scale);
+    const int hilo_y = hero_y + hero_h + 16;
+    host_sim_draw_text(canvas, hilo, cx - hilo_w / 2, hilo_y, hilo_scale, text_r, text_g, text_b);
 
     /* Location name at the bottom. */
-    char loc[WEATHER_LAYOUT_MAX_LOCATION_CHARS + 1] = {0};
+    char loc[WEATHER_LAYOUT_MAX_LOCATION_CHARS + 1] = { 0 };
     host_sim_weather_uppercase_location(weather->location_name, loc, sizeof(loc));
     const int loc_scale = 3;
-    const int loc_w     = host_sim_measure_text(loc, loc_scale);
-    const int loc_y     = 390;
-    host_sim_draw_text(canvas, loc, cx - loc_w / 2, loc_y, loc_scale,
-                       text_r, text_g, text_b);
+    const int loc_w = host_sim_measure_text(loc, loc_scale);
+    const int loc_y = 390;
+    host_sim_draw_text(canvas, loc, cx - loc_w / 2, loc_y, loc_scale, text_r, text_g, text_b);
 
     host_sim_canvas_apply_round_mask(canvas);
 }

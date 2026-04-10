@@ -38,28 +38,28 @@ extern "C" {
 
 typedef enum {
     BLE_RC_DISCONNECTED = 0,
-    BLE_RC_ADVERTISING  = 1,
-    BLE_RC_CONNECTED    = 2,
-    BLE_RC_BACKOFF      = 3
+    BLE_RC_ADVERTISING = 1,
+    BLE_RC_CONNECTED = 2,
+    BLE_RC_BACKOFF = 3
 } ble_reconnect_state_t;
 
 typedef enum {
-    BLE_RC_EVENT_CONNECT    = 0,
+    BLE_RC_EVENT_CONNECT = 0,
     BLE_RC_EVENT_DISCONNECT = 1,
-    BLE_RC_EVENT_TICK       = 2
+    BLE_RC_EVENT_TICK = 2
 } ble_reconnect_event_t;
 
 typedef enum {
-    BLE_RC_ACTION_NONE             = 0,
+    BLE_RC_ACTION_NONE = 0,
     BLE_RC_ACTION_START_ADVERTISING = 1,
-    BLE_RC_ACTION_WAIT             = 2
+    BLE_RC_ACTION_WAIT = 2
 } ble_reconnect_action_t;
 
 typedef struct {
     ble_reconnect_state_t state;
-    uint32_t              backoff_ms;
-    uint32_t              next_action_at_ms;
-    uint8_t               attempt;
+    uint32_t backoff_ms;
+    uint32_t next_action_at_ms;
+    uint8_t attempt;
 } ble_reconnect_fsm_t;
 
 /* Number of entries in the ms backoff schedule. */
@@ -86,8 +86,7 @@ void ble_reconnect_init(ble_reconnect_fsm_t *fsm);
  * is used to stamp BLE_RC_BACKOFF wake times. The FSM itself owns no
  * timers; the caller schedules the next TICK for now_ms >= fsm->next_action_at_ms.
  */
-ble_reconnect_action_t ble_reconnect_handle(ble_reconnect_fsm_t *fsm,
-                                            ble_reconnect_event_t event,
+ble_reconnect_action_t ble_reconnect_handle(ble_reconnect_fsm_t *fsm, ble_reconnect_event_t event,
                                             uint32_t now_ms);
 
 /* ------------------------------------------------------------------------ */
@@ -102,10 +101,10 @@ ble_reconnect_action_t ble_reconnect_handle(ble_reconnect_fsm_t *fsm,
 #define BLE_PAYLOAD_CACHE_SCREEN_COUNT 14
 
 typedef struct {
-    uint8_t  body[BLE_PAYLOAD_CACHE_BODY_MAX];
+    uint8_t body[BLE_PAYLOAD_CACHE_BODY_MAX];
     uint16_t length;
     uint32_t updated_ms;
-    bool     present;
+    bool present;
 } ble_payload_cache_entry_t;
 
 typedef struct {
@@ -121,11 +120,8 @@ void ble_payload_cache_init(ble_payload_cache_t *cache);
  * `length` reflects the stored size. screen_ids outside the valid range are
  * silently dropped.
  */
-void ble_payload_cache_store(ble_payload_cache_t *cache,
-                             uint8_t screen_id,
-                             const uint8_t *body,
-                             uint16_t length,
-                             uint32_t now_ms);
+void ble_payload_cache_store(ble_payload_cache_t *cache, uint8_t screen_id, const uint8_t *body,
+                             uint16_t length, uint32_t now_ms);
 
 /*
  * Returns a read-only pointer to the cached entry for `screen_id`, or NULL
@@ -133,18 +129,16 @@ void ble_payload_cache_store(ble_payload_cache_t *cache,
  * is owned by the cache and remains valid until the next store/init for
  * that slot.
  */
-const ble_payload_cache_entry_t *ble_payload_cache_get(
-    const ble_payload_cache_t *cache, uint8_t screen_id);
+const ble_payload_cache_entry_t *ble_payload_cache_get(const ble_payload_cache_t *cache,
+                                                       uint8_t screen_id);
 
 /*
  * Returns true iff the entry for `screen_id` is missing OR older than
  * `stale_threshold_ms` relative to `now_ms`. A "never seen" slot counts as
  * stale. Out-of-range ids are reported as stale.
  */
-bool ble_payload_cache_is_stale(const ble_payload_cache_t *cache,
-                                uint8_t screen_id,
-                                uint32_t now_ms,
-                                uint32_t stale_threshold_ms);
+bool ble_payload_cache_is_stale(const ble_payload_cache_t *cache, uint8_t screen_id,
+                                uint32_t now_ms, uint32_t stale_threshold_ms);
 
 #ifdef __cplusplus
 }

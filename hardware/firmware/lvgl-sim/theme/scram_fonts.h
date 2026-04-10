@@ -17,9 +17,9 @@
 
 #include "lvgl.h"
 
-#define SCRAM_FONT_HERO    (&lv_font_montserrat_48)
-#define SCRAM_FONT_VALUE   (&lv_font_montserrat_24)
-#define SCRAM_FONT_LABEL   (&lv_font_montserrat_16)
-#define SCRAM_FONT_SMALL   (&lv_font_montserrat_12)
+#define SCRAM_FONT_HERO  (&lv_font_montserrat_48)
+#define SCRAM_FONT_VALUE (&lv_font_montserrat_24)
+#define SCRAM_FONT_LABEL (&lv_font_montserrat_16)
+#define SCRAM_FONT_SMALL (&lv_font_montserrat_12)
 
 #endif /* SCRAM_FONTS_H */

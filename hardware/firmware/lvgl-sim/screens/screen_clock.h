@@ -16,8 +16,6 @@
  *   - Location + temperature (e.g. "Basel — 18°C")
  *   - Status dots (BLE, WiFi)
  */
-void screen_clock_create(lv_obj_t *parent,
-                         const ble_clock_data_t *data,
-                         uint8_t flags);
+void screen_clock_create(lv_obj_t *parent, const ble_clock_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_CLOCK_H */

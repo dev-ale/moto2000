@@ -29,17 +29,15 @@
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_fuel_create(lv_obj_t *parent,
-                        const ble_fuel_data_t *data,
-                        uint8_t flags)
+void screen_fuel_create(lv_obj_t *parent, const ble_fuel_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted  = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_fill   = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_ORANGE;
-    lv_color_t col_blue   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_BLUE;
-    lv_color_t col_dark   = night ? lv_color_hex(0x110000)  : lv_color_hex(0x1A1A1A);
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_fill = night ? SCRAM_COLOR_RED : SCRAM_COLOR_ORANGE;
+    lv_color_t col_blue = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
+    lv_color_t col_dark = night ? lv_color_hex(0x110000) : lv_color_hex(0x1A1A1A);
 
     (void)flags;
 
@@ -57,7 +55,7 @@ void screen_fuel_create(lv_obj_t *parent,
 
     /* --- Tank icon --- */
     /* Tank body: rounded rectangle outline. */
-    int tank_x = 183;   /* center x - half width */
+    int tank_x = 183; /* center x - half width */
     int tank_y = 85;
     int tank_w = 100;
     int tank_h = 120;
@@ -76,7 +74,8 @@ void screen_fuel_create(lv_obj_t *parent,
 
     /* Tank fill: rises from bottom proportional to tank_percent. */
     uint8_t pct = data->tank_percent;
-    if (pct > 100) pct = 100;
+    if (pct > 100)
+        pct = 100;
     int fill_h = (int)((tank_h - 4) * pct) / 100; /* -4 for border spacing */
 
     if (fill_h > 0) {
@@ -107,19 +106,17 @@ void screen_fuel_create(lv_obj_t *parent,
     lv_obj_t *lbl_pct = lv_label_create(parent);
     lv_label_set_text(lbl_pct, pct_buf);
     lv_obj_set_style_text_font(lbl_pct, SCRAM_FONT_VALUE, 0);
-    lv_obj_set_style_text_color(lbl_pct,
-        night ? SCRAM_COLOR_NIGHT_TEXT : lv_color_hex(0x1A1A1A), 0);
+    lv_obj_set_style_text_color(lbl_pct, night ? SCRAM_COLOR_NIGHT_TEXT : lv_color_hex(0x1A1A1A),
+                                0);
     lv_obj_set_style_text_align(lbl_pct, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_pct, LV_ALIGN_TOP_LEFT,
-                 tank_x + tank_w / 2 - 20, tank_y + tank_h / 2 - 12);
+    lv_obj_align(lbl_pct, LV_ALIGN_TOP_LEFT, tank_x + tank_w / 2 - 20, tank_y + tank_h / 2 - 12);
 
     /* --- Hero range --- */
     char range_buf[16];
     if (data->estimated_range_km == 0xFFFF) {
         snprintf(range_buf, sizeof(range_buf), "--");
     } else {
-        snprintf(range_buf, sizeof(range_buf), "%ukm",
-                 (unsigned)data->estimated_range_km);
+        snprintf(range_buf, sizeof(range_buf), "%ukm", (unsigned)data->estimated_range_km);
     }
 
     lv_obj_t *lbl_range = lv_label_create(parent);
@@ -153,8 +150,8 @@ void screen_fuel_create(lv_obj_t *parent,
         snprintf(cons_val_buf, sizeof(cons_val_buf), "--");
     } else {
         uint16_t l_per_100 = data->consumption_ml_per_km; /* ml/km * 100/1000 = /10 */
-        snprintf(cons_val_buf, sizeof(cons_val_buf), "%u.%uL",
-                 (unsigned)(l_per_100 / 10), (unsigned)(l_per_100 % 10));
+        snprintf(cons_val_buf, sizeof(cons_val_buf), "%u.%uL", (unsigned)(l_per_100 / 10),
+                 (unsigned)(l_per_100 % 10));
     }
 
     lv_obj_t *lbl_cons_val = lv_label_create(parent);
@@ -176,8 +173,8 @@ void screen_fuel_create(lv_obj_t *parent,
         snprintf(remain_val_buf, sizeof(remain_val_buf), "--");
     } else {
         uint16_t liters_x10 = data->fuel_remaining_ml / 100; /* ml/100 = dL, /10 = L */
-        snprintf(remain_val_buf, sizeof(remain_val_buf), "%u.%uL",
-                 (unsigned)(liters_x10 / 10), (unsigned)(liters_x10 % 10));
+        snprintf(remain_val_buf, sizeof(remain_val_buf), "%u.%uL", (unsigned)(liters_x10 / 10),
+                 (unsigned)(liters_x10 % 10));
     }
 
     lv_obj_t *lbl_remain_val = lv_label_create(parent);

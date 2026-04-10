@@ -18,8 +18,6 @@
  *   - Direction label (LEFT / RIGHT)
  *   - Max indicators for left and right
  */
-void screen_lean_angle_create(lv_obj_t *parent,
-                              const ble_lean_angle_data_t *data,
-                              uint8_t flags);
+void screen_lean_angle_create(lv_obj_t *parent, const ble_lean_angle_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_LEAN_ANGLE_H */

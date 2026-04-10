@@ -17,40 +17,40 @@
 extern "C" {
 #endif
 
-#define BLE_PROTOCOL_VERSION       ((uint8_t)0x01)
-#define BLE_PROTOCOL_HEADER_SIZE   ((size_t)8)
-#define BLE_PROTOCOL_NAV_BODY_SIZE ((size_t)56)
-#define BLE_PROTOCOL_CLOCK_BODY_SIZE ((size_t)12)
+#define BLE_PROTOCOL_VERSION                 ((uint8_t)0x01)
+#define BLE_PROTOCOL_HEADER_SIZE             ((size_t)8)
+#define BLE_PROTOCOL_NAV_BODY_SIZE           ((size_t)56)
+#define BLE_PROTOCOL_CLOCK_BODY_SIZE         ((size_t)12)
 #define BLE_PROTOCOL_SPEED_HEADING_BODY_SIZE ((size_t)8)
-#define BLE_PROTOCOL_COMPASS_BODY_SIZE ((size_t)8)
-#define BLE_PROTOCOL_TRIP_STATS_BODY_SIZE ((size_t)16)
-#define BLE_PROTOCOL_WEATHER_BODY_SIZE ((size_t)28)
-#define BLE_PROTOCOL_LEAN_ANGLE_BODY_SIZE ((size_t)8)
-#define BLE_PROTOCOL_MUSIC_BODY_SIZE ((size_t)86)
-#define BLE_PROTOCOL_APPOINTMENT_BODY_SIZE ((size_t)60)
-#define BLE_PROTOCOL_FUEL_BODY_SIZE ((size_t)8)
-#define BLE_PROTOCOL_ALTITUDE_BODY_SIZE ((size_t)128)
+#define BLE_PROTOCOL_COMPASS_BODY_SIZE       ((size_t)8)
+#define BLE_PROTOCOL_TRIP_STATS_BODY_SIZE    ((size_t)16)
+#define BLE_PROTOCOL_WEATHER_BODY_SIZE       ((size_t)28)
+#define BLE_PROTOCOL_LEAN_ANGLE_BODY_SIZE    ((size_t)8)
+#define BLE_PROTOCOL_MUSIC_BODY_SIZE         ((size_t)86)
+#define BLE_PROTOCOL_APPOINTMENT_BODY_SIZE   ((size_t)60)
+#define BLE_PROTOCOL_FUEL_BODY_SIZE          ((size_t)8)
+#define BLE_PROTOCOL_ALTITUDE_BODY_SIZE      ((size_t)128)
 #define BLE_PROTOCOL_INCOMING_CALL_BODY_SIZE ((size_t)32)
-#define BLE_PROTOCOL_BLITZER_BODY_SIZE ((size_t)8)
+#define BLE_PROTOCOL_BLITZER_BODY_SIZE       ((size_t)8)
 
 /* Altitude profile constants. */
-#define BLE_ALTITUDE_MAX_SAMPLES  60
-#define BLE_ALTITUDE_MIN_M        ((int16_t)-500)
-#define BLE_ALTITUDE_MAX_M        ((int16_t)9000)
+#define BLE_ALTITUDE_MAX_SAMPLES 60
+#define BLE_ALTITUDE_MIN_M       ((int16_t) - 500)
+#define BLE_ALTITUDE_MAX_M       ((int16_t)9000)
 
 /* Sentinel for unknown fuel estimate fields. */
 #define BLE_FUEL_UNKNOWN ((uint16_t)0xFFFFU)
 
 /* Appointment starts_in_minutes range. */
-#define BLE_APPOINTMENT_MIN_STARTS_IN_MINUTES ((int16_t)-1440)
+#define BLE_APPOINTMENT_MIN_STARTS_IN_MINUTES ((int16_t) - 1440)
 #define BLE_APPOINTMENT_MAX_STARTS_IN_MINUTES ((int16_t)10080)
 
 /* Maximum absolute lean angle (× 10) carried on the wire = ±90.0°. */
 #define BLE_LEAN_ANGLE_MAX_ABS_X10 ((int16_t)900)
 
 /* Flag bits carried in the music body flags byte. */
-#define BLE_MUSIC_FLAG_PLAYING        (1U << 0)
-#define BLE_MUSIC_FLAG_RESERVED_MASK  0xFEU
+#define BLE_MUSIC_FLAG_PLAYING       (1U << 0)
+#define BLE_MUSIC_FLAG_RESERVED_MASK 0xFEU
 
 /* Sentinel for unknown position / duration (e.g. live radio stream). */
 #define BLE_MUSIC_UNKNOWN_DURATION_OR_POSITION ((uint16_t)0xFFFFU)
@@ -63,44 +63,44 @@ extern "C" {
 #define BLE_COMPASS_TRUE_HEADING_UNKNOWN ((uint16_t)0xFFFFU)
 
 /* Flag bits carried in the header flags byte. */
-#define BLE_FLAG_ALERT      (1U << 0)
-#define BLE_FLAG_NIGHT_MODE (1U << 1)
-#define BLE_FLAG_STALE      (1U << 2)
+#define BLE_FLAG_ALERT         (1U << 0)
+#define BLE_FLAG_NIGHT_MODE    (1U << 1)
+#define BLE_FLAG_STALE         (1U << 2)
 #define BLE_FLAG_RESERVED_MASK 0xF8U
 
 typedef enum {
-    BLE_SCREEN_NAVIGATION    = 0x01,
+    BLE_SCREEN_NAVIGATION = 0x01,
     BLE_SCREEN_SPEED_HEADING = 0x02,
-    BLE_SCREEN_COMPASS       = 0x03,
-    BLE_SCREEN_WEATHER       = 0x04,
-    BLE_SCREEN_TRIP_STATS    = 0x05,
-    BLE_SCREEN_MUSIC         = 0x06,
-    BLE_SCREEN_LEAN_ANGLE    = 0x07,
-    BLE_SCREEN_BLITZER       = 0x08,
+    BLE_SCREEN_COMPASS = 0x03,
+    BLE_SCREEN_WEATHER = 0x04,
+    BLE_SCREEN_TRIP_STATS = 0x05,
+    BLE_SCREEN_MUSIC = 0x06,
+    BLE_SCREEN_LEAN_ANGLE = 0x07,
+    BLE_SCREEN_BLITZER = 0x08,
     BLE_SCREEN_INCOMING_CALL = 0x09,
     BLE_SCREEN_FUEL_ESTIMATE = 0x0A,
-    BLE_SCREEN_ALTITUDE      = 0x0B,
-    BLE_SCREEN_APPOINTMENT   = 0x0C,
-    BLE_SCREEN_CLOCK         = 0x0D,
+    BLE_SCREEN_ALTITUDE = 0x0B,
+    BLE_SCREEN_APPOINTMENT = 0x0C,
+    BLE_SCREEN_CLOCK = 0x0D,
 } ble_screen_id_t;
 
 typedef enum {
-    BLE_MANEUVER_NONE             = 0x00,
-    BLE_MANEUVER_STRAIGHT         = 0x01,
-    BLE_MANEUVER_SLIGHT_LEFT      = 0x02,
-    BLE_MANEUVER_LEFT             = 0x03,
-    BLE_MANEUVER_SHARP_LEFT       = 0x04,
-    BLE_MANEUVER_U_TURN_LEFT      = 0x05,
-    BLE_MANEUVER_SLIGHT_RIGHT     = 0x06,
-    BLE_MANEUVER_RIGHT            = 0x07,
-    BLE_MANEUVER_SHARP_RIGHT      = 0x08,
-    BLE_MANEUVER_U_TURN_RIGHT     = 0x09,
+    BLE_MANEUVER_NONE = 0x00,
+    BLE_MANEUVER_STRAIGHT = 0x01,
+    BLE_MANEUVER_SLIGHT_LEFT = 0x02,
+    BLE_MANEUVER_LEFT = 0x03,
+    BLE_MANEUVER_SHARP_LEFT = 0x04,
+    BLE_MANEUVER_U_TURN_LEFT = 0x05,
+    BLE_MANEUVER_SLIGHT_RIGHT = 0x06,
+    BLE_MANEUVER_RIGHT = 0x07,
+    BLE_MANEUVER_SHARP_RIGHT = 0x08,
+    BLE_MANEUVER_U_TURN_RIGHT = 0x09,
     BLE_MANEUVER_ROUNDABOUT_ENTER = 0x0A,
-    BLE_MANEUVER_ROUNDABOUT_EXIT  = 0x0B,
-    BLE_MANEUVER_MERGE            = 0x0C,
-    BLE_MANEUVER_FORK_LEFT        = 0x0D,
-    BLE_MANEUVER_FORK_RIGHT       = 0x0E,
-    BLE_MANEUVER_ARRIVE           = 0x0F,
+    BLE_MANEUVER_ROUNDABOUT_EXIT = 0x0B,
+    BLE_MANEUVER_MERGE = 0x0C,
+    BLE_MANEUVER_FORK_LEFT = 0x0D,
+    BLE_MANEUVER_FORK_RIGHT = 0x0E,
+    BLE_MANEUVER_ARRIVE = 0x0F,
 } ble_maneuver_t;
 
 typedef enum {
@@ -125,57 +125,57 @@ const char *ble_result_name(ble_result_t result);
 typedef struct {
     int64_t unix_time;
     int16_t tz_offset_minutes;
-    bool    is_24h;
+    bool is_24h;
 } ble_clock_data_t;
 
 typedef struct {
     uint16_t speed_kmh_x10;
     uint16_t heading_deg_x10;
-    int16_t  altitude_m;
-    int16_t  temperature_celsius_x10;
+    int16_t altitude_m;
+    int16_t temperature_celsius_x10;
 } ble_speed_heading_data_t;
 
 typedef enum {
-    BLE_WEATHER_CLEAR         = 0x00,
-    BLE_WEATHER_CLOUDY        = 0x01,
-    BLE_WEATHER_RAIN          = 0x02,
-    BLE_WEATHER_SNOW          = 0x03,
-    BLE_WEATHER_FOG           = 0x04,
-    BLE_WEATHER_THUNDERSTORM  = 0x05,
+    BLE_WEATHER_CLEAR = 0x00,
+    BLE_WEATHER_CLOUDY = 0x01,
+    BLE_WEATHER_RAIN = 0x02,
+    BLE_WEATHER_SNOW = 0x03,
+    BLE_WEATHER_FOG = 0x04,
+    BLE_WEATHER_THUNDERSTORM = 0x05,
 } ble_weather_condition_t;
 
 typedef struct {
     ble_weather_condition_t condition;
-    int16_t                 temperature_celsius_x10;
-    int16_t                 high_celsius_x10;
-    int16_t                 low_celsius_x10;
-    char                    location_name[20]; /* null-terminated UTF-8 */
+    int16_t temperature_celsius_x10;
+    int16_t high_celsius_x10;
+    int16_t low_celsius_x10;
+    char location_name[20]; /* null-terminated UTF-8 */
 } ble_weather_data_t;
 
 typedef struct {
     uint16_t magnetic_heading_deg_x10;
-    uint16_t true_heading_deg_x10;       /* 0xFFFF = unknown */
+    uint16_t true_heading_deg_x10; /* 0xFFFF = unknown */
     uint16_t heading_accuracy_deg_x10;
-    uint8_t  compass_flags;              /* bit 0 = BLE_COMPASS_FLAG_USE_TRUE_HEADING */
+    uint8_t compass_flags; /* bit 0 = BLE_COMPASS_FLAG_USE_TRUE_HEADING */
 } ble_compass_data_t;
 
 typedef struct {
-    int16_t  current_lean_deg_x10;       /* -900..=900, negative = left lean */
-    uint16_t max_left_lean_deg_x10;      /* 0..=900 unsigned magnitude */
-    uint16_t max_right_lean_deg_x10;     /* 0..=900 */
-    uint8_t  confidence_percent;         /* 0..=100 */
+    int16_t current_lean_deg_x10;    /* -900..=900, negative = left lean */
+    uint16_t max_left_lean_deg_x10;  /* 0..=900 unsigned magnitude */
+    uint16_t max_right_lean_deg_x10; /* 0..=900 */
+    uint8_t confidence_percent;      /* 0..=100 */
 } ble_lean_angle_data_t;
 
 typedef struct {
-    int32_t        latitude_e7;
-    int32_t        longitude_e7;
-    uint16_t       speed_kmh_x10;
-    uint16_t       heading_deg_x10;
-    uint16_t       distance_to_maneuver_m;
+    int32_t latitude_e7;
+    int32_t longitude_e7;
+    uint16_t speed_kmh_x10;
+    uint16_t heading_deg_x10;
+    uint16_t distance_to_maneuver_m;
     ble_maneuver_t maneuver;
-    char           street_name[32]; /* null-terminated UTF-8 */
-    uint16_t       eta_minutes;
-    uint16_t       remaining_km_x10;
+    char street_name[32]; /* null-terminated UTF-8 */
+    uint16_t eta_minutes;
+    uint16_t remaining_km_x10;
 } ble_nav_data_t;
 
 typedef struct {
@@ -188,131 +188,109 @@ typedef struct {
 } ble_trip_stats_data_t;
 
 typedef struct {
-    uint8_t  music_flags;               /* bit 0 = BLE_MUSIC_FLAG_PLAYING */
-    uint16_t position_seconds;          /* 0xFFFF = unknown */
-    uint16_t duration_seconds;          /* 0xFFFF = unknown */
-    char     title[32];                 /* null-terminated UTF-8 */
-    char     artist[24];                /* null-terminated UTF-8 */
-    char     album[24];                 /* null-terminated UTF-8 */
+    uint8_t music_flags;       /* bit 0 = BLE_MUSIC_FLAG_PLAYING */
+    uint16_t position_seconds; /* 0xFFFF = unknown */
+    uint16_t duration_seconds; /* 0xFFFF = unknown */
+    char title[32];            /* null-terminated UTF-8 */
+    char artist[24];           /* null-terminated UTF-8 */
+    char album[24];            /* null-terminated UTF-8 */
 } ble_music_data_t;
 
 typedef struct {
-    int16_t starts_in_minutes;          /* -1440..=10080 */
-    char    title[32];                  /* null-terminated UTF-8 */
-    char    location[24];               /* null-terminated UTF-8 */
+    int16_t starts_in_minutes; /* -1440..=10080 */
+    char title[32];            /* null-terminated UTF-8 */
+    char location[24];         /* null-terminated UTF-8 */
 } ble_appointment_data_t;
 
 typedef struct {
-    uint8_t  tank_percent;              /* 0..100 */
-    uint16_t estimated_range_km;        /* 0xFFFF = unknown */
-    uint16_t consumption_ml_per_km;     /* 0xFFFF = unknown */
-    uint16_t fuel_remaining_ml;         /* 0xFFFF = unknown */
+    uint8_t tank_percent;           /* 0..100 */
+    uint16_t estimated_range_km;    /* 0xFFFF = unknown */
+    uint16_t consumption_ml_per_km; /* 0xFFFF = unknown */
+    uint16_t fuel_remaining_ml;     /* 0xFFFF = unknown */
 } ble_fuel_data_t;
 
 typedef struct {
-    int16_t  current_altitude_m;        /* -500..=9000 */
+    int16_t current_altitude_m; /* -500..=9000 */
     uint16_t total_ascent_m;
     uint16_t total_descent_m;
-    uint8_t  sample_count;              /* 0..=60 */
-    int16_t  profile[60];               /* altitude samples in meters */
+    uint8_t sample_count; /* 0..=60 */
+    int16_t profile[60];  /* altitude samples in meters */
 } ble_altitude_profile_data_t;
 
 typedef enum {
-    BLE_CALL_INCOMING  = 0,
+    BLE_CALL_INCOMING = 0,
     BLE_CALL_CONNECTED = 1,
-    BLE_CALL_ENDED     = 2,
+    BLE_CALL_ENDED = 2,
 } ble_call_state_t;
 
 typedef struct {
     ble_call_state_t call_state;
-    char             caller_handle[30]; /* null-terminated UTF-8 */
+    char caller_handle[30]; /* null-terminated UTF-8 */
 } ble_incoming_call_data_t;
 
 typedef enum {
-    BLE_CAMERA_TYPE_FIXED     = 0x00,
-    BLE_CAMERA_TYPE_MOBILE    = 0x01,
+    BLE_CAMERA_TYPE_FIXED = 0x00,
+    BLE_CAMERA_TYPE_MOBILE = 0x01,
     BLE_CAMERA_TYPE_RED_LIGHT = 0x02,
-    BLE_CAMERA_TYPE_SECTION   = 0x03,
-    BLE_CAMERA_TYPE_UNKNOWN   = 0x04,
+    BLE_CAMERA_TYPE_SECTION = 0x03,
+    BLE_CAMERA_TYPE_UNKNOWN = 0x04,
 } ble_camera_type_t;
 
 /* Sentinel for unknown speed limit at a camera. */
 #define BLE_BLITZER_UNKNOWN_SPEED_LIMIT ((uint16_t)0xFFFFU)
 
 typedef struct {
-    uint16_t          distance_meters;
-    uint16_t          speed_limit_kmh;       /* 0xFFFF = unknown */
-    uint16_t          current_speed_kmh_x10;
+    uint16_t distance_meters;
+    uint16_t speed_limit_kmh; /* 0xFFFF = unknown */
+    uint16_t current_speed_kmh_x10;
     ble_camera_type_t camera_type;
 } ble_blitzer_data_t;
 
 typedef struct {
     ble_screen_id_t screen_id;
-    uint8_t         flags;
-    uint16_t        body_length;
-    const uint8_t  *body;
+    uint8_t flags;
+    uint16_t body_length;
+    const uint8_t *body;
 } ble_header_t;
 
 /*
  * Low-level header decoding. Validates version, reserved, and flags
  * reserved bits. Sets out_header->body to point inside `data`.
  */
-ble_result_t ble_decode_header(const uint8_t *data,
-                               size_t         length,
-                               ble_header_t  *out_header);
+ble_result_t ble_decode_header(const uint8_t *data, size_t length, ble_header_t *out_header);
 
 /*
  * High-level screen decoders. They validate the header, check body length
  * against the expected size for the screen, and then decode the body.
  */
-ble_result_t ble_decode_clock(const uint8_t    *data,
-                              size_t            length,
-                              uint8_t          *out_flags,
+ble_result_t ble_decode_clock(const uint8_t *data, size_t length, uint8_t *out_flags,
                               ble_clock_data_t *out_clock);
 
-ble_result_t ble_decode_nav(const uint8_t  *data,
-                            size_t          length,
-                            uint8_t        *out_flags,
+ble_result_t ble_decode_nav(const uint8_t *data, size_t length, uint8_t *out_flags,
                             ble_nav_data_t *out_nav);
 
-ble_result_t ble_decode_speed_heading(const uint8_t             *data,
-                                      size_t                     length,
-                                      uint8_t                   *out_flags,
-                                      ble_speed_heading_data_t  *out);
+ble_result_t ble_decode_speed_heading(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                      ble_speed_heading_data_t *out);
 
 /*
  * Encoders. `out_buf` must point to a buffer of at least
  * BLE_PROTOCOL_HEADER_SIZE + body_size bytes. On success, *out_written is
  * set to the number of bytes written.
  */
-ble_result_t ble_encode_clock(const ble_clock_data_t *clock,
-                              uint8_t                 flags,
-                              uint8_t                *out_buf,
-                              size_t                  out_cap,
-                              size_t                 *out_written);
+ble_result_t ble_encode_clock(const ble_clock_data_t *clock, uint8_t flags, uint8_t *out_buf,
+                              size_t out_cap, size_t *out_written);
 
-ble_result_t ble_encode_nav(const ble_nav_data_t *nav,
-                            uint8_t               flags,
-                            uint8_t              *out_buf,
-                            size_t                out_cap,
-                            size_t               *out_written);
+ble_result_t ble_encode_nav(const ble_nav_data_t *nav, uint8_t flags, uint8_t *out_buf,
+                            size_t out_cap, size_t *out_written);
 
-ble_result_t ble_encode_speed_heading(const ble_speed_heading_data_t *in,
-                                      uint8_t                         flags,
-                                      uint8_t                        *out_buf,
-                                      size_t                          out_cap,
-                                      size_t                         *out_written);
+ble_result_t ble_encode_speed_heading(const ble_speed_heading_data_t *in, uint8_t flags,
+                                      uint8_t *out_buf, size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_compass(const uint8_t      *data,
-                                size_t              length,
-                                uint8_t            *out_flags,
+ble_result_t ble_decode_compass(const uint8_t *data, size_t length, uint8_t *out_flags,
                                 ble_compass_data_t *out_compass);
 
-ble_result_t ble_encode_compass(const ble_compass_data_t *in,
-                                uint8_t                   flags,
-                                uint8_t                  *out_buf,
-                                size_t                    out_cap,
-                                size_t                   *out_written);
+ble_result_t ble_encode_compass(const ble_compass_data_t *in, uint8_t flags, uint8_t *out_buf,
+                                size_t out_cap, size_t *out_written);
 
 /* ----- Control characteristic (Slice 5) -------------------------------- */
 
@@ -320,11 +298,11 @@ ble_result_t ble_encode_compass(const ble_compass_data_t *in,
 
 typedef enum {
     BLE_CONTROL_CMD_SET_ACTIVE_SCREEN = 0x01,
-    BLE_CONTROL_CMD_SET_BRIGHTNESS    = 0x02,
-    BLE_CONTROL_CMD_SLEEP             = 0x03,
-    BLE_CONTROL_CMD_WAKE              = 0x04,
-    BLE_CONTROL_CMD_CLEAR_ALERT       = 0x05,
-    BLE_CONTROL_CMD_CHECK_OTA_UPDATE  = 0x06,
+    BLE_CONTROL_CMD_SET_BRIGHTNESS = 0x02,
+    BLE_CONTROL_CMD_SLEEP = 0x03,
+    BLE_CONTROL_CMD_WAKE = 0x04,
+    BLE_CONTROL_CMD_CLEAR_ALERT = 0x05,
+    BLE_CONTROL_CMD_CHECK_OTA_UPDATE = 0x06,
 } ble_control_command_t;
 
 typedef struct {
@@ -340,117 +318,69 @@ typedef struct {
  * BLE_CONTROL_PAYLOAD_SIZE bytes. On success, *out_written is set to
  * BLE_CONTROL_PAYLOAD_SIZE.
  */
-ble_result_t ble_encode_control(const ble_control_payload_t *in,
-                                uint8_t                     *out_buf,
-                                size_t                       out_cap,
-                                size_t                      *out_written);
+ble_result_t ble_encode_control(const ble_control_payload_t *in, uint8_t *out_buf, size_t out_cap,
+                                size_t *out_written);
 
 /*
  * Decode a 4-byte control command. Returns BLE_OK and fills out_payload on
  * success.
  */
-ble_result_t ble_decode_control(const uint8_t         *data,
-                                size_t                 length,
+ble_result_t ble_decode_control(const uint8_t *data, size_t length,
                                 ble_control_payload_t *out_payload);
 
-ble_result_t ble_decode_trip_stats(const uint8_t            *data,
-                                   size_t                    length,
-                                   uint8_t                  *out_flags,
-                                   ble_trip_stats_data_t    *out);
+ble_result_t ble_decode_trip_stats(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                   ble_trip_stats_data_t *out);
 
-ble_result_t ble_encode_trip_stats(const ble_trip_stats_data_t *in,
-                                   uint8_t                      flags,
-                                   uint8_t                     *out_buf,
-                                   size_t                       out_cap,
-                                   size_t                      *out_written);
+ble_result_t ble_encode_trip_stats(const ble_trip_stats_data_t *in, uint8_t flags, uint8_t *out_buf,
+                                   size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_weather(const uint8_t      *data,
-                                size_t              length,
-                                uint8_t            *out_flags,
+ble_result_t ble_decode_weather(const uint8_t *data, size_t length, uint8_t *out_flags,
                                 ble_weather_data_t *out);
 
-ble_result_t ble_encode_weather(const ble_weather_data_t *in,
-                                uint8_t                   flags,
-                                uint8_t                  *out_buf,
-                                size_t                    out_cap,
-                                size_t                   *out_written);
+ble_result_t ble_encode_weather(const ble_weather_data_t *in, uint8_t flags, uint8_t *out_buf,
+                                size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_lean_angle(const uint8_t            *data,
-                                   size_t                    length,
-                                   uint8_t                  *out_flags,
-                                   ble_lean_angle_data_t    *out);
+ble_result_t ble_decode_lean_angle(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                   ble_lean_angle_data_t *out);
 
-ble_result_t ble_encode_lean_angle(const ble_lean_angle_data_t *in,
-                                   uint8_t                      flags,
-                                   uint8_t                     *out_buf,
-                                   size_t                       out_cap,
-                                   size_t                      *out_written);
+ble_result_t ble_encode_lean_angle(const ble_lean_angle_data_t *in, uint8_t flags, uint8_t *out_buf,
+                                   size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_music(const uint8_t    *data,
-                              size_t            length,
-                              uint8_t          *out_flags,
+ble_result_t ble_decode_music(const uint8_t *data, size_t length, uint8_t *out_flags,
                               ble_music_data_t *out);
 
-ble_result_t ble_encode_music(const ble_music_data_t *in,
-                              uint8_t                 flags,
-                              uint8_t                *out_buf,
-                              size_t                  out_cap,
-                              size_t                 *out_written);
+ble_result_t ble_encode_music(const ble_music_data_t *in, uint8_t flags, uint8_t *out_buf,
+                              size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_appointment(const uint8_t              *data,
-                                    size_t                      length,
-                                    uint8_t                    *out_flags,
-                                    ble_appointment_data_t     *out);
+ble_result_t ble_decode_appointment(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                    ble_appointment_data_t *out);
 
-ble_result_t ble_encode_appointment(const ble_appointment_data_t *in,
-                                    uint8_t                       flags,
-                                    uint8_t                      *out_buf,
-                                    size_t                        out_cap,
-                                    size_t                       *out_written);
+ble_result_t ble_encode_appointment(const ble_appointment_data_t *in, uint8_t flags,
+                                    uint8_t *out_buf, size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_fuel(const uint8_t      *data,
-                             size_t              length,
-                             uint8_t            *out_flags,
-                             ble_fuel_data_t    *out);
+ble_result_t ble_decode_fuel(const uint8_t *data, size_t length, uint8_t *out_flags,
+                             ble_fuel_data_t *out);
 
-ble_result_t ble_encode_fuel(const ble_fuel_data_t *in,
-                             uint8_t                flags,
-                             uint8_t               *out_buf,
-                             size_t                 out_cap,
-                             size_t                *out_written);
+ble_result_t ble_encode_fuel(const ble_fuel_data_t *in, uint8_t flags, uint8_t *out_buf,
+                             size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_altitude(const uint8_t                  *data,
-                                 size_t                          length,
-                                 uint8_t                        *out_flags,
-                                 ble_altitude_profile_data_t    *out);
+ble_result_t ble_decode_altitude(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                 ble_altitude_profile_data_t *out);
 
-ble_result_t ble_encode_altitude(const ble_altitude_profile_data_t *in,
-                                 uint8_t                            flags,
-                                 uint8_t                           *out_buf,
-                                 size_t                             out_cap,
-                                 size_t                            *out_written);
+ble_result_t ble_encode_altitude(const ble_altitude_profile_data_t *in, uint8_t flags,
+                                 uint8_t *out_buf, size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_incoming_call(const uint8_t              *data,
-                                      size_t                      length,
-                                      uint8_t                    *out_flags,
-                                      ble_incoming_call_data_t   *out_call);
+ble_result_t ble_decode_incoming_call(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                      ble_incoming_call_data_t *out_call);
 
-ble_result_t ble_encode_incoming_call(const ble_incoming_call_data_t *in,
-                                      uint8_t                         flags,
-                                      uint8_t                        *out_buf,
-                                      size_t                          out_cap,
-                                      size_t                         *out_written);
+ble_result_t ble_encode_incoming_call(const ble_incoming_call_data_t *in, uint8_t flags,
+                                      uint8_t *out_buf, size_t out_cap, size_t *out_written);
 
-ble_result_t ble_decode_blitzer(const uint8_t          *data,
-                                size_t                  length,
-                                uint8_t                *out_flags,
-                                ble_blitzer_data_t     *out_blitzer);
+ble_result_t ble_decode_blitzer(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                ble_blitzer_data_t *out_blitzer);
 
-ble_result_t ble_encode_blitzer(const ble_blitzer_data_t *in,
-                                uint8_t                   flags,
-                                uint8_t                  *out_buf,
-                                size_t                    out_cap,
-                                size_t                   *out_written);
+ble_result_t ble_encode_blitzer(const ble_blitzer_data_t *in, uint8_t flags, uint8_t *out_buf,
+                                size_t out_cap, size_t *out_written);
 
 #ifdef __cplusplus
 }

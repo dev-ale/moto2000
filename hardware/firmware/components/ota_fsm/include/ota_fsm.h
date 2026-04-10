@@ -25,50 +25,50 @@ extern "C" {
 #endif
 
 typedef enum {
-    OTA_STATE_IDLE       = 0,
-    OTA_STATE_CHECKING   = 1,
+    OTA_STATE_IDLE = 0,
+    OTA_STATE_CHECKING = 1,
     OTA_STATE_DOWNLOADING = 2,
-    OTA_STATE_VERIFYING  = 3,
-    OTA_STATE_APPLYING   = 4,
-    OTA_STATE_REBOOTING  = 5,
+    OTA_STATE_VERIFYING = 3,
+    OTA_STATE_APPLYING = 4,
+    OTA_STATE_REBOOTING = 5,
     OTA_STATE_CONFIRMING = 6,
-    OTA_STATE_ROLLBACK   = 7,
-    OTA_STATE_ERROR      = 8,
+    OTA_STATE_ROLLBACK = 7,
+    OTA_STATE_ERROR = 8,
 } ota_state_t;
 
 typedef enum {
-    OTA_EVENT_CHECK_REQUESTED  = 0,
+    OTA_EVENT_CHECK_REQUESTED = 0,
     OTA_EVENT_VERSION_AVAILABLE = 1,
-    OTA_EVENT_NO_UPDATE        = 2,
+    OTA_EVENT_NO_UPDATE = 2,
     OTA_EVENT_DOWNLOAD_COMPLETE = 3,
-    OTA_EVENT_DOWNLOAD_FAILED  = 4,
-    OTA_EVENT_VERIFY_OK        = 5,
-    OTA_EVENT_VERIFY_FAILED    = 6,
-    OTA_EVENT_APPLY_OK         = 7,
-    OTA_EVENT_APPLY_FAILED     = 8,
-    OTA_EVENT_BOOT_CONFIRMED   = 9,
-    OTA_EVENT_BOOT_FAILED      = 10,
-    OTA_EVENT_RESET            = 11,
+    OTA_EVENT_DOWNLOAD_FAILED = 4,
+    OTA_EVENT_VERIFY_OK = 5,
+    OTA_EVENT_VERIFY_FAILED = 6,
+    OTA_EVENT_APPLY_OK = 7,
+    OTA_EVENT_APPLY_FAILED = 8,
+    OTA_EVENT_BOOT_CONFIRMED = 9,
+    OTA_EVENT_BOOT_FAILED = 10,
+    OTA_EVENT_RESET = 11,
 } ota_event_t;
 
 typedef enum {
-    OTA_ACTION_NONE          = 0,
-    OTA_ACTION_START_CHECK   = 1,
+    OTA_ACTION_NONE = 0,
+    OTA_ACTION_START_CHECK = 1,
     OTA_ACTION_START_DOWNLOAD = 2,
-    OTA_ACTION_START_VERIFY  = 3,
-    OTA_ACTION_START_APPLY   = 4,
-    OTA_ACTION_REBOOT        = 5,
-    OTA_ACTION_CONFIRM_BOOT  = 6,
-    OTA_ACTION_ROLLBACK      = 7,
-    OTA_ACTION_REPORT_ERROR  = 8,
+    OTA_ACTION_START_VERIFY = 3,
+    OTA_ACTION_START_APPLY = 4,
+    OTA_ACTION_REBOOT = 5,
+    OTA_ACTION_CONFIRM_BOOT = 6,
+    OTA_ACTION_ROLLBACK = 7,
+    OTA_ACTION_REPORT_ERROR = 8,
 } ota_action_t;
 
 #define OTA_DEFAULT_MAX_RETRIES ((uint8_t)3)
 
 typedef struct {
     ota_state_t state;
-    uint8_t     retry_count;
-    uint8_t     max_retries; /* default 3 */
+    uint8_t retry_count;
+    uint8_t max_retries; /* default 3 */
 } ota_fsm_t;
 
 /*

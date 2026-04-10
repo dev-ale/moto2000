@@ -74,21 +74,21 @@ static void test_graph_x_singleSample_centresHorizontally(void)
 
 static void test_format_altitude_positive(void)
 {
-    char buf[12] = {0};
+    char buf[12] = { 0 };
     format_altitude_label(2400, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("2400M", buf);
 }
 
 static void test_format_altitude_negative(void)
 {
-    char buf[12] = {0};
+    char buf[12] = { 0 };
     format_altitude_label(-50, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("-50M", buf);
 }
 
 static void test_format_altitude_zero(void)
 {
-    char buf[12] = {0};
+    char buf[12] = { 0 };
     format_altitude_label(0, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("0M", buf);
 }
@@ -97,21 +97,21 @@ static void test_format_altitude_zero(void)
 
 static void test_format_delta_ascent(void)
 {
-    char buf[12] = {0};
+    char buf[12] = { 0 };
     format_altitude_delta(1900, 1, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("+1900M", buf);
 }
 
 static void test_format_delta_descent(void)
 {
-    char buf[12] = {0};
+    char buf[12] = { 0 };
     format_altitude_delta(600, 0, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("-600M", buf);
 }
 
 static void test_format_delta_zero_ascent(void)
 {
-    char buf[12] = {0};
+    char buf[12] = { 0 };
     format_altitude_delta(0, 1, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("+0M", buf);
 }

@@ -18,8 +18,6 @@
  *   - Camera type label
  *   - Speed comparison pill (current -> limit)
  */
-void screen_blitzer_create(lv_obj_t *parent,
-                           const ble_blitzer_data_t *data,
-                           uint8_t flags);
+void screen_blitzer_create(lv_obj_t *parent, const ble_blitzer_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_BLITZER_H */

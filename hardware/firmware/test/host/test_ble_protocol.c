@@ -27,7 +27,7 @@
 
 typedef struct {
     uint8_t bytes[MAX_FIXTURE_BYTES];
-    size_t  length;
+    size_t length;
 } fixture_blob_t;
 
 void setUp(void) {}
@@ -60,13 +60,13 @@ static void assert_clock_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t          flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_clock_data_t clock;
     const ble_result_t decoded = ble_decode_clock(blob.bytes, blob.length, &flags, &clock);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded = ble_encode_clock(&clock, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
     TEST_ASSERT_EQUAL_size_t(blob.length, written);
@@ -78,14 +78,14 @@ static void assert_speed_heading_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t                  flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_speed_heading_data_t decoded_body;
-    const ble_result_t       decoded =
+    const ble_result_t decoded =
         ble_decode_speed_heading(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_speed_heading(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -98,14 +98,13 @@ static void assert_compass_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t            flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_compass_data_t decoded_body;
-    const ble_result_t decoded =
-        ble_decode_compass(blob.bytes, blob.length, &flags, &decoded_body);
+    const ble_result_t decoded = ble_decode_compass(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_compass(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -118,14 +117,14 @@ static void assert_trip_stats_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t               flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_trip_stats_data_t decoded_body;
-    const ble_result_t    decoded =
+    const ble_result_t decoded =
         ble_decode_trip_stats(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_trip_stats(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -138,16 +137,14 @@ static void assert_weather_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t            flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_weather_data_t weather;
-    const ble_result_t decoded =
-        ble_decode_weather(blob.bytes, blob.length, &flags, &weather);
+    const ble_result_t decoded = ble_decode_weather(blob.bytes, blob.length, &flags, &weather);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
-    const ble_result_t encoded =
-        ble_encode_weather(&weather, flags, out, sizeof(out), &written);
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
+    const ble_result_t encoded = ble_encode_weather(&weather, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
     TEST_ASSERT_EQUAL_size_t(blob.length, written);
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
@@ -158,16 +155,14 @@ static void assert_music_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t            flags = 0xFF;
-    ble_music_data_t   decoded_body;
-    const ble_result_t decoded =
-        ble_decode_music(blob.bytes, blob.length, &flags, &decoded_body);
+    uint8_t flags = 0xFF;
+    ble_music_data_t decoded_body;
+    const ble_result_t decoded = ble_decode_music(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
-    const ble_result_t encoded =
-        ble_encode_music(&decoded_body, flags, out, sizeof(out), &written);
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
+    const ble_result_t encoded = ble_encode_music(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
     TEST_ASSERT_EQUAL_size_t(blob.length, written);
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
@@ -178,13 +173,13 @@ static void assert_nav_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t        flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_nav_data_t nav;
     const ble_result_t decoded = ble_decode_nav(blob.bytes, blob.length, &flags, &nav);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded = ble_encode_nav(&nav, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
     TEST_ASSERT_EQUAL_size_t(blob.length, written);
@@ -266,8 +261,7 @@ static void test_trip_stats_speed_out_of_range_fixture_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "trip_stats_speed_out_of_range", &blob));
     ble_trip_stats_data_t body;
-    const ble_result_t    result =
-        ble_decode_trip_stats(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_trip_stats(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -301,8 +295,7 @@ static void test_weather_over_max_temp_fixture_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "weather_over_max_temp", &blob));
     ble_weather_data_t body;
-    const ble_result_t result =
-        ble_decode_weather(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_weather(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -331,8 +324,7 @@ static void test_music_title_too_long_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "music_title_too_long", &blob));
     ble_music_data_t body;
-    const ble_result_t result =
-        ble_decode_music(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_music(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_UNTERMINATED_STRING, result, ble_result_name(result));
 }
 
@@ -341,8 +333,7 @@ static void test_compass_out_of_range_fixture_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "compass_out_of_range", &blob));
     ble_compass_data_t body;
-    const ble_result_t result =
-        ble_decode_compass(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_compass(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -351,14 +342,14 @@ static void assert_lean_angle_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t               flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_lean_angle_data_t decoded_body;
-    const ble_result_t    decoded =
+    const ble_result_t decoded =
         ble_decode_lean_angle(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_lean_angle(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -391,8 +382,7 @@ static void test_lean_over_max_fixture_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "lean_over_max", &blob));
     ble_lean_angle_data_t body;
-    const ble_result_t    result =
-        ble_decode_lean_angle(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_lean_angle(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -401,14 +391,14 @@ static void assert_appointment_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t                flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_appointment_data_t decoded_body;
-    const ble_result_t     decoded =
+    const ble_result_t decoded =
         ble_decode_appointment(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_appointment(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -436,8 +426,7 @@ static void test_appointment_title_too_long_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "appointment_title_too_long", &blob));
     ble_appointment_data_t body;
-    const ble_result_t     result =
-        ble_decode_appointment(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_appointment(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_UNTERMINATED_STRING, result, ble_result_name(result));
 }
 
@@ -446,7 +435,7 @@ static void test_appointment_title_too_long_rejected(void)
 /* ------------------------------------------------------------------------- */
 
 typedef struct {
-    const char  *name;
+    const char *name;
     ble_result_t expected;
 } invalid_case_t;
 
@@ -455,13 +444,13 @@ typedef struct {
  * Keep them in sync with the Swift InvalidFixtureTests mapping.
  */
 static const invalid_case_t INVALID_CASES[] = {
-    {"truncated_header",     BLE_ERR_TRUNCATED_HEADER},
-    {"unsupported_version",  BLE_ERR_UNSUPPORTED_VERSION},
-    {"nonzero_reserved",     BLE_ERR_INVALID_RESERVED},
-    {"unknown_screen_id",    BLE_ERR_UNKNOWN_SCREEN_ID},
-    {"body_length_mismatch", BLE_ERR_BODY_LENGTH_MISMATCH},
-    {"truncated_body",       BLE_ERR_TRUNCATED_BODY},
-    {"reserved_flags_set",   BLE_ERR_RESERVED_FLAGS_SET},
+    { "truncated_header", BLE_ERR_TRUNCATED_HEADER },
+    { "unsupported_version", BLE_ERR_UNSUPPORTED_VERSION },
+    { "nonzero_reserved", BLE_ERR_INVALID_RESERVED },
+    { "unknown_screen_id", BLE_ERR_UNKNOWN_SCREEN_ID },
+    { "body_length_mismatch", BLE_ERR_BODY_LENGTH_MISMATCH },
+    { "truncated_body", BLE_ERR_TRUNCATED_BODY },
+    { "reserved_flags_set", BLE_ERR_RESERVED_FLAGS_SET },
 };
 
 /*
@@ -474,8 +463,7 @@ static void test_speed_heading_out_of_range_fixture_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "speed_heading_out_of_range", &blob));
     ble_speed_heading_data_t body;
-    const ble_result_t       result =
-        ble_decode_speed_heading(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_speed_heading(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -485,13 +473,12 @@ static void test_invalid_fixtures_are_rejected(void)
     for (size_t i = 0; i < count; ++i) {
         fixture_blob_t blob;
         TEST_ASSERT_TRUE_MESSAGE(load_fixture("invalid", INVALID_CASES[i].name, &blob),
-                                  INVALID_CASES[i].name);
+                                 INVALID_CASES[i].name);
         ble_header_t header;
         const ble_result_t decoded = ble_decode_header(blob.bytes, blob.length, &header);
         char message[128];
         snprintf(message, sizeof(message), "fixture %s produced %s, expected %s",
-                 INVALID_CASES[i].name,
-                 ble_result_name(decoded),
+                 INVALID_CASES[i].name, ble_result_name(decoded),
                  ble_result_name(INVALID_CASES[i].expected));
         TEST_ASSERT_EQUAL_MESSAGE(INVALID_CASES[i].expected, decoded, message);
     }
@@ -504,20 +491,18 @@ static void test_invalid_fixtures_are_rejected(void)
 static void assert_control_fixture_roundtrips(const char *name)
 {
     fixture_blob_t blob;
-    char           subdir[64];
+    char subdir[64];
     snprintf(subdir, sizeof(subdir), "control/valid");
     TEST_ASSERT_TRUE_MESSAGE(load_fixture(subdir, name, &blob), name);
     TEST_ASSERT_EQUAL_size_t(BLE_CONTROL_PAYLOAD_SIZE, blob.length);
 
     ble_control_payload_t payload;
-    const ble_result_t    decoded =
-        ble_decode_control(blob.bytes, blob.length, &payload);
+    const ble_result_t decoded = ble_decode_control(blob.bytes, blob.length, &payload);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[BLE_CONTROL_PAYLOAD_SIZE] = {0};
-    size_t  written                       = 0;
-    const ble_result_t encoded =
-        ble_encode_control(&payload, out, sizeof(out), &written);
+    uint8_t out[BLE_CONTROL_PAYLOAD_SIZE] = { 0 };
+    size_t written = 0;
+    const ble_result_t encoded = ble_encode_control(&payload, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
     TEST_ASSERT_EQUAL_size_t(blob.length, written);
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
@@ -563,8 +548,7 @@ static void test_control_unknown_command_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("control/invalid", "unknown_command", &blob));
     ble_control_payload_t payload;
-    const ble_result_t    result =
-        ble_decode_control(blob.bytes, blob.length, &payload);
+    const ble_result_t result = ble_decode_control(blob.bytes, blob.length, &payload);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_UNKNOWN_COMMAND, result, ble_result_name(result));
 }
 
@@ -573,15 +557,13 @@ static void test_control_brightness_over_100_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("control/invalid", "brightness_over_100", &blob));
     ble_control_payload_t payload;
-    const ble_result_t    result =
-        ble_decode_control(blob.bytes, blob.length, &payload);
-    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_INVALID_COMMAND_VALUE, result,
-                              ble_result_name(result));
+    const ble_result_t result = ble_decode_control(blob.bytes, blob.length, &payload);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_INVALID_COMMAND_VALUE, result, ble_result_name(result));
 }
 
 static void test_control_truncated_rejected(void)
 {
-    const uint8_t bytes[3]   = {0x01, 0x01, 0x0D};
+    const uint8_t bytes[3] = { 0x01, 0x01, 0x0D };
     ble_control_payload_t p;
     const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
     TEST_ASSERT_EQUAL(BLE_ERR_TRUNCATED_HEADER, result);
@@ -589,7 +571,7 @@ static void test_control_truncated_rejected(void)
 
 static void test_control_unsupported_version_rejected(void)
 {
-    const uint8_t bytes[4]   = {0x02, 0x01, 0x0D, 0x00};
+    const uint8_t bytes[4] = { 0x02, 0x01, 0x0D, 0x00 };
     ble_control_payload_t p;
     const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
     TEST_ASSERT_EQUAL(BLE_ERR_UNSUPPORTED_VERSION, result);
@@ -597,7 +579,7 @@ static void test_control_unsupported_version_rejected(void)
 
 static void test_control_sleep_with_nonzero_value_rejected(void)
 {
-    const uint8_t bytes[4]   = {0x01, 0x03, 0x05, 0x00};
+    const uint8_t bytes[4] = { 0x01, 0x03, 0x05, 0x00 };
     ble_control_payload_t p;
     const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
     TEST_ASSERT_EQUAL(BLE_ERR_INVALID_RESERVED, result);
@@ -605,7 +587,7 @@ static void test_control_sleep_with_nonzero_value_rejected(void)
 
 static void test_control_set_active_unknown_screen_rejected(void)
 {
-    const uint8_t bytes[4]   = {0x01, 0x01, 0xEE, 0x00};
+    const uint8_t bytes[4] = { 0x01, 0x01, 0xEE, 0x00 };
     ble_control_payload_t p;
     const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
     TEST_ASSERT_EQUAL(BLE_ERR_UNKNOWN_SCREEN_ID, result);
@@ -618,16 +600,14 @@ static void assert_fuel_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t         flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_fuel_data_t decoded_body;
-    const ble_result_t decoded =
-        ble_decode_fuel(blob.bytes, blob.length, &flags, &decoded_body);
+    const ble_result_t decoded = ble_decode_fuel(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
-    const ble_result_t encoded =
-        ble_encode_fuel(&decoded_body, flags, out, sizeof(out), &written);
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
+    const ble_result_t encoded = ble_encode_fuel(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
     TEST_ASSERT_EQUAL_size_t(blob.length, written);
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
@@ -653,8 +633,7 @@ static void test_fuel_percent_over_100_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "fuel_percent_over_100", &blob));
     ble_fuel_data_t body;
-    const ble_result_t result =
-        ble_decode_fuel(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_fuel(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -665,14 +644,14 @@ static void assert_altitude_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t                      flags = 0xFF;
-    ble_altitude_profile_data_t  decoded_body;
+    uint8_t flags = 0xFF;
+    ble_altitude_profile_data_t decoded_body;
     const ble_result_t decoded =
         ble_decode_altitude(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_altitude(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -700,8 +679,7 @@ static void test_altitude_too_many_samples_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "altitude_too_many_samples", &blob));
     ble_altitude_profile_data_t body;
-    const ble_result_t result =
-        ble_decode_altitude(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_altitude(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -712,14 +690,14 @@ static void assert_incoming_call_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t                  flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_incoming_call_data_t decoded_body;
     const ble_result_t decoded =
         ble_decode_incoming_call(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_incoming_call(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -746,10 +724,9 @@ static void test_call_incoming_has_alert_flag(void)
 {
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("valid", "call_incoming", &blob));
-    uint8_t                  flags = 0;
+    uint8_t flags = 0;
     ble_incoming_call_data_t call;
-    const ble_result_t result =
-        ble_decode_incoming_call(blob.bytes, blob.length, &flags, &call);
+    const ble_result_t result = ble_decode_incoming_call(blob.bytes, blob.length, &flags, &call);
     TEST_ASSERT_EQUAL(BLE_OK, result);
     TEST_ASSERT_BITS_HIGH(BLE_FLAG_ALERT, flags);
 }
@@ -758,10 +735,9 @@ static void test_call_ended_no_alert_flag(void)
 {
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("valid", "call_ended", &blob));
-    uint8_t                  flags = 0xFF;
+    uint8_t flags = 0xFF;
     ble_incoming_call_data_t call;
-    const ble_result_t result =
-        ble_decode_incoming_call(blob.bytes, blob.length, &flags, &call);
+    const ble_result_t result = ble_decode_incoming_call(blob.bytes, blob.length, &flags, &call);
     TEST_ASSERT_EQUAL(BLE_OK, result);
     TEST_ASSERT_BITS_LOW(BLE_FLAG_ALERT, flags);
 }
@@ -771,8 +747,7 @@ static void test_call_unknown_state_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "call_unknown_state", &blob));
     ble_incoming_call_data_t call;
-    const ble_result_t result =
-        ble_decode_incoming_call(blob.bytes, blob.length, NULL, &call);
+    const ble_result_t result = ble_decode_incoming_call(blob.bytes, blob.length, NULL, &call);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
@@ -783,14 +758,13 @@ static void assert_blitzer_fixture_roundtrips(const char *name)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
 
-    uint8_t              flags = 0xFF;
-    ble_blitzer_data_t   decoded_body;
-    const ble_result_t decoded =
-        ble_decode_blitzer(blob.bytes, blob.length, &flags, &decoded_body);
+    uint8_t flags = 0xFF;
+    ble_blitzer_data_t decoded_body;
+    const ble_result_t decoded = ble_decode_blitzer(blob.bytes, blob.length, &flags, &decoded_body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
 
-    uint8_t out[256] = {0};
-    size_t  written  = 0;
+    uint8_t out[256] = { 0 };
+    size_t written = 0;
     const ble_result_t encoded =
         ble_encode_blitzer(&decoded_body, flags, out, sizeof(out), &written);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
@@ -822,10 +796,9 @@ static void test_blitzer_fixed_500m_has_alert_flag(void)
 {
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("valid", "blitzer_fixed_500m", &blob));
-    uint8_t             flags = 0;
-    ble_blitzer_data_t  blitzer;
-    const ble_result_t result =
-        ble_decode_blitzer(blob.bytes, blob.length, &flags, &blitzer);
+    uint8_t flags = 0;
+    ble_blitzer_data_t blitzer;
+    const ble_result_t result = ble_decode_blitzer(blob.bytes, blob.length, &flags, &blitzer);
     TEST_ASSERT_EQUAL(BLE_OK, result);
     TEST_ASSERT_BITS_HIGH(BLE_FLAG_ALERT, flags);
 }
@@ -835,8 +808,7 @@ static void test_blitzer_unknown_camera_type_rejected(void)
     fixture_blob_t blob;
     TEST_ASSERT_TRUE(load_fixture("invalid", "blitzer_unknown_camera_type", &blob));
     ble_blitzer_data_t body;
-    const ble_result_t result =
-        ble_decode_blitzer(blob.bytes, blob.length, NULL, &body);
+    const ble_result_t result = ble_decode_blitzer(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 

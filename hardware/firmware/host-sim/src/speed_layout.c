@@ -14,9 +14,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-size_t host_sim_format_speed_kmh(uint16_t speed_kmh_x10,
-                                 char    *buf,
-                                 size_t   buf_len)
+size_t host_sim_format_speed_kmh(uint16_t speed_kmh_x10, char *buf, size_t buf_len)
 {
     if (buf == NULL || buf_len < 4U) {
         return 0U;
@@ -48,9 +46,7 @@ size_t host_sim_format_speed_kmh(uint16_t speed_kmh_x10,
     return 3U;
 }
 
-size_t host_sim_format_altitude_label(int16_t altitude_m,
-                                      char   *buf,
-                                      size_t  buf_len)
+size_t host_sim_format_altitude_label(int16_t altitude_m, char *buf, size_t buf_len)
 {
     if (buf == NULL || buf_len < 12U) {
         return 0U;
@@ -69,9 +65,7 @@ size_t host_sim_format_altitude_label(int16_t altitude_m,
     return (size_t)n;
 }
 
-size_t host_sim_format_temperature_label(int16_t temperature_celsius_x10,
-                                         char   *buf,
-                                         size_t  buf_len)
+size_t host_sim_format_temperature_label(int16_t temperature_celsius_x10, char *buf, size_t buf_len)
 {
     if (buf == NULL || buf_len < 8U) {
         return 0U;
@@ -96,9 +90,7 @@ size_t host_sim_format_temperature_label(int16_t temperature_celsius_x10,
     return (size_t)n;
 }
 
-size_t host_sim_format_heading_label(uint16_t heading_deg_x10,
-                                     char    *buf,
-                                     size_t   buf_len)
+size_t host_sim_format_heading_label(uint16_t heading_deg_x10, char *buf, size_t buf_len)
 {
     if (buf == NULL || buf_len < 8U) {
         return 0U;
@@ -123,12 +115,8 @@ size_t host_sim_format_heading_label(uint16_t heading_deg_x10,
     return (size_t)n;
 }
 
-void host_sim_heading_arrow_endpoint(uint16_t heading_deg_x10,
-                                     int      cx,
-                                     int      cy,
-                                     int      length,
-                                     int     *out_x,
-                                     int     *out_y)
+void host_sim_heading_arrow_endpoint(uint16_t heading_deg_x10, int cx, int cy, int length,
+                                     int *out_x, int *out_y)
 {
     if (out_x == NULL || out_y == NULL) {
         return;
@@ -143,11 +131,7 @@ void host_sim_heading_arrow_endpoint(uint16_t heading_deg_x10,
     *out_y = cy + (int)(dy >= 0.0 ? dy + 0.5 : dy - 0.5);
 }
 
-void host_sim_speed_digit_origin(int canvas_w,
-                                 int canvas_h,
-                                 int text_len,
-                                 int scale,
-                                 int *out_x,
+void host_sim_speed_digit_origin(int canvas_w, int canvas_h, int text_len, int scale, int *out_x,
                                  int *out_y)
 {
     if (out_x == NULL || out_y == NULL) {

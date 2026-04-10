@@ -18,8 +18,6 @@
  *   - Divider
  *   - Consumption (left) and fuel remaining (right)
  */
-void screen_fuel_create(lv_obj_t *parent,
-                        const ble_fuel_data_t *data,
-                        uint8_t flags);
+void screen_fuel_create(lv_obj_t *parent, const ble_fuel_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_FUEL_H */

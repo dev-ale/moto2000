@@ -17,8 +17,6 @@
  *   - High/Low temperatures
  *   - Location name
  */
-void screen_weather_create(lv_obj_t *parent,
-                           const ble_weather_data_t *data,
-                           uint8_t flags);
+void screen_weather_create(lv_obj_t *parent, const ble_weather_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_WEATHER_H */

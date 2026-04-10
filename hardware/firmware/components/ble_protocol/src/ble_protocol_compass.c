@@ -18,8 +18,8 @@ static bool ble_compass_in_range(const ble_compass_data_t *in)
     if (in->magnetic_heading_deg_x10 > 3599U) {
         return false;
     }
-    if (in->true_heading_deg_x10 != BLE_COMPASS_TRUE_HEADING_UNKNOWN
-        && in->true_heading_deg_x10 > 3599U) {
+    if (in->true_heading_deg_x10 != BLE_COMPASS_TRUE_HEADING_UNKNOWN &&
+        in->true_heading_deg_x10 > 3599U) {
         return false;
     }
     if (in->heading_accuracy_deg_x10 > 3599U) {
@@ -28,9 +28,7 @@ static bool ble_compass_in_range(const ble_compass_data_t *in)
     return true;
 }
 
-ble_result_t ble_decode_compass(const uint8_t      *data,
-                                size_t              length,
-                                uint8_t            *out_flags,
+ble_result_t ble_decode_compass(const uint8_t *data, size_t length, uint8_t *out_flags,
                                 ble_compass_data_t *out_compass)
 {
     ble_header_t header;
@@ -44,12 +42,12 @@ ble_result_t ble_decode_compass(const uint8_t      *data,
     if (header.body_length != BLE_PROTOCOL_COMPASS_BODY_SIZE) {
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
-    const uint8_t     *body = header.body;
+    const uint8_t *body = header.body;
     ble_compass_data_t decoded;
     decoded.magnetic_heading_deg_x10 = ble_read_u16_le(&body[0]);
-    decoded.true_heading_deg_x10     = ble_read_u16_le(&body[2]);
+    decoded.true_heading_deg_x10 = ble_read_u16_le(&body[2]);
     decoded.heading_accuracy_deg_x10 = ble_read_u16_le(&body[4]);
-    decoded.compass_flags            = body[6];
+    decoded.compass_flags = body[6];
     const uint8_t reserved = body[7];
     if (reserved != 0U) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
@@ -67,11 +65,8 @@ ble_result_t ble_decode_compass(const uint8_t      *data,
     return BLE_OK;
 }
 
-ble_result_t ble_encode_compass(const ble_compass_data_t *in,
-                                uint8_t                   flags,
-                                uint8_t                  *out_buf,
-                                size_t                    out_cap,
-                                size_t                   *out_written)
+ble_result_t ble_encode_compass(const ble_compass_data_t *in, uint8_t flags, uint8_t *out_buf,
+                                size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_COMPASS_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;
@@ -85,10 +80,7 @@ ble_result_t ble_encode_compass(const ble_compass_data_t *in,
     if ((flags & BLE_FLAG_RESERVED_MASK) != 0U) {
         return BLE_ERR_RESERVED_FLAGS_SET;
     }
-    ble_write_header(out_buf,
-                     BLE_SCREEN_COMPASS,
-                     flags,
-                     (uint16_t)BLE_PROTOCOL_COMPASS_BODY_SIZE);
+    ble_write_header(out_buf, BLE_SCREEN_COMPASS, flags, (uint16_t)BLE_PROTOCOL_COMPASS_BODY_SIZE);
     uint8_t *body = out_buf + BLE_PROTOCOL_HEADER_SIZE;
     ble_write_u16_le(&body[0], in->magnetic_heading_deg_x10);
     ble_write_u16_le(&body[2], in->true_heading_deg_x10);

@@ -42,10 +42,8 @@ size_t host_sim_format_duration(uint32_t seconds, char *buf, size_t buf_len);
  *
  * `buf` needs >= 16 bytes. Returns strlen on success or 0 on overflow.
  */
-size_t host_sim_format_speed_cell(const char *prefix,
-                                  uint16_t    speed_kmh_x10,
-                                  char       *buf,
-                                  size_t      buf_len);
+size_t host_sim_format_speed_cell(const char *prefix, uint16_t speed_kmh_x10, char *buf,
+                                  size_t buf_len);
 
 /*
  * Format an ascent or descent value. Pass `is_descent = false` for
@@ -54,10 +52,7 @@ size_t host_sim_format_speed_cell(const char *prefix,
  *
  * `buf` needs >= 8 bytes. Returns strlen on success or 0 on overflow.
  */
-size_t host_sim_format_elevation_delta(uint16_t meters,
-                                       int      is_descent,
-                                       char    *buf,
-                                       size_t   buf_len);
+size_t host_sim_format_elevation_delta(uint16_t meters, int is_descent, char *buf, size_t buf_len);
 
 #ifdef __cplusplus
 }

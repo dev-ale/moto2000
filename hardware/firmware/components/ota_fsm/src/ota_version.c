@@ -39,8 +39,8 @@ void ota_version_to_string(const ota_version_t *v, char *buf, size_t buf_len)
     if (v == NULL || buf == NULL || buf_len == 0) {
         return;
     }
-    (void)snprintf(buf, buf_len, "%u.%u.%u",
-                   (unsigned)v->major, (unsigned)v->minor, (unsigned)v->patch);
+    (void)snprintf(buf, buf_len, "%u.%u.%u", (unsigned)v->major, (unsigned)v->minor,
+                   (unsigned)v->patch);
 }
 
 bool ota_version_parse(const char *str, ota_version_t *out)

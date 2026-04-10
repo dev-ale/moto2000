@@ -25,8 +25,7 @@ static bool ct_compare(const uint8_t *a, const uint8_t *b, size_t len)
     return diff == 0;
 }
 
-static void hmac_sha256(const uint8_t *key, size_t key_len,
-                        const uint8_t *data, size_t data_len,
+static void hmac_sha256(const uint8_t *key, size_t key_len, const uint8_t *data, size_t data_len,
                         uint8_t *out_mac)
 {
     uint8_t k_prime[SHA256_BLOCK_SIZE];
@@ -67,8 +66,7 @@ static void hmac_sha256(const uint8_t *key, size_t key_len,
     sha256_final(&ctx, out_mac);
 }
 
-bool ota_verify_hmac_sha256(const ota_verify_key_t *key,
-                            const uint8_t *data, size_t data_len,
+bool ota_verify_hmac_sha256(const ota_verify_key_t *key, const uint8_t *data, size_t data_len,
                             const uint8_t *expected_mac, size_t mac_len)
 {
     if (key == NULL || expected_mac == NULL) {

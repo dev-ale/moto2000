@@ -35,19 +35,18 @@ static int read_all(FILE *f, uint8_t *buf, size_t cap, size_t *out_len)
 
 static void usage(FILE *out)
 {
-    fputs(
-        "Usage: scramscreen-host-sim --out PATH [--in PATH]\n"
-        "\n"
-        "Reads a BLE payload (same wire format as the firmware\n"
-        "characteristic) from --in or stdin, renders the corresponding\n"
-        "ScramScreen screen to a 466x466 PNG, and writes it to --out.\n",
-        out);
+    fputs("Usage: scramscreen-host-sim --out PATH [--in PATH]\n"
+          "\n"
+          "Reads a BLE payload (same wire format as the firmware\n"
+          "characteristic) from --in or stdin, renders the corresponding\n"
+          "ScramScreen screen to a 466x466 PNG, and writes it to --out.\n",
+          out);
 }
 
 int main(int argc, char **argv)
 {
     const char *out_path = NULL;
-    const char *in_path  = NULL;
+    const char *in_path = NULL;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--out") == 0 && i + 1 < argc) {
@@ -70,8 +69,8 @@ int main(int argc, char **argv)
     }
 
     uint8_t payload[MAX_PAYLOAD];
-    size_t  payload_len = 0;
-    FILE   *in          = NULL;
+    size_t payload_len = 0;
+    FILE *in = NULL;
     if (in_path != NULL) {
         in = fopen(in_path, "rb");
         if (in == NULL) {
@@ -102,7 +101,7 @@ int main(int argc, char **argv)
         return 6;
     }
     const int render_rc = host_sim_render_payload(canvas, payload, payload_len);
-    const int write_rc  = host_sim_canvas_write_png(canvas, out_path);
+    const int write_rc = host_sim_canvas_write_png(canvas, out_path);
     host_sim_canvas_destroy(canvas);
 
     if (write_rc != 0) {

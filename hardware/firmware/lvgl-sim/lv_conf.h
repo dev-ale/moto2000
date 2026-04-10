@@ -41,19 +41,19 @@
 #define LV_FONT_DEFAULT &lv_font_montserrat_16
 
 /* ---- Widgets ---------------------------------------------------------- */
-#define LV_USE_LABEL   1
-#define LV_USE_ARC     1
-#define LV_USE_BAR     1
-#define LV_USE_LINE    1
-#define LV_USE_IMAGE   1
+#define LV_USE_LABEL 1
+#define LV_USE_ARC   1
+#define LV_USE_BAR   1
+#define LV_USE_LINE  1
+#define LV_USE_IMAGE 1
 
 /* ---- Misc ------------------------------------------------------------- */
-#define LV_USE_ASSERT_NULL          1
-#define LV_USE_ASSERT_MALLOC        1
-#define LV_USE_ASSERT_OBJ           1
+#define LV_USE_ASSERT_NULL   1
+#define LV_USE_ASSERT_MALLOC 1
+#define LV_USE_ASSERT_OBJ    1
 
 /* ---- Logging ---------------------------------------------------------- */
-#define LV_USE_LOG 1
+#define LV_USE_LOG   1
 #define LV_LOG_LEVEL LV_LOG_LEVEL_WARN
 
 #endif /* LV_CONF_H */

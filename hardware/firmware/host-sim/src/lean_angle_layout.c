@@ -14,12 +14,8 @@
  * tip never wanders past the visible scale. */
 #define LEAN_GAUGE_VISUAL_MAX_X10 600
 
-void lean_arc_needle_endpoint(int16_t lean_x10,
-                              int     center_x,
-                              int     center_y,
-                              int     radius,
-                              int    *out_x,
-                              int    *out_y)
+void lean_arc_needle_endpoint(int16_t lean_x10, int center_x, int center_y, int radius, int *out_x,
+                              int *out_y)
 {
     int32_t clipped = (int32_t)lean_x10;
     if (clipped > LEAN_GAUGE_VISUAL_MAX_X10) {

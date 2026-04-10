@@ -32,8 +32,7 @@ static void format_countdown(int16_t starts_in_minutes, char *buf, size_t cap)
         snprintf(buf, cap, "NOW");
     } else if (starts_in_minutes > 0) {
         if (starts_in_minutes >= 60) {
-            snprintf(buf, cap, "IN %dH %dM",
-                     (int)(starts_in_minutes / 60),
+            snprintf(buf, cap, "IN %dH %dM", (int)(starts_in_minutes / 60),
                      (int)(starts_in_minutes % 60));
         } else {
             snprintf(buf, cap, "IN %dM", (int)starts_in_minutes);
@@ -41,8 +40,7 @@ static void format_countdown(int16_t starts_in_minutes, char *buf, size_t cap)
     } else {
         int16_t ago = (int16_t)-starts_in_minutes;
         if (ago >= 60) {
-            snprintf(buf, cap, "%dH %dM AGO",
-                     (int)(ago / 60), (int)(ago % 60));
+            snprintf(buf, cap, "%dH %dM AGO", (int)(ago / 60), (int)(ago % 60));
         } else {
             snprintf(buf, cap, "%dM AGO", (int)ago);
         }
@@ -53,18 +51,16 @@ static void format_countdown(int16_t starts_in_minutes, char *buf, size_t cap)
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_calendar_create(lv_obj_t *parent,
-                            const ble_appointment_data_t *data,
-                            uint8_t flags)
+void screen_calendar_create(lv_obj_t *parent, const ble_appointment_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted  = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_blue   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_BLUE;
-    lv_color_t col_orange = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_ORANGE;
-    lv_color_t col_border = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_BLUE;
-    lv_color_t col_card   = night ? lv_color_hex(0x110000)  : lv_color_hex(0x1A1A1A);
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_blue = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
+    lv_color_t col_orange = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_ORANGE;
+    lv_color_t col_border = night ? SCRAM_COLOR_RED : SCRAM_COLOR_BLUE;
+    lv_color_t col_card = night ? lv_color_hex(0x110000) : lv_color_hex(0x1A1A1A);
 
     (void)flags;
 
@@ -125,11 +121,9 @@ void screen_calendar_create(lv_obj_t *parent,
     if (data->starts_in_minutes == 0) {
         snprintf(time_buf, sizeof(time_buf), "NOW");
     } else if (data->starts_in_minutes > 0) {
-        snprintf(time_buf, sizeof(time_buf), "IN %d MIN",
-                 (int)data->starts_in_minutes);
+        snprintf(time_buf, sizeof(time_buf), "IN %d MIN", (int)data->starts_in_minutes);
     } else {
-        snprintf(time_buf, sizeof(time_buf), "%d MIN AGO",
-                 (int)(-data->starts_in_minutes));
+        snprintf(time_buf, sizeof(time_buf), "%d MIN AGO", (int)(-data->starts_in_minutes));
     }
 
     lv_obj_t *lbl_time = lv_label_create(card);
@@ -151,8 +145,7 @@ void screen_calendar_create(lv_obj_t *parent,
 
     /* --- Countdown --- */
     char countdown_buf[32];
-    format_countdown(data->starts_in_minutes, countdown_buf,
-                     sizeof(countdown_buf));
+    format_countdown(data->starts_in_minutes, countdown_buf, sizeof(countdown_buf));
 
     lv_obj_t *lbl_countdown = lv_label_create(parent);
     lv_label_set_text(lbl_countdown, countdown_buf);

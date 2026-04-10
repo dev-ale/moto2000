@@ -9,10 +9,13 @@
 #include <stdio.h>
 #include <string.h>
 
-void setUp(void)    {}
+void setUp(void) {}
 void tearDown(void) {}
 
-static int iabs(int v) { return v < 0 ? -v : v; }
+static int iabs(int v)
+{
+    return v < 0 ? -v : v;
+}
 
 /* -------------------------------------------------------------------- */
 /* needle endpoint                                                      */
@@ -88,7 +91,7 @@ static void test_format_lean_digital_left(void)
 {
     char buf[8];
     (void)format_lean_digital(-425, buf, sizeof(buf));
-    TEST_ASSERT_EQUAL_STRING("L 43", buf);  /* 42.5 rounds half-away-from-zero */
+    TEST_ASSERT_EQUAL_STRING("L 43", buf); /* 42.5 rounds half-away-from-zero */
 }
 
 static void test_format_lean_digital_rounds_under_half(void)
@@ -139,7 +142,7 @@ static void test_format_max_lean_zero(void)
 
 static void test_format_max_lean_invalid_side_returns_zero(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     const size_t n = format_max_lean(580, 'X', buf, sizeof(buf));
     TEST_ASSERT_EQUAL_size_t(0, n);
 }

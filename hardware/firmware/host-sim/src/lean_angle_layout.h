@@ -31,12 +31,8 @@
  * Output is via out parameters so callers can use stack ints without
  * fighting struct returns.
  */
-void lean_arc_needle_endpoint(int16_t lean_x10,
-                              int     center_x,
-                              int     center_y,
-                              int     radius,
-                              int    *out_x,
-                              int    *out_y);
+void lean_arc_needle_endpoint(int16_t lean_x10, int center_x, int center_y, int radius, int *out_x,
+                              int *out_y);
 
 /*
  * Format the centred digital readout. Output examples:

@@ -10,14 +10,8 @@
 
 #include "host_sim/renderer.h"
 
-void host_sim_draw_text(host_sim_canvas_t *canvas,
-                        const char        *text,
-                        int                origin_x,
-                        int                origin_y,
-                        int                scale,
-                        uint8_t            r,
-                        uint8_t            g,
-                        uint8_t            b);
+void host_sim_draw_text(host_sim_canvas_t *canvas, const char *text, int origin_x, int origin_y,
+                        int scale, uint8_t r, uint8_t g, uint8_t b);
 
 /* Measures pixel width of `text` at scale `scale` for a monospace 8px font. */
 int host_sim_measure_text(const char *text, int scale);

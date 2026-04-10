@@ -17,7 +17,7 @@ void format_blitzer_distance(uint16_t meters, char *buf, size_t buf_len)
         snprintf(buf, buf_len, "%uM", (unsigned)meters);
     } else {
         unsigned whole = meters / 1000U;
-        unsigned frac  = (meters % 1000U) / 100U;
+        unsigned frac = (meters % 1000U) / 100U;
         snprintf(buf, buf_len, "%u.%uKM", whole, frac);
     }
 }
@@ -40,21 +40,21 @@ void format_camera_type(uint8_t type, char *buf, size_t buf_len)
         return;
     }
     switch ((ble_camera_type_t)type) {
-        case BLE_CAMERA_TYPE_FIXED:
-            snprintf(buf, buf_len, "FIXED");
-            break;
-        case BLE_CAMERA_TYPE_MOBILE:
-            snprintf(buf, buf_len, "MOBILE");
-            break;
-        case BLE_CAMERA_TYPE_RED_LIGHT:
-            snprintf(buf, buf_len, "RED LIGHT");
-            break;
-        case BLE_CAMERA_TYPE_SECTION:
-            snprintf(buf, buf_len, "SECTION");
-            break;
-        default:
-            snprintf(buf, buf_len, "UNKNOWN");
-            break;
+    case BLE_CAMERA_TYPE_FIXED:
+        snprintf(buf, buf_len, "FIXED");
+        break;
+    case BLE_CAMERA_TYPE_MOBILE:
+        snprintf(buf, buf_len, "MOBILE");
+        break;
+    case BLE_CAMERA_TYPE_RED_LIGHT:
+        snprintf(buf, buf_len, "RED LIGHT");
+        break;
+    case BLE_CAMERA_TYPE_SECTION:
+        snprintf(buf, buf_len, "SECTION");
+        break;
+    default:
+        snprintf(buf, buf_len, "UNKNOWN");
+        break;
     }
 }
 

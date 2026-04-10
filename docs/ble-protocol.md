@@ -76,7 +76,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x01` | `navigation`    | Navigation        | 6   | `nav_data_t` |
 | `0x02` | `speedHeading`  | Speed + Heading   | 3   | TBD |
 | `0x03` | `compass`       | Compass           | 4   | `compass_data_t` |
-| `0x04` | `weather`       | Weather           | 7   | TBD |
+| `0x04` | `weather`       | Weather           | 7   | `weather_data_t` |
 | `0x05` | `tripStats`     | Trip Stats        | 9   | `trip_stats_data_t` |
 | `0x06` | `music`         | Music             | 8   | TBD |
 | `0x07` | `leanAngle`     | Lean Angle        | 10  | TBD |
@@ -178,6 +178,42 @@ Body size: **16 bytes**
 | `0x0D` | `forkLeft` |
 | `0x0E` | `forkRight` |
 | `0x0F` | `arrive` |
+
+### `weather_data_t` (screen `0x04`)
+
+Body size: **28 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `condition` | `uint8` | See Weather conditions below. |
+| 1 | `reserved` | `uint8` | Must be `0x00`. |
+| 2 | `temperature_celsius_x10` | `int16` | Current temperature × 10. Range `-500..=600` (-50°C..60°C). |
+| 4 | `high_celsius_x10` | `int16` | Daily high × 10. Same range. |
+| 6 | `low_celsius_x10` | `int16` | Daily low × 10. Same range. |
+| 8 | `location_name` | `char[20]` | UTF-8, zero-padded, null-terminated. Must contain a terminator (len < 20). |
+
+### Weather conditions
+
+| ID | Name |
+|---|---|
+| `0x00` | `clear` |
+| `0x01` | `cloudy` |
+| `0x02` | `rain` |
+| `0x03` | `snow` |
+| `0x04` | `fog` |
+| `0x05` | `thunderstorm` |
+
+Unknown values are rejected with `valueOutOfRange` (field `weather.condition`).
+
+### WeatherKit integration note (Slice 7)
+
+The Slice 7 iOS code ships a `WeatherServiceClient` abstraction with a
+`StaticWeatherServiceClient` for tests and a `WeatherKitClient` stub that
+throws `notImplemented`. Wiring the real WeatherKit REST API requires an
+Apple Developer account with the WeatherKit capability and a signed `.p8`
+key — both infrastructure concerns outside the scope of the dashboard
+protocol work. A follow-up PR will replace the stub without touching the
+wire format.
 
 Other screen body definitions are added by their respective slices and follow the
 same pattern: fixed offsets, fixed size, explicit reserved bytes.

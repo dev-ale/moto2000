@@ -58,6 +58,7 @@ add_library(ble_protocol STATIC
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_compass.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_control.c"
     "${BLE_PROTOCOL_ROOT}/src/ble_protocol_trip_stats.c"
+    "${BLE_PROTOCOL_ROOT}/src/ble_protocol_weather.c"
 )
 target_include_directories(ble_protocol
     PUBLIC "${BLE_PROTOCOL_ROOT}/include"

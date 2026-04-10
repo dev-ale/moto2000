@@ -1,0 +1,12 @@
+{
+  "description": "Weather: clear day in Basel, 22.0C current, high 25.0, low 13.0",
+  "screen": "weather",
+  "flags": [],
+  "body": {
+    "condition": "clear",
+    "temperature_celsius": 22.0,
+    "high_celsius": 25.0,
+    "low_celsius": 13.0,
+    "location_name": "Basel"
+  }
+}

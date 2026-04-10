@@ -79,9 +79,19 @@ CLOCK_BODY_SIZE = 12
 SPEED_HEADING_BODY_SIZE = 8
 COMPASS_BODY_SIZE = 8
 TRIP_STATS_BODY_SIZE = 16
+WEATHER_BODY_SIZE = 28
 
 COMPASS_FLAG_USE_TRUE_HEADING = 1 << 0
 COMPASS_TRUE_HEADING_UNKNOWN = 0xFFFF
+
+WEATHER_CONDITIONS = {
+    "clear": 0x00,
+    "cloudy": 0x01,
+    "rain": 0x02,
+    "snow": 0x03,
+    "fog": 0x04,
+    "thunderstorm": 0x05,
+}
 
 
 def encode_flags(flags: list[str]) -> int:
@@ -211,12 +221,43 @@ def encode_trip_stats_body(spec: dict) -> bytes:
     return body
 
 
+def encode_weather_body(spec: dict) -> bytes:
+    condition_name = spec["condition"]
+    if condition_name not in WEATHER_CONDITIONS:
+        raise ValueError(f"unknown weather condition: {condition_name}")
+    condition = WEATHER_CONDITIONS[condition_name]
+
+    def temp_x10(key: str) -> int:
+        if f"{key}_x10" in spec:
+            return int(spec[f"{key}_x10"])
+        return int(round(spec[key] * 10))
+
+    temperature_x10 = temp_x10("temperature_celsius")
+    high_x10 = temp_x10("high_celsius")
+    low_x10 = temp_x10("low_celsius")
+    name = encode_fixed_string(spec.get("location_name", ""), 20)
+    body = struct.pack(
+        "<BBhhh",
+        condition,
+        0,  # reserved
+        temperature_x10,
+        high_x10,
+        low_x10,
+    )
+    body += name
+    assert len(body) == WEATHER_BODY_SIZE, (
+        f"weather body is {len(body)} bytes, expected {WEATHER_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
     "speedHeading": encode_speed_heading_body,
     "compass": encode_compass_body,
     "tripStats": encode_trip_stats_body,
+    "weather": encode_weather_body,
 }
 
 

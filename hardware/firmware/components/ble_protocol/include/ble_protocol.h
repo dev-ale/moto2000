@@ -24,6 +24,7 @@ extern "C" {
 #define BLE_PROTOCOL_SPEED_HEADING_BODY_SIZE ((size_t)8)
 #define BLE_PROTOCOL_COMPASS_BODY_SIZE ((size_t)8)
 #define BLE_PROTOCOL_TRIP_STATS_BODY_SIZE ((size_t)16)
+#define BLE_PROTOCOL_WEATHER_BODY_SIZE ((size_t)28)
 
 /* Flag bits carried in the compass body flags byte. */
 #define BLE_COMPASS_FLAG_USE_TRUE_HEADING (1U << 0)
@@ -104,6 +105,23 @@ typedef struct {
     int16_t  altitude_m;
     int16_t  temperature_celsius_x10;
 } ble_speed_heading_data_t;
+
+typedef enum {
+    BLE_WEATHER_CLEAR         = 0x00,
+    BLE_WEATHER_CLOUDY        = 0x01,
+    BLE_WEATHER_RAIN          = 0x02,
+    BLE_WEATHER_SNOW          = 0x03,
+    BLE_WEATHER_FOG           = 0x04,
+    BLE_WEATHER_THUNDERSTORM  = 0x05,
+} ble_weather_condition_t;
+
+typedef struct {
+    ble_weather_condition_t condition;
+    int16_t                 temperature_celsius_x10;
+    int16_t                 high_celsius_x10;
+    int16_t                 low_celsius_x10;
+    char                    location_name[20]; /* null-terminated UTF-8 */
+} ble_weather_data_t;
 
 typedef struct {
     uint16_t magnetic_heading_deg_x10;
@@ -249,6 +267,17 @@ ble_result_t ble_encode_trip_stats(const ble_trip_stats_data_t *in,
                                    uint8_t                     *out_buf,
                                    size_t                       out_cap,
                                    size_t                      *out_written);
+
+ble_result_t ble_decode_weather(const uint8_t      *data,
+                                size_t              length,
+                                uint8_t            *out_flags,
+                                ble_weather_data_t *out);
+
+ble_result_t ble_encode_weather(const ble_weather_data_t *in,
+                                uint8_t                   flags,
+                                uint8_t                  *out_buf,
+                                size_t                    out_cap,
+                                size_t                   *out_written);
 
 #ifdef __cplusplus
 }

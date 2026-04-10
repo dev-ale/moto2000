@@ -1,0 +1,12 @@
+{
+  "description": "Weather: snow on the Gotthard pass, -3.5C current, high 1.0, low -8.5",
+  "screen": "weather",
+  "flags": [],
+  "body": {
+    "condition": "snow",
+    "temperature_celsius": -3.5,
+    "high_celsius": 1.0,
+    "low_celsius": -8.5,
+    "location_name": "Gotthard"
+  }
+}

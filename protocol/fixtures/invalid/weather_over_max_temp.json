@@ -1,0 +1,5 @@
+{
+  "description": "Weather body with temperature_celsius_x10 = 700 (> 600 max), all three temperature fields identical",
+  "expected_error": "valueOutOfRange",
+  "raw_bytes_hex": "010400001c0000000000bc02bc02bc025800000000000000000000000000000000000000"
+}

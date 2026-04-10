@@ -41,6 +41,11 @@ SNAPSHOTS=(
     "trip_stats_fresh                trip_stats_fresh.bin"
     "trip_stats_city_loop            trip_stats_city_loop.bin"
     "trip_stats_highway              trip_stats_highway.bin"
+    "weather_basel_clear             weather_basel_clear.bin"
+    "weather_alps_snow               weather_alps_snow.bin"
+    "weather_paris_rain              weather_paris_rain.bin"
+    "weather_cold_fog                weather_cold_fog.bin"
+    "weather_thunderstorm            weather_thunderstorm.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

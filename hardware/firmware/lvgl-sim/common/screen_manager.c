@@ -16,6 +16,7 @@
 #include "screens/screen_music.h"
 #include "screens/screen_trip_stats.h"
 #include "screens/screen_lean_angle.h"
+#include "screens/screen_altitude.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -165,9 +166,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
         case BLE_SCREEN_FUEL_ESTIMATE:
             screen_placeholder_create(scr, "FUEL ESTIMATE");
             break;
-        case BLE_SCREEN_ALTITUDE:
-            screen_placeholder_create(scr, "ALTITUDE");
+        case BLE_SCREEN_ALTITUDE: {
+            ble_altitude_profile_data_t altitude;
+            uint8_t alt_flags = 0;
+            rc = ble_decode_altitude(data, len, &alt_flags, &altitude);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: altitude decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "ALTITUDE (decode error)");
+                break;
+            }
+            screen_altitude_create(scr, &altitude, alt_flags);
             break;
+        }
         case BLE_SCREEN_APPOINTMENT:
             screen_placeholder_create(scr, "APPOINTMENT");
             break;

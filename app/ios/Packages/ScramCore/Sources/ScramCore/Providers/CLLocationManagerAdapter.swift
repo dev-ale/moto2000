@@ -21,8 +21,13 @@ public final class CLLocationManagerAdapter: NSObject, LocationManaging, @unchec
         self.manager = CLLocationManager()
         super.init()
         self.manager.delegate = self
-        self.manager.desiredAccuracy = kCLLocationAccuracyBest
-        self.manager.activityType = .automotiveNavigation
+        self.manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+        self.manager.activityType = .otherNavigation
+        #if os(iOS)
+        self.manager.allowsBackgroundLocationUpdates = true
+        self.manager.pausesLocationUpdatesAutomatically = false
+        self.manager.showsBackgroundLocationIndicator = true
+        #endif
         // 1 Hz-ish: CoreLocation will call back whenever a new fix is
         // produced; we don't set a distance filter so stationary rides
         // still get updates.

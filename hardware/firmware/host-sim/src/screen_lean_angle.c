@@ -25,8 +25,7 @@
 
 #include "ble_protocol.h"
 
-static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
-                      uint8_t r, uint8_t g, uint8_t b)
+static void put_pixel(host_sim_canvas_t *canvas, int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height) {
         return;
@@ -37,15 +36,13 @@ static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
     canvas->pixels[idx + 2U] = b;
 }
 
-static void draw_thick_line(host_sim_canvas_t *canvas,
-                            int x0, int y0, int x1, int y1,
-                            uint8_t r, uint8_t g, uint8_t b,
-                            int thickness)
+static void draw_thick_line(host_sim_canvas_t *canvas, int x0, int y0, int x1, int y1, uint8_t r,
+                            uint8_t g, uint8_t b, int thickness)
 {
-    int dx  = abs(x1 - x0);
-    int sx  = x0 < x1 ? 1 : -1;
-    int dy  = -abs(y1 - y0);
-    int sy  = y0 < y1 ? 1 : -1;
+    int dx = abs(x1 - x0);
+    int sx = x0 < x1 ? 1 : -1;
+    int dy = -abs(y1 - y0);
+    int sy = y0 < y1 ? 1 : -1;
     int err = dx + dy;
     const int half = thickness / 2;
     for (;;) {
@@ -69,46 +66,40 @@ static void draw_thick_line(host_sim_canvas_t *canvas,
     }
 }
 
-static void draw_arc_ticks(host_sim_canvas_t *canvas,
-                           int cx, int cy, int radius,
-                           uint8_t r, uint8_t g, uint8_t b)
+static void draw_arc_ticks(host_sim_canvas_t *canvas, int cx, int cy, int radius, uint8_t r,
+                           uint8_t g, uint8_t b)
 {
     /* Tick marks every 10° from -60 to +60. Longer ticks at every 30°. */
     for (int deg = -60; deg <= 60; deg += 10) {
-        const int  major     = (deg % 30 == 0);
-        const int  inner_r   = major ? radius - 24 : radius - 14;
-        const int  thickness = major ? 4 : 2;
+        const int major = (deg % 30 == 0);
+        const int inner_r = major ? radius - 24 : radius - 14;
+        const int thickness = major ? 4 : 2;
         int outer_x = 0, outer_y = 0;
         int inner_x = 0, inner_y = 0;
-        lean_arc_needle_endpoint((int16_t)(deg * 10), cx, cy, radius,
-                                 &outer_x, &outer_y);
-        lean_arc_needle_endpoint((int16_t)(deg * 10), cx, cy, inner_r,
-                                 &inner_x, &inner_y);
-        draw_thick_line(canvas, inner_x, inner_y, outer_x, outer_y,
-                        r, g, b, thickness);
+        lean_arc_needle_endpoint((int16_t)(deg * 10), cx, cy, radius, &outer_x, &outer_y);
+        lean_arc_needle_endpoint((int16_t)(deg * 10), cx, cy, inner_r, &inner_x, &inner_y);
+        draw_thick_line(canvas, inner_x, inner_y, outer_x, outer_y, r, g, b, thickness);
     }
 }
 
-static void draw_arc_outline(host_sim_canvas_t *canvas,
-                             int cx, int cy, int radius,
-                             uint8_t r, uint8_t g, uint8_t b)
+static void draw_arc_outline(host_sim_canvas_t *canvas, int cx, int cy, int radius, uint8_t r,
+                             uint8_t g, uint8_t b)
 {
     /* Sample the arc at 1° intervals and draw a tiny dot at each
      * sample point. Cheap, deterministic, no antialiasing. */
     for (int deg10 = -600; deg10 <= 600; deg10 += 10) {
         int x = 0, y = 0;
         lean_arc_needle_endpoint((int16_t)deg10, cx, cy, radius, &x, &y);
-        put_pixel(canvas, x,     y,     r, g, b);
-        put_pixel(canvas, x + 1, y,     r, g, b);
-        put_pixel(canvas, x,     y + 1, r, g, b);
-        put_pixel(canvas, x - 1, y,     r, g, b);
-        put_pixel(canvas, x,     y - 1, r, g, b);
+        put_pixel(canvas, x, y, r, g, b);
+        put_pixel(canvas, x + 1, y, r, g, b);
+        put_pixel(canvas, x, y + 1, r, g, b);
+        put_pixel(canvas, x - 1, y, r, g, b);
+        put_pixel(canvas, x, y - 1, r, g, b);
     }
 }
 
-void host_sim_render_lean_angle(host_sim_canvas_t           *canvas,
-                                const ble_lean_angle_data_t *lean,
-                                uint8_t                      header_flags)
+void host_sim_render_lean_angle(host_sim_canvas_t *canvas, const ble_lean_angle_data_t *lean,
+                                uint8_t header_flags)
 {
     const bool night = (header_flags & BLE_FLAG_NIGHT_MODE) != 0U;
     if (night) {
@@ -140,24 +131,20 @@ void host_sim_render_lean_angle(host_sim_canvas_t           *canvas,
     const uint8_t needle_g = night ? 0x33U : 0x55U;
     const uint8_t needle_b = night ? 0x33U : 0x55U;
     int needle_x = 0, needle_y = 0;
-    lean_arc_needle_endpoint(lean->current_lean_deg_x10, cx, cy,
-                             arc_radius - 6, &needle_x, &needle_y);
-    draw_thick_line(canvas, cx, cy, needle_x, needle_y,
-                    needle_r, needle_g, needle_b, 6);
+    lean_arc_needle_endpoint(lean->current_lean_deg_x10, cx, cy, arc_radius - 6, &needle_x,
+                             &needle_y);
+    draw_thick_line(canvas, cx, cy, needle_x, needle_y, needle_r, needle_g, needle_b, 6);
 
     /* Digital current readout: large, centred, sits below the gauge
      * pivot so it never collides with the arc. */
     char digital[16];
     (void)format_lean_digital(lean->current_lean_deg_x10, digital, sizeof(digital));
     const int digital_scale = 8;
-    const int digital_h     = 8 * digital_scale;
-    const int digital_w     = host_sim_measure_text(digital, digital_scale);
-    const int digital_y     = cy + 30;
-    host_sim_draw_text(canvas, digital,
-                       cx - digital_w / 2,
-                       digital_y,
-                       digital_scale,
-                       fg_r, fg_g, fg_b);
+    const int digital_h = 8 * digital_scale;
+    const int digital_w = host_sim_measure_text(digital, digital_scale);
+    const int digital_y = cy + 30;
+    host_sim_draw_text(canvas, digital, cx - digital_w / 2, digital_y, digital_scale, fg_r, fg_g,
+                       fg_b);
 
     /* Max readouts: small, beside the digital readout. */
     char max_left[16];
@@ -165,32 +152,20 @@ void host_sim_render_lean_angle(host_sim_canvas_t           *canvas,
     (void)format_max_lean(lean->max_left_lean_deg_x10, 'L', max_left, sizeof(max_left));
     (void)format_max_lean(lean->max_right_lean_deg_x10, 'R', max_right, sizeof(max_right));
     const int max_scale = 3;
-    const int max_h     = 8 * max_scale;
-    const int max_y     = digital_y + digital_h + 16;
-    const int left_w    = host_sim_measure_text(max_left, max_scale);
-    host_sim_draw_text(canvas, max_left,
-                       cx - left_w - 24,
-                       max_y,
-                       max_scale,
-                       fg_r, fg_g, fg_b);
-    host_sim_draw_text(canvas, max_right,
-                       cx + 24,
-                       max_y,
-                       max_scale,
-                       fg_r, fg_g, fg_b);
+    const int max_h = 8 * max_scale;
+    const int max_y = digital_y + digital_h + 16;
+    const int left_w = host_sim_measure_text(max_left, max_scale);
+    host_sim_draw_text(canvas, max_left, cx - left_w - 24, max_y, max_scale, fg_r, fg_g, fg_b);
+    host_sim_draw_text(canvas, max_right, cx + 24, max_y, max_scale, fg_r, fg_g, fg_b);
 
     /* Confidence: bottom-centre. The font has no '%' so we suffix
      * with the literal characters that exist in the bundled bitmap. */
     char conf_buf[16];
     (void)snprintf(conf_buf, sizeof(conf_buf), "CONF %u", (unsigned)lean->confidence_percent);
     const int conf_scale = 3;
-    const int conf_w     = host_sim_measure_text(conf_buf, conf_scale);
-    const int conf_y     = max_y + max_h + 12;
-    host_sim_draw_text(canvas, conf_buf,
-                       cx - conf_w / 2,
-                       conf_y,
-                       conf_scale,
-                       fg_r, fg_g, fg_b);
+    const int conf_w = host_sim_measure_text(conf_buf, conf_scale);
+    const int conf_y = max_y + max_h + 12;
+    host_sim_draw_text(canvas, conf_buf, cx - conf_w / 2, conf_y, conf_scale, fg_r, fg_g, fg_b);
 
     host_sim_canvas_apply_round_mask(canvas);
 }

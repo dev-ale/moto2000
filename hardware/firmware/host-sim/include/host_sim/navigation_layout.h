@@ -35,9 +35,7 @@ extern "C" {
  * small. The longest possible output is "999KM\0" (6 bytes), so an
  * 8-byte buffer is always enough.
  */
-size_t host_sim_nav_format_distance(uint16_t meters,
-                                    char    *buf,
-                                    size_t   buf_len);
+size_t host_sim_nav_format_distance(uint16_t meters, char *buf, size_t buf_len);
 
 /*
  * Format the bottom status line: "ETA 18M  REM 7.4KM".
@@ -51,10 +49,8 @@ size_t host_sim_nav_format_distance(uint16_t meters,
  * Returns the number of bytes written excluding the terminator, or 0
  * on buffer-too-small. A 32-byte buffer is always enough.
  */
-size_t host_sim_nav_format_eta_line(uint16_t eta_minutes,
-                                    uint16_t remaining_km_x10,
-                                    char    *buf,
-                                    size_t   buf_len);
+size_t host_sim_nav_format_eta_line(uint16_t eta_minutes, uint16_t remaining_km_x10, char *buf,
+                                    size_t buf_len);
 
 /*
  * Maneuver → arrow glyph family. Kept intentionally coarse so the
@@ -62,15 +58,15 @@ size_t host_sim_nav_format_eta_line(uint16_t eta_minutes,
  * left, right, u-turn-left, u-turn-right, roundabout, arrive, fork.
  */
 typedef enum {
-    HOST_SIM_ARROW_STRAIGHT     = 0,
-    HOST_SIM_ARROW_LEFT         = 1,
-    HOST_SIM_ARROW_RIGHT        = 2,
-    HOST_SIM_ARROW_U_TURN_LEFT  = 3,
+    HOST_SIM_ARROW_STRAIGHT = 0,
+    HOST_SIM_ARROW_LEFT = 1,
+    HOST_SIM_ARROW_RIGHT = 2,
+    HOST_SIM_ARROW_U_TURN_LEFT = 3,
     HOST_SIM_ARROW_U_TURN_RIGHT = 4,
-    HOST_SIM_ARROW_ROUNDABOUT   = 5,
-    HOST_SIM_ARROW_ARRIVE       = 6,
-    HOST_SIM_ARROW_FORK_LEFT    = 7,
-    HOST_SIM_ARROW_FORK_RIGHT   = 8,
+    HOST_SIM_ARROW_ROUNDABOUT = 5,
+    HOST_SIM_ARROW_ARRIVE = 6,
+    HOST_SIM_ARROW_FORK_LEFT = 7,
+    HOST_SIM_ARROW_FORK_RIGHT = 8,
 } host_sim_arrow_shape_t;
 
 /* Map a BLE maneuver enum to an arrow shape. Unknown / none → straight. */
@@ -81,9 +77,7 @@ host_sim_arrow_shape_t host_sim_nav_arrow_shape(ble_maneuver_t maneuver);
  * normalise street names for the uppercase-only bundled font. Input
  * and output may alias.
  */
-void host_sim_nav_uppercase_clamp(const char *in,
-                                  char       *out,
-                                  size_t      max_len);
+void host_sim_nav_uppercase_clamp(const char *in, char *out, size_t max_len);
 
 #ifdef __cplusplus
 }

@@ -11,9 +11,7 @@ static bool ble_clock_timezone_in_range(int16_t tz)
     return tz >= -720 && tz <= 840;
 }
 
-ble_result_t ble_decode_clock(const uint8_t    *data,
-                              size_t            length,
-                              uint8_t          *out_flags,
+ble_result_t ble_decode_clock(const uint8_t *data, size_t length, uint8_t *out_flags,
                               ble_clock_data_t *out_clock)
 {
     ble_header_t header;
@@ -27,11 +25,11 @@ ble_result_t ble_decode_clock(const uint8_t    *data,
     if (header.body_length != BLE_PROTOCOL_CLOCK_BODY_SIZE) {
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
-    const uint8_t *body      = header.body;
-    const int64_t  unix_time = ble_read_i64_le(&body[0]);
-    const int16_t  tz        = (int16_t)ble_read_u16_le(&body[8]);
-    const uint8_t  flags_b   = body[10];
-    const uint8_t  reserved  = body[11];
+    const uint8_t *body = header.body;
+    const int64_t unix_time = ble_read_i64_le(&body[0]);
+    const int16_t tz = (int16_t)ble_read_u16_le(&body[8]);
+    const uint8_t flags_b = body[10];
+    const uint8_t reserved = body[11];
     if (reserved != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
@@ -41,20 +39,17 @@ ble_result_t ble_decode_clock(const uint8_t    *data,
     if (!ble_clock_timezone_in_range(tz)) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
-    out_clock->unix_time         = unix_time;
+    out_clock->unix_time = unix_time;
     out_clock->tz_offset_minutes = tz;
-    out_clock->is_24h            = (flags_b & 0x01U) != 0;
+    out_clock->is_24h = (flags_b & 0x01U) != 0;
     if (out_flags != NULL) {
         *out_flags = header.flags;
     }
     return BLE_OK;
 }
 
-ble_result_t ble_encode_clock(const ble_clock_data_t *clock,
-                              uint8_t                 flags,
-                              uint8_t                *out_buf,
-                              size_t                  out_cap,
-                              size_t                 *out_written)
+ble_result_t ble_encode_clock(const ble_clock_data_t *clock, uint8_t flags, uint8_t *out_buf,
+                              size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_CLOCK_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;

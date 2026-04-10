@@ -16,10 +16,8 @@
 
 #include <string.h>
 
-ble_result_t ble_encode_control(const ble_control_payload_t *in,
-                                uint8_t                     *out_buf,
-                                size_t                       out_cap,
-                                size_t                      *out_written)
+ble_result_t ble_encode_control(const ble_control_payload_t *in, uint8_t *out_buf, size_t out_cap,
+                                size_t *out_written)
 {
     if (in == NULL || out_buf == NULL) {
         return BLE_ERR_BUFFER_TOO_SMALL;
@@ -59,8 +57,7 @@ ble_result_t ble_encode_control(const ble_control_payload_t *in,
     return BLE_OK;
 }
 
-ble_result_t ble_decode_control(const uint8_t         *data,
-                                size_t                 length,
+ble_result_t ble_decode_control(const uint8_t *data, size_t length,
                                 ble_control_payload_t *out_payload)
 {
     if (data == NULL || out_payload == NULL) {
@@ -72,7 +69,7 @@ ble_result_t ble_decode_control(const uint8_t         *data,
     if (data[0] != BLE_PROTOCOL_VERSION) {
         return BLE_ERR_UNSUPPORTED_VERSION;
     }
-    const uint8_t cmd    = data[1];
+    const uint8_t cmd = data[1];
     const uint8_t value0 = data[2];
     const uint8_t value1 = data[3];
 
@@ -86,7 +83,7 @@ ble_result_t ble_decode_control(const uint8_t         *data,
         if (!ble_is_known_screen(value0)) {
             return BLE_ERR_UNKNOWN_SCREEN_ID;
         }
-        out_payload->command   = BLE_CONTROL_CMD_SET_ACTIVE_SCREEN;
+        out_payload->command = BLE_CONTROL_CMD_SET_ACTIVE_SCREEN;
         out_payload->screen_id = value0;
         return BLE_OK;
     case BLE_CONTROL_CMD_SET_BRIGHTNESS:
@@ -96,7 +93,7 @@ ble_result_t ble_decode_control(const uint8_t         *data,
         if (value0 > 100u) {
             return BLE_ERR_INVALID_COMMAND_VALUE;
         }
-        out_payload->command    = BLE_CONTROL_CMD_SET_BRIGHTNESS;
+        out_payload->command = BLE_CONTROL_CMD_SET_BRIGHTNESS;
         out_payload->brightness = value0;
         return BLE_OK;
     case BLE_CONTROL_CMD_SLEEP:

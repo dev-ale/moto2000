@@ -20,12 +20,12 @@
 extern "C" {
 #endif
 
-#define OTA_HMAC_SHA256_KEY_SIZE  32
-#define OTA_HMAC_SHA256_MAC_SIZE  32
+#define OTA_HMAC_SHA256_KEY_SIZE 32
+#define OTA_HMAC_SHA256_MAC_SIZE 32
 
 typedef struct {
     uint8_t key[OTA_HMAC_SHA256_KEY_SIZE];
-    size_t  key_len; /* 1..32 */
+    size_t key_len; /* 1..32 */
 } ota_verify_key_t;
 
 /*
@@ -36,8 +36,7 @@ typedef struct {
  * NULL data with data_len==0 is valid (HMAC of empty message).
  * NULL key or NULL expected_mac returns false.
  */
-bool ota_verify_hmac_sha256(const ota_verify_key_t *key,
-                            const uint8_t *data, size_t data_len,
+bool ota_verify_hmac_sha256(const ota_verify_key_t *key, const uint8_t *data, size_t data_len,
                             const uint8_t *expected_mac, size_t mac_len);
 
 #ifdef __cplusplus

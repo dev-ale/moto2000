@@ -20,7 +20,10 @@
 
 static ota_fsm_t fsm;
 
-void setUp(void) { ota_fsm_init(&fsm); }
+void setUp(void)
+{
+    ota_fsm_init(&fsm);
+}
 void tearDown(void) {}
 
 /* --- Init ------------------------------------------------------------ */
@@ -45,12 +48,10 @@ static void test_idle_ignores_other_events(void)
 {
     /* All events except CHECK_REQUESTED should be ignored in IDLE. */
     ota_event_t events[] = {
-        OTA_EVENT_VERSION_AVAILABLE, OTA_EVENT_NO_UPDATE,
-        OTA_EVENT_DOWNLOAD_COMPLETE, OTA_EVENT_DOWNLOAD_FAILED,
-        OTA_EVENT_VERIFY_OK,         OTA_EVENT_VERIFY_FAILED,
-        OTA_EVENT_APPLY_OK,          OTA_EVENT_APPLY_FAILED,
-        OTA_EVENT_BOOT_CONFIRMED,    OTA_EVENT_BOOT_FAILED,
-        OTA_EVENT_RESET,
+        OTA_EVENT_VERSION_AVAILABLE, OTA_EVENT_NO_UPDATE,    OTA_EVENT_DOWNLOAD_COMPLETE,
+        OTA_EVENT_DOWNLOAD_FAILED,   OTA_EVENT_VERIFY_OK,    OTA_EVENT_VERIFY_FAILED,
+        OTA_EVENT_APPLY_OK,          OTA_EVENT_APPLY_FAILED, OTA_EVENT_BOOT_CONFIRMED,
+        OTA_EVENT_BOOT_FAILED,       OTA_EVENT_RESET,
     };
     for (size_t i = 0; i < sizeof(events) / sizeof(events[0]); i++) {
         ota_fsm_init(&fsm);
@@ -392,45 +393,45 @@ static void test_action_names(void)
 
 static void test_version_equal(void)
 {
-    ota_version_t a = {1, 2, 3};
-    ota_version_t b = {1, 2, 3};
+    ota_version_t a = { 1, 2, 3 };
+    ota_version_t b = { 1, 2, 3 };
     TEST_ASSERT_EQUAL_INT(0, ota_version_compare(&a, &b));
     TEST_ASSERT_FALSE(ota_version_is_newer(&a, &b));
 }
 
 static void test_version_newer_major(void)
 {
-    ota_version_t current   = {1, 0, 0};
-    ota_version_t available = {2, 0, 0};
+    ota_version_t current = { 1, 0, 0 };
+    ota_version_t available = { 2, 0, 0 };
     TEST_ASSERT_TRUE(ota_version_is_newer(&current, &available));
     TEST_ASSERT_FALSE(ota_version_is_newer(&available, &current));
 }
 
 static void test_version_newer_minor(void)
 {
-    ota_version_t current   = {1, 2, 0};
-    ota_version_t available = {1, 3, 0};
+    ota_version_t current = { 1, 2, 0 };
+    ota_version_t available = { 1, 3, 0 };
     TEST_ASSERT_TRUE(ota_version_is_newer(&current, &available));
 }
 
 static void test_version_newer_patch(void)
 {
-    ota_version_t current   = {1, 2, 3};
-    ota_version_t available = {1, 2, 4};
+    ota_version_t current = { 1, 2, 3 };
+    ota_version_t available = { 1, 2, 4 };
     TEST_ASSERT_TRUE(ota_version_is_newer(&current, &available));
 }
 
 static void test_version_older(void)
 {
-    ota_version_t current   = {2, 0, 0};
-    ota_version_t available = {1, 9, 9};
+    ota_version_t current = { 2, 0, 0 };
+    ota_version_t available = { 1, 9, 9 };
     TEST_ASSERT_FALSE(ota_version_is_newer(&current, &available));
 }
 
 static void test_version_compare_ordering(void)
 {
-    ota_version_t a = {1, 0, 0};
-    ota_version_t b = {2, 0, 0};
+    ota_version_t a = { 1, 0, 0 };
+    ota_version_t b = { 2, 0, 0 };
     TEST_ASSERT_TRUE(ota_version_compare(&a, &b) < 0);
     TEST_ASSERT_TRUE(ota_version_compare(&b, &a) > 0);
 }
@@ -480,7 +481,7 @@ static void test_version_parse_invalid(void)
 
 static void test_version_to_string(void)
 {
-    ota_version_t v = {1, 2, 3};
+    ota_version_t v = { 1, 2, 3 };
     char buf[16];
     ota_version_to_string(&v, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("1.2.3", buf);
@@ -488,7 +489,7 @@ static void test_version_to_string(void)
 
 static void test_version_to_string_max(void)
 {
-    ota_version_t v = {255, 255, 255};
+    ota_version_t v = { 255, 255, 255 };
     char buf[16];
     ota_version_to_string(&v, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("255.255.255", buf);
@@ -496,7 +497,7 @@ static void test_version_to_string_max(void)
 
 static void test_version_roundtrip(void)
 {
-    ota_version_t original = {10, 20, 30};
+    ota_version_t original = { 10, 20, 30 };
     char buf[16];
     ota_version_to_string(&original, buf, sizeof(buf));
 
@@ -547,15 +548,14 @@ static void test_hmac_rfc4231_case2(void)
     memcpy(key.key, "Jefe", 4);
     key.key_len = 4;
 
-    const char *msg         = "what do ya want for nothing?";
+    const char *msg = "what do ya want for nothing?";
     const uint8_t expected[] = {
         0x5b, 0xdc, 0xc1, 0x46, 0xbf, 0x60, 0x75, 0x4e, 0x6a, 0x04, 0x24,
         0x26, 0x08, 0x95, 0x75, 0xc7, 0x5a, 0x00, 0x3f, 0x08, 0x9d, 0x27,
         0x39, 0x83, 0x9d, 0xec, 0x58, 0xb9, 0x64, 0xec, 0x38, 0x43,
     };
 
-    TEST_ASSERT_TRUE(ota_verify_hmac_sha256(
-        &key, (const uint8_t *)msg, strlen(msg), expected, 32));
+    TEST_ASSERT_TRUE(ota_verify_hmac_sha256(&key, (const uint8_t *)msg, strlen(msg), expected, 32));
 }
 
 static void test_hmac_tampered_mac(void)
@@ -608,7 +608,7 @@ static void test_hmac_empty_data(void)
 
 static void test_hmac_null_key(void)
 {
-    uint8_t data[] = {0x01};
+    uint8_t data[] = { 0x01 };
     uint8_t mac[32];
     memset(mac, 0, 32);
     TEST_ASSERT_FALSE(ota_verify_hmac_sha256(NULL, data, 1, mac, 32));
@@ -619,7 +619,7 @@ static void test_hmac_null_expected_mac(void)
     ota_verify_key_t key;
     memset(key.key, 0x01, 16);
     key.key_len = 16;
-    uint8_t data[] = {0x01};
+    uint8_t data[] = { 0x01 };
     TEST_ASSERT_FALSE(ota_verify_hmac_sha256(&key, data, 1, NULL, 32));
 }
 
@@ -628,7 +628,7 @@ static void test_hmac_wrong_mac_len(void)
     ota_verify_key_t key;
     memset(key.key, 0x01, 16);
     key.key_len = 16;
-    uint8_t data[] = {0x01};
+    uint8_t data[] = { 0x01 };
     uint8_t mac[32];
     memset(mac, 0, 32);
     TEST_ASSERT_FALSE(ota_verify_hmac_sha256(&key, data, 1, mac, 16));

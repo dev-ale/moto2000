@@ -71,7 +71,7 @@ struct ScreenPickerView: View {
 
                 Section("Power") {
                     Button("Sleep") { viewModel.sleep() }
-                    Button("Wake")  { viewModel.wake() }
+                    Button("Wake") { viewModel.wake() }
                     Button("Clear Alert Overlay") { viewModel.clearAlertOverlay() }
                 }
 

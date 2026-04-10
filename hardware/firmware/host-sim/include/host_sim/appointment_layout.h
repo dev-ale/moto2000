@@ -32,9 +32,7 @@ extern "C" {
  *
  * `buf_len` must be at least 16.
  */
-void host_sim_appointment_format_starts_in(int16_t minutes,
-                                           char   *buf,
-                                           size_t  buf_len);
+void host_sim_appointment_format_starts_in(int16_t minutes, char *buf, size_t buf_len);
 
 /*
  * Uppercase a title and truncate to APPOINTMENT_LAYOUT_MAX_TITLE_CHARS.
@@ -42,18 +40,14 @@ void host_sim_appointment_format_starts_in(int16_t minutes,
  *
  * `out_len` must be at least APPOINTMENT_LAYOUT_MAX_TITLE_CHARS + 1.
  */
-void host_sim_appointment_uppercase_title(const char *in,
-                                          char       *out,
-                                          size_t      out_len);
+void host_sim_appointment_uppercase_title(const char *in, char *out, size_t out_len);
 
 /*
  * Uppercase a location and truncate to APPOINTMENT_LAYOUT_MAX_LOCATION_CHARS.
  *
  * `out_len` must be at least APPOINTMENT_LAYOUT_MAX_LOCATION_CHARS + 1.
  */
-void host_sim_appointment_uppercase_location(const char *in,
-                                             char       *out,
-                                             size_t      out_len);
+void host_sim_appointment_uppercase_location(const char *in, char *out, size_t out_len);
 
 #ifdef __cplusplus
 }

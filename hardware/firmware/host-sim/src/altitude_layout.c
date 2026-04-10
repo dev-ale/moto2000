@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int altitude_graph_y(int16_t altitude, int16_t min_alt, int16_t max_alt,
-                     int graph_top, int graph_bottom)
+int altitude_graph_y(int16_t altitude, int16_t min_alt, int16_t max_alt, int graph_top,
+                     int graph_bottom)
 {
     if (max_alt == min_alt) {
         /* Flat data: center vertically. */
@@ -15,8 +15,8 @@ int altitude_graph_y(int16_t altitude, int16_t min_alt, int16_t max_alt,
     }
     /* Higher altitude -> lower Y (toward top of screen). */
     const int range_alt = (int)max_alt - (int)min_alt;
-    const int range_px  = graph_bottom - graph_top;
-    const int offset    = (int)altitude - (int)min_alt;
+    const int range_px = graph_bottom - graph_top;
+    const int offset = (int)altitude - (int)min_alt;
     int y = graph_bottom - (offset * range_px / range_alt);
     if (y < graph_top) {
         y = graph_top;
@@ -27,8 +27,7 @@ int altitude_graph_y(int16_t altitude, int16_t min_alt, int16_t max_alt,
     return y;
 }
 
-int altitude_graph_x(int sample_index, int sample_count,
-                     int graph_left, int graph_right)
+int altitude_graph_x(int sample_index, int sample_count, int graph_left, int graph_right)
 {
     if (sample_count <= 1) {
         return (graph_left + graph_right) / 2;
@@ -58,8 +57,7 @@ void format_altitude_delta(int16_t meters, int is_ascent, char *buf, size_t buf_
 }
 
 /* Bresenham's line algorithm. */
-static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
-                      uint8_t r, uint8_t g, uint8_t b)
+static void put_pixel(host_sim_canvas_t *canvas, int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height) {
         return;
@@ -70,9 +68,8 @@ static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
     canvas->pixels[idx + 2U] = b;
 }
 
-void draw_line(host_sim_canvas_t *canvas,
-               int x0, int y0, int x1, int y1,
-               uint8_t r, uint8_t g, uint8_t b)
+void draw_line(host_sim_canvas_t *canvas, int x0, int y0, int x1, int y1, uint8_t r, uint8_t g,
+               uint8_t b)
 {
     if (canvas == NULL || canvas->pixels == NULL) {
         return;
@@ -105,11 +102,11 @@ void draw_line(host_sim_canvas_t *canvas,
         const int e2 = 2 * err;
         if (e2 >= dy) {
             err += dy;
-            x0  += sx;
+            x0 += sx;
         }
         if (e2 <= dx) {
             err += dx;
-            y0  += sy;
+            y0 += sy;
         }
     }
 }

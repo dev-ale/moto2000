@@ -21,12 +21,12 @@ void host_sim_render_placeholder(host_sim_canvas_t *canvas, uint8_t screen_id)
 
     const int scale1 = 5;
     const int scale2 = 4;
-    const int w1     = host_sim_measure_text(line1, scale1);
-    const int w2     = host_sim_measure_text(line2, scale2);
-    const int x1     = (canvas->width  - w1) / 2;
-    const int x2     = (canvas->width  - w2) / 2;
-    const int y1     = canvas->height / 2 - 8 * scale1;
-    const int y2     = canvas->height / 2 + 20;
+    const int w1 = host_sim_measure_text(line1, scale1);
+    const int w2 = host_sim_measure_text(line2, scale2);
+    const int x1 = (canvas->width - w1) / 2;
+    const int x2 = (canvas->width - w2) / 2;
+    const int y1 = canvas->height / 2 - 8 * scale1;
+    const int y2 = canvas->height / 2 + 20;
 
     host_sim_draw_text(canvas, line1, x1, y1, scale1, 0xCC, 0xCC, 0xCC);
     host_sim_draw_text(canvas, line2, x2, y2, scale2, 0x99, 0x99, 0x99);

@@ -13,10 +13,8 @@
 
 #include <string.h>
 
-ble_result_t ble_decode_fuel(const uint8_t      *data,
-                             size_t              length,
-                             uint8_t            *out_flags,
-                             ble_fuel_data_t    *out)
+ble_result_t ble_decode_fuel(const uint8_t *data, size_t length, uint8_t *out_flags,
+                             ble_fuel_data_t *out)
 {
     ble_header_t header;
     const ble_result_t hdr = ble_decode_header(data, length, &header);
@@ -29,30 +27,27 @@ ble_result_t ble_decode_fuel(const uint8_t      *data,
     if (header.body_length != BLE_PROTOCOL_FUEL_BODY_SIZE) {
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
-    const uint8_t *body     = header.body;
-    const uint8_t  pct      = body[0];
-    const uint8_t  reserved = body[1];
+    const uint8_t *body = header.body;
+    const uint8_t pct = body[0];
+    const uint8_t reserved = body[1];
     if (reserved != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
     if (pct > 100) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
-    out->tank_percent          = pct;
-    out->estimated_range_km    = ble_read_u16_le(&body[2]);
+    out->tank_percent = pct;
+    out->estimated_range_km = ble_read_u16_le(&body[2]);
     out->consumption_ml_per_km = ble_read_u16_le(&body[4]);
-    out->fuel_remaining_ml     = ble_read_u16_le(&body[6]);
+    out->fuel_remaining_ml = ble_read_u16_le(&body[6]);
     if (out_flags != NULL) {
         *out_flags = header.flags;
     }
     return BLE_OK;
 }
 
-ble_result_t ble_encode_fuel(const ble_fuel_data_t *in,
-                             uint8_t                flags,
-                             uint8_t               *out_buf,
-                             size_t                 out_cap,
-                             size_t                *out_written)
+ble_result_t ble_encode_fuel(const ble_fuel_data_t *in, uint8_t flags, uint8_t *out_buf,
+                             size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_FUEL_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;

@@ -19,8 +19,6 @@
  *
  * Night mode: green arrows become red, text follows theme palette.
  */
-void screen_navigation_create(lv_obj_t *parent,
-                              const ble_nav_data_t *nav,
-                              uint8_t flags);
+void screen_navigation_create(lv_obj_t *parent, const ble_nav_data_t *nav, uint8_t flags);
 
 #endif /* SCREEN_NAVIGATION_H */

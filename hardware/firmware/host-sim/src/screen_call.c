@@ -21,8 +21,7 @@
 
 #include "ble_protocol.h"
 
-static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
-                      uint8_t r, uint8_t g, uint8_t b)
+static void put_pixel(host_sim_canvas_t *canvas, int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height) {
         return;
@@ -33,9 +32,8 @@ static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
     canvas->pixels[idx + 2U] = b;
 }
 
-static void fill_circle(host_sim_canvas_t *canvas,
-                        int cx, int cy, int radius,
-                        uint8_t r, uint8_t g, uint8_t b)
+static void fill_circle(host_sim_canvas_t *canvas, int cx, int cy, int radius, uint8_t r, uint8_t g,
+                        uint8_t b)
 {
     const int r2 = radius * radius;
     for (int y = cy - radius; y <= cy + radius; ++y) {
@@ -49,9 +47,8 @@ static void fill_circle(host_sim_canvas_t *canvas,
     }
 }
 
-void host_sim_render_call(host_sim_canvas_t              *canvas,
-                          const ble_incoming_call_data_t *call,
-                          uint8_t                         header_flags)
+void host_sim_render_call(host_sim_canvas_t *canvas, const ble_incoming_call_data_t *call,
+                          uint8_t header_flags)
 {
     const int night = (header_flags & BLE_FLAG_NIGHT_MODE) != 0U;
     const int alert = (header_flags & BLE_FLAG_ALERT) != 0U;
@@ -79,49 +76,39 @@ void host_sim_render_call(host_sim_canvas_t              *canvas,
     /* ---- Phone icon glyph (filled circle placeholder) ---- */
     const int phone_y = 120;
     const int phone_radius = 25;
-    fill_circle(canvas, cx, phone_y, phone_radius,
-                accent_r, accent_g, accent_b);
+    fill_circle(canvas, cx, phone_y, phone_radius, accent_r, accent_g, accent_b);
 
     /* Draw a "phone" character inside the circle */
     const char phone_char[] = "#";
     const int phone_scale = 4;
     const int phone_w = host_sim_measure_text(phone_char, phone_scale);
-    host_sim_draw_text(canvas, phone_char,
-                       cx - phone_w / 2,
-                       phone_y - (8 * phone_scale) / 2,
-                       phone_scale,
-                       text_r, text_g, text_b);
+    host_sim_draw_text(canvas, phone_char, cx - phone_w / 2, phone_y - (8 * phone_scale) / 2,
+                       phone_scale, text_r, text_g, text_b);
 
     /* ---- State text ---- */
     const char *state_label = call_state_label(call->call_state);
     const int state_scale = 4;
     const int state_w = host_sim_measure_text(state_label, state_scale);
     const int state_y = 180;
-    host_sim_draw_text(canvas, state_label, cx - state_w / 2, state_y,
-                       state_scale, text_r, text_g, text_b);
+    host_sim_draw_text(canvas, state_label, cx - state_w / 2, state_y, state_scale, text_r, text_g,
+                       text_b);
 
     /* ---- Avatar circle with initial ---- */
     const int avatar_y = 270;
     const int avatar_radius = 35;
-    fill_circle(canvas, cx, avatar_y, avatar_radius,
-                accent_r, accent_g, accent_b);
+    fill_circle(canvas, cx, avatar_y, avatar_radius, accent_r, accent_g, accent_b);
 
-    char initial_buf[2] = {call_avatar_initial(call->caller_handle), '\0'};
+    const char initial_buf[2] = { call_avatar_initial(call->caller_handle), '\0' };
     const int initial_scale = 6;
     const int initial_w = host_sim_measure_text(initial_buf, initial_scale);
-    host_sim_draw_text(canvas, initial_buf,
-                       cx - initial_w / 2,
-                       avatar_y - (8 * initial_scale) / 2,
-                       initial_scale,
-                       text_r, text_g, text_b);
+    host_sim_draw_text(canvas, initial_buf, cx - initial_w / 2, avatar_y - (8 * initial_scale) / 2,
+                       initial_scale, text_r, text_g, text_b);
 
     /* ---- Caller handle ---- */
     const int handle_scale = 3;
     const int handle_w = host_sim_measure_text(call->caller_handle, handle_scale);
     const int handle_y = avatar_y + avatar_radius + 20;
-    host_sim_draw_text(canvas, call->caller_handle,
-                       cx - handle_w / 2, handle_y,
-                       handle_scale,
+    host_sim_draw_text(canvas, call->caller_handle, cx - handle_w / 2, handle_y, handle_scale,
                        text_r, text_g, text_b);
 
     host_sim_canvas_apply_round_mask(canvas);

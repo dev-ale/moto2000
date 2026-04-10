@@ -9,10 +9,14 @@
 const char *call_state_label(ble_call_state_t state)
 {
     switch (state) {
-        case BLE_CALL_INCOMING:  return "INCOMING CALL";
-        case BLE_CALL_CONNECTED: return "CONNECTED";
-        case BLE_CALL_ENDED:     return "ENDED";
-        default:                 return "UNKNOWN";
+    case BLE_CALL_INCOMING:
+        return "INCOMING CALL";
+    case BLE_CALL_CONNECTED:
+        return "CONNECTED";
+    case BLE_CALL_ENDED:
+        return "ENDED";
+    default:
+        return "UNKNOWN";
     }
 }
 

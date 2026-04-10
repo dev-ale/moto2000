@@ -11,16 +11,16 @@ void screen_fsm_init(screen_fsm_t *fsm, uint8_t initial_active_screen_id)
     if (fsm == NULL) {
         return;
     }
-    fsm->state              = SCREEN_FSM_ACTIVE;
-    fsm->active_screen_id   = initial_active_screen_id;
+    fsm->state = SCREEN_FSM_ACTIVE;
+    fsm->active_screen_id = initial_active_screen_id;
     fsm->current_display_id = initial_active_screen_id;
-    fsm->alert_priority     = 0u;
+    fsm->alert_priority = 0u;
 }
 
 static screen_fsm_outcome_t make_none(void)
 {
     screen_fsm_outcome_t out;
-    out.kind      = SCREEN_FSM_ACTION_NONE;
+    out.kind = SCREEN_FSM_ACTION_NONE;
     out.screen_id = 0u;
     return out;
 }
@@ -28,7 +28,7 @@ static screen_fsm_outcome_t make_none(void)
 static screen_fsm_outcome_t make_render(uint8_t id)
 {
     screen_fsm_outcome_t out;
-    out.kind      = SCREEN_FSM_ACTION_RENDER_SCREEN;
+    out.kind = SCREEN_FSM_ACTION_RENDER_SCREEN;
     out.screen_id = id;
     return out;
 }
@@ -36,7 +36,7 @@ static screen_fsm_outcome_t make_render(uint8_t id)
 static screen_fsm_outcome_t make_dim(void)
 {
     screen_fsm_outcome_t out;
-    out.kind      = SCREEN_FSM_ACTION_DIM_DISPLAY;
+    out.kind = SCREEN_FSM_ACTION_DIM_DISPLAY;
     out.screen_id = 0u;
     return out;
 }
@@ -44,14 +44,12 @@ static screen_fsm_outcome_t make_dim(void)
 static screen_fsm_outcome_t make_wake(uint8_t id)
 {
     screen_fsm_outcome_t out;
-    out.kind      = SCREEN_FSM_ACTION_WAKE_DISPLAY;
+    out.kind = SCREEN_FSM_ACTION_WAKE_DISPLAY;
     out.screen_id = id;
     return out;
 }
 
-screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t      *fsm,
-                                       screen_fsm_event_t event,
-                                       uint8_t            data)
+screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t *fsm, screen_fsm_event_t event, uint8_t data)
 {
     if (fsm == NULL) {
         return make_none();
@@ -61,11 +59,11 @@ screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t      *fsm,
     case SCREEN_FSM_ACTIVE:
         switch (event) {
         case SCREEN_FSM_EVT_CONTROL_SET_ACTIVE:
-            fsm->active_screen_id   = data;
+            fsm->active_screen_id = data;
             fsm->current_display_id = data;
             return make_render(data);
         case SCREEN_FSM_EVT_ALERT_INCOMING:
-            fsm->state              = SCREEN_FSM_ALERT_OVERLAY;
+            fsm->state = SCREEN_FSM_ALERT_OVERLAY;
             fsm->current_display_id = data;
             /* alert_priority is set by the convenience wrapper. */
             return make_render(data);
@@ -99,12 +97,12 @@ screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t      *fsm,
             fsm->current_display_id = data;
             return make_render(data);
         case SCREEN_FSM_EVT_CONTROL_CLEAR_ALERT:
-            fsm->state              = SCREEN_FSM_ACTIVE;
-            fsm->alert_priority     = 0u;
+            fsm->state = SCREEN_FSM_ACTIVE;
+            fsm->alert_priority = 0u;
             fsm->current_display_id = fsm->active_screen_id;
             return make_render(fsm->active_screen_id);
         case SCREEN_FSM_EVT_CONTROL_SLEEP:
-            fsm->state          = SCREEN_FSM_SLEEP;
+            fsm->state = SCREEN_FSM_SLEEP;
             fsm->alert_priority = 0u;
             return make_dim();
         case SCREEN_FSM_EVT_CONTROL_WAKE:
@@ -118,7 +116,7 @@ screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t      *fsm,
     case SCREEN_FSM_SLEEP:
         switch (event) {
         case SCREEN_FSM_EVT_CONTROL_WAKE:
-            fsm->state              = SCREEN_FSM_ACTIVE;
+            fsm->state = SCREEN_FSM_ACTIVE;
             fsm->current_display_id = fsm->active_screen_id;
             return make_wake(fsm->active_screen_id);
         case SCREEN_FSM_EVT_CONTROL_SET_ACTIVE:
@@ -139,9 +137,8 @@ screen_fsm_outcome_t screen_fsm_handle(screen_fsm_t      *fsm,
     }
 }
 
-screen_fsm_outcome_t screen_fsm_handle_alert(screen_fsm_t *fsm,
-                                             uint8_t       alert_screen_id,
-                                             uint8_t       priority)
+screen_fsm_outcome_t screen_fsm_handle_alert(screen_fsm_t *fsm, uint8_t alert_screen_id,
+                                             uint8_t priority)
 {
     if (fsm == NULL) {
         return make_none();

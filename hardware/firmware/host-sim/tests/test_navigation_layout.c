@@ -9,7 +9,7 @@
 #include "host_sim/navigation_layout.h"
 #include "ble_protocol.h"
 
-void setUp(void)    {}
+void setUp(void) {}
 void tearDown(void) {}
 
 /* ------------------------------------------------------------------ */
@@ -104,16 +104,11 @@ static void test_format_eta_line_large_remaining(void)
 
 static void test_arrow_shape_mapping(void)
 {
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_STRAIGHT,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_STRAIGHT));
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_LEFT,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_LEFT));
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_LEFT,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_SHARP_LEFT));
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_LEFT,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_SLIGHT_LEFT));
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_RIGHT,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_RIGHT));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_STRAIGHT, host_sim_nav_arrow_shape(BLE_MANEUVER_STRAIGHT));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_LEFT, host_sim_nav_arrow_shape(BLE_MANEUVER_LEFT));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_LEFT, host_sim_nav_arrow_shape(BLE_MANEUVER_SHARP_LEFT));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_LEFT, host_sim_nav_arrow_shape(BLE_MANEUVER_SLIGHT_LEFT));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_RIGHT, host_sim_nav_arrow_shape(BLE_MANEUVER_RIGHT));
     TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_U_TURN_LEFT,
                           host_sim_nav_arrow_shape(BLE_MANEUVER_U_TURN_LEFT));
     TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_U_TURN_RIGHT,
@@ -126,12 +121,9 @@ static void test_arrow_shape_mapping(void)
                           host_sim_nav_arrow_shape(BLE_MANEUVER_FORK_LEFT));
     TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_FORK_RIGHT,
                           host_sim_nav_arrow_shape(BLE_MANEUVER_FORK_RIGHT));
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_ARRIVE,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_ARRIVE));
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_STRAIGHT,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_MERGE));
-    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_STRAIGHT,
-                          host_sim_nav_arrow_shape(BLE_MANEUVER_NONE));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_ARRIVE, host_sim_nav_arrow_shape(BLE_MANEUVER_ARRIVE));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_STRAIGHT, host_sim_nav_arrow_shape(BLE_MANEUVER_MERGE));
+    TEST_ASSERT_EQUAL_INT(HOST_SIM_ARROW_STRAIGHT, host_sim_nav_arrow_shape(BLE_MANEUVER_NONE));
 }
 
 /* ------------------------------------------------------------------ */

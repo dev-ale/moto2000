@@ -14,10 +14,8 @@
 
 #include <string.h>
 
-ble_result_t ble_decode_altitude(const uint8_t                  *data,
-                                 size_t                          length,
-                                 uint8_t                        *out_flags,
-                                 ble_altitude_profile_data_t    *out)
+ble_result_t ble_decode_altitude(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                 ble_altitude_profile_data_t *out)
 {
     ble_header_t header;
     const ble_result_t hdr = ble_decode_header(data, length, &header);
@@ -30,12 +28,12 @@ ble_result_t ble_decode_altitude(const uint8_t                  *data,
     if (header.body_length != BLE_PROTOCOL_ALTITUDE_BODY_SIZE) {
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
-    const uint8_t *body     = header.body;
-    const int16_t  cur_alt  = ble_read_i16_le(&body[0]);
-    const uint16_t ascent   = ble_read_u16_le(&body[2]);
-    const uint16_t descent  = ble_read_u16_le(&body[4]);
-    const uint8_t  count    = body[6];
-    const uint8_t  reserved = body[7];
+    const uint8_t *body = header.body;
+    const int16_t cur_alt = ble_read_i16_le(&body[0]);
+    const uint16_t ascent = ble_read_u16_le(&body[2]);
+    const uint16_t descent = ble_read_u16_le(&body[4]);
+    const uint8_t count = body[6];
+    const uint8_t reserved = body[7];
     if (reserved != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
@@ -47,9 +45,9 @@ ble_result_t ble_decode_altitude(const uint8_t                  *data,
     }
 
     out->current_altitude_m = cur_alt;
-    out->total_ascent_m     = ascent;
-    out->total_descent_m    = descent;
-    out->sample_count       = count;
+    out->total_ascent_m = ascent;
+    out->total_descent_m = descent;
+    out->sample_count = count;
     for (int i = 0; i < BLE_ALTITUDE_MAX_SAMPLES; ++i) {
         out->profile[i] = ble_read_i16_le(&body[8 + (size_t)i * 2U]);
     }
@@ -59,11 +57,8 @@ ble_result_t ble_decode_altitude(const uint8_t                  *data,
     return BLE_OK;
 }
 
-ble_result_t ble_encode_altitude(const ble_altitude_profile_data_t *in,
-                                 uint8_t                            flags,
-                                 uint8_t                           *out_buf,
-                                 size_t                             out_cap,
-                                 size_t                            *out_written)
+ble_result_t ble_encode_altitude(const ble_altitude_profile_data_t *in, uint8_t flags,
+                                 uint8_t *out_buf, size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_ALTITUDE_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;

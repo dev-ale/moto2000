@@ -6,9 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
-int host_sim_music_progress_fill_width(uint16_t position_seconds,
-                                       uint16_t duration_seconds,
-                                       int      bar_width)
+int host_sim_music_progress_fill_width(uint16_t position_seconds, uint16_t duration_seconds,
+                                       int bar_width)
 {
     if (bar_width < 0) {
         return 0;
@@ -24,13 +23,11 @@ int host_sim_music_progress_fill_width(uint16_t position_seconds,
         return bar_width;
     }
     const uint32_t numerator = (uint32_t)position_seconds * (uint32_t)bar_width;
-    const uint32_t fill      = numerator / (uint32_t)duration_seconds;
+    const uint32_t fill = numerator / (uint32_t)duration_seconds;
     return (int)fill;
 }
 
-size_t host_sim_music_truncate_with_ellipsis(const char *in,
-                                             char       *out,
-                                             size_t      out_len)
+size_t host_sim_music_truncate_with_ellipsis(const char *in, char *out, size_t out_len)
 {
     if (out == NULL || out_len == 0U) {
         return 0;
@@ -48,27 +45,22 @@ size_t host_sim_music_truncate_with_ellipsis(const char *in,
     /* Need room for "..\0". If out_len < 3 we can only write as much as
      * fits plus NUL. */
     if (out_len < 4U) {
-        size_t fit = out_len - 1U;
-        if (fit > 2U) {
-            fit = 2U;
-        }
+        const size_t fit = out_len - 1U;
         for (size_t i = 0; i < fit; ++i) {
             out[i] = '.';
         }
         out[fit] = '\0';
         return fit;
     }
-    const size_t keep = out_len - 3U;  /* leave room for "..\0" */
+    const size_t keep = out_len - 3U; /* leave room for "..\0" */
     memcpy(out, in, keep);
-    out[keep]     = '.';
+    out[keep] = '.';
     out[keep + 1] = '.';
     out[keep + 2] = '\0';
     return keep + 2U;
 }
 
-void host_sim_music_uppercase_ascii(const char *in,
-                                    char       *out,
-                                    size_t      out_len)
+void host_sim_music_uppercase_ascii(const char *in, char *out, size_t out_len)
 {
     if (out == NULL || out_len == 0U) {
         return;
@@ -88,9 +80,7 @@ void host_sim_music_uppercase_ascii(const char *in,
     out[i] = '\0';
 }
 
-size_t host_sim_music_format_time(uint16_t seconds,
-                                  char    *buf,
-                                  size_t   buf_len)
+size_t host_sim_music_format_time(uint16_t seconds, char *buf, size_t buf_len)
 {
     if (buf == NULL || buf_len < 6U) {
         return 0;
@@ -102,7 +92,7 @@ size_t host_sim_music_format_time(uint16_t seconds,
         return len;
     }
     const unsigned minutes = (unsigned)(seconds / 60U);
-    const unsigned secs    = (unsigned)(seconds % 60U);
+    const unsigned secs = (unsigned)(seconds % 60U);
     int written;
     if (minutes >= 10U) {
         written = snprintf(buf, buf_len, "%u:%02u", minutes, secs);

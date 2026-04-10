@@ -13,10 +13,8 @@ static bool ble_call_state_is_known(uint8_t s)
     return s <= BLE_CALL_ENDED;
 }
 
-ble_result_t ble_decode_incoming_call(const uint8_t              *data,
-                                      size_t                      length,
-                                      uint8_t                    *out_flags,
-                                      ble_incoming_call_data_t   *out_call)
+ble_result_t ble_decode_incoming_call(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                      ble_incoming_call_data_t *out_call)
 {
     ble_header_t header;
     const ble_result_t hdr = ble_decode_header(data, length, &header);
@@ -29,9 +27,9 @@ ble_result_t ble_decode_incoming_call(const uint8_t              *data,
     if (header.body_length != BLE_PROTOCOL_INCOMING_CALL_BODY_SIZE) {
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
-    const uint8_t *body     = header.body;
-    const uint8_t  state    = body[0];
-    const uint8_t  reserved = body[1];
+    const uint8_t *body = header.body;
+    const uint8_t state = body[0];
+    const uint8_t reserved = body[1];
     if (reserved != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
@@ -61,11 +59,8 @@ ble_result_t ble_decode_incoming_call(const uint8_t              *data,
     return BLE_OK;
 }
 
-ble_result_t ble_encode_incoming_call(const ble_incoming_call_data_t *call,
-                                      uint8_t                         flags,
-                                      uint8_t                        *out_buf,
-                                      size_t                          out_cap,
-                                      size_t                         *out_written)
+ble_result_t ble_encode_incoming_call(const ble_incoming_call_data_t *call, uint8_t flags,
+                                      uint8_t *out_buf, size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_INCOMING_CALL_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;
@@ -77,7 +72,7 @@ ble_result_t ble_encode_incoming_call(const ble_incoming_call_data_t *call,
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
     /* caller_handle must fit with a null terminator. */
-    size_t name_len = strnlen(call->caller_handle, CALLER_HANDLE_FIELD_LEN);
+    size_t name_len = ble_strnlen(call->caller_handle, CALLER_HANDLE_FIELD_LEN);
     if (name_len >= CALLER_HANDLE_FIELD_LEN) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }

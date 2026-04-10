@@ -18,7 +18,7 @@
    This is standard practice for custom LVGL v9 themes. */
 #include "src/themes/lv_theme_private.h"
 
-static bool       s_night_mode;
+static bool s_night_mode;
 static lv_theme_t s_theme;
 
 /* Base styles applied to every object via theme callbacks. */
@@ -60,9 +60,9 @@ static void theme_apply_cb(lv_theme_t *th, lv_obj_t *obj)
 
 static void rebuild_styles(void)
 {
-    lv_color_t bg    = s_night_mode ? SCRAM_COLOR_NIGHT_BG    : SCRAM_COLOR_BG;
-    lv_color_t text  = s_night_mode ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t green = s_night_mode ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_GREEN;
+    lv_color_t bg = s_night_mode ? SCRAM_COLOR_NIGHT_BG : SCRAM_COLOR_BG;
+    lv_color_t text = s_night_mode ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t green = s_night_mode ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_GREEN;
 
     /* Background */
     lv_style_reset(&s_style_bg);

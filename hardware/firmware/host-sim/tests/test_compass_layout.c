@@ -10,18 +10,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void setUp(void)    {}
+void setUp(void) {}
 void tearDown(void) {}
 
-static int iabs(int v) { return v < 0 ? -v : v; }
+static int iabs(int v)
+{
+    return v < 0 ? -v : v;
+}
 
-static void assert_point_near(compass_point_t got, int ex, int ey, int tol,
-                              const char *tag)
+static void assert_point_near(compass_point_t got, int ex, int ey, int tol, const char *tag)
 {
     char msg[128];
-    (void)snprintf(msg, sizeof(msg),
-                   "%s: expected (%d,%d) got (%d,%d)",
-                   tag, ex, ey, got.x, got.y);
+    (void)snprintf(msg, sizeof(msg), "%s: expected (%d,%d) got (%d,%d)", tag, ex, ey, got.x, got.y);
     TEST_ASSERT_TRUE_MESSAGE(iabs(got.x - ex) <= tol, msg);
     TEST_ASSERT_TRUE_MESSAGE(iabs(got.y - ey) <= tol, msg);
 }
@@ -32,16 +32,16 @@ static void assert_point_near(compass_point_t got, int ex, int ey, int tol,
 
 static void test_normalize_in_range_passthrough(void)
 {
-    TEST_ASSERT_EQUAL_UINT16(0U,    host_sim_compass_normalize_deg_x10(0));
+    TEST_ASSERT_EQUAL_UINT16(0U, host_sim_compass_normalize_deg_x10(0));
     TEST_ASSERT_EQUAL_UINT16(3599U, host_sim_compass_normalize_deg_x10(3599));
     TEST_ASSERT_EQUAL_UINT16(1800U, host_sim_compass_normalize_deg_x10(1800));
 }
 
 static void test_normalize_wraps_positive(void)
 {
-    TEST_ASSERT_EQUAL_UINT16(0U,    host_sim_compass_normalize_deg_x10(3600));
-    TEST_ASSERT_EQUAL_UINT16(10U,   host_sim_compass_normalize_deg_x10(3610));
-    TEST_ASSERT_EQUAL_UINT16(100U,  host_sim_compass_normalize_deg_x10(7300));
+    TEST_ASSERT_EQUAL_UINT16(0U, host_sim_compass_normalize_deg_x10(3600));
+    TEST_ASSERT_EQUAL_UINT16(10U, host_sim_compass_normalize_deg_x10(3610));
+    TEST_ASSERT_EQUAL_UINT16(100U, host_sim_compass_normalize_deg_x10(7300));
 }
 
 static void test_normalize_wraps_negative(void)
@@ -57,9 +57,9 @@ static void test_normalize_wraps_negative(void)
 
 static void test_whole_deg_basic(void)
 {
-    TEST_ASSERT_EQUAL_UINT16(0U,   host_sim_compass_heading_to_whole_deg(0));
-    TEST_ASSERT_EQUAL_UINT16(42U,  host_sim_compass_heading_to_whole_deg(420));
-    TEST_ASSERT_EQUAL_UINT16(90U,  host_sim_compass_heading_to_whole_deg(900));
+    TEST_ASSERT_EQUAL_UINT16(0U, host_sim_compass_heading_to_whole_deg(0));
+    TEST_ASSERT_EQUAL_UINT16(42U, host_sim_compass_heading_to_whole_deg(420));
+    TEST_ASSERT_EQUAL_UINT16(90U, host_sim_compass_heading_to_whole_deg(900));
     TEST_ASSERT_EQUAL_UINT16(225U, host_sim_compass_heading_to_whole_deg(2250));
     TEST_ASSERT_EQUAL_UINT16(359U, host_sim_compass_heading_to_whole_deg(3594));
 }
@@ -83,14 +83,10 @@ static void test_point_on_dial_heading_north(void)
     /* Heading = 0° (north), so the cardinal labels sit at their
      * geographic positions around the dial. */
     const int cx = 100, cy = 100, r = 50;
-    assert_point_near(host_sim_compass_point_on_dial(0,    0,    cx, cy, r),
-                      100, 50, 1, "N at 0");
-    assert_point_near(host_sim_compass_point_on_dial(0,    900,  cx, cy, r),
-                      150, 100, 1, "E at 90");
-    assert_point_near(host_sim_compass_point_on_dial(0,    1800, cx, cy, r),
-                      100, 150, 1, "S at 180");
-    assert_point_near(host_sim_compass_point_on_dial(0,    2700, cx, cy, r),
-                      50, 100, 1, "W at 270");
+    assert_point_near(host_sim_compass_point_on_dial(0, 0, cx, cy, r), 100, 50, 1, "N at 0");
+    assert_point_near(host_sim_compass_point_on_dial(0, 900, cx, cy, r), 150, 100, 1, "E at 90");
+    assert_point_near(host_sim_compass_point_on_dial(0, 1800, cx, cy, r), 100, 150, 1, "S at 180");
+    assert_point_near(host_sim_compass_point_on_dial(0, 2700, cx, cy, r), 50, 100, 1, "W at 270");
 }
 
 static void test_point_on_dial_heading_east_rotates_dial(void)
@@ -98,22 +94,22 @@ static void test_point_on_dial_heading_east_rotates_dial(void)
     /* Heading = 90°: the dial rotates counter-clockwise so that East sits
      * at the top and North slides around to the left. */
     const int cx = 100, cy = 100, r = 50;
-    assert_point_near(host_sim_compass_point_on_dial(900, 900, cx, cy, r),
-                      100, 50, 1, "E at top when heading east");
-    assert_point_near(host_sim_compass_point_on_dial(900, 0,   cx, cy, r),
-                      50, 100, 1, "N slides to the left");
-    assert_point_near(host_sim_compass_point_on_dial(900, 1800, cx, cy, r),
-                      150, 100, 1, "S slides to the right");
+    assert_point_near(host_sim_compass_point_on_dial(900, 900, cx, cy, r), 100, 50, 1,
+                      "E at top when heading east");
+    assert_point_near(host_sim_compass_point_on_dial(900, 0, cx, cy, r), 50, 100, 1,
+                      "N slides to the left");
+    assert_point_near(host_sim_compass_point_on_dial(900, 1800, cx, cy, r), 150, 100, 1,
+                      "S slides to the right");
 }
 
 static void test_point_on_dial_south_heading(void)
 {
     const int cx = 200, cy = 200, r = 100;
     /* Heading = 180° (south): north is now at the bottom of the dial. */
-    assert_point_near(host_sim_compass_point_on_dial(1800, 0, cx, cy, r),
-                      200, 300, 2, "N at the bottom");
-    assert_point_near(host_sim_compass_point_on_dial(1800, 1800, cx, cy, r),
-                      200, 100, 2, "S at the top");
+    assert_point_near(host_sim_compass_point_on_dial(1800, 0, cx, cy, r), 200, 300, 2,
+                      "N at the bottom");
+    assert_point_near(host_sim_compass_point_on_dial(1800, 1800, cx, cy, r), 200, 100, 2,
+                      "S at the top");
 }
 
 /* -------------------------------------------------------------------- */
@@ -128,16 +124,15 @@ static void test_displayed_heading_prefers_magnetic_by_default(void)
 
 static void test_displayed_heading_uses_true_when_flag_set(void)
 {
-    const uint16_t got = host_sim_compass_displayed_heading_x10(
-        1200, 1250, BLE_COMPASS_FLAG_USE_TRUE_HEADING);
+    const uint16_t got =
+        host_sim_compass_displayed_heading_x10(1200, 1250, BLE_COMPASS_FLAG_USE_TRUE_HEADING);
     TEST_ASSERT_EQUAL_UINT16(1250, got);
 }
 
 static void test_displayed_heading_falls_back_if_true_unknown(void)
 {
     const uint16_t got = host_sim_compass_displayed_heading_x10(
-        1200, BLE_COMPASS_TRUE_HEADING_UNKNOWN,
-        BLE_COMPASS_FLAG_USE_TRUE_HEADING);
+        1200, BLE_COMPASS_TRUE_HEADING_UNKNOWN, BLE_COMPASS_FLAG_USE_TRUE_HEADING);
     TEST_ASSERT_EQUAL_UINT16(1200, got);
 }
 

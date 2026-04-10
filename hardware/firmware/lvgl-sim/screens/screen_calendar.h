@@ -15,8 +15,6 @@
  *   - Event card with colored left border containing title, time, location
  *   - Countdown (e.g. "IN 42M", "NOW", "15M AGO")
  */
-void screen_calendar_create(lv_obj_t *parent,
-                            const ble_appointment_data_t *data,
-                            uint8_t flags);
+void screen_calendar_create(lv_obj_t *parent, const ble_appointment_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_CALENDAR_H */

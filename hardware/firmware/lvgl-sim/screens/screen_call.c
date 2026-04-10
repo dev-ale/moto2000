@@ -34,9 +34,12 @@
 static const char *call_state_text(ble_call_state_t state)
 {
     switch (state) {
-        case BLE_CALL_INCOMING:  return "INCOMING CALL";
-        case BLE_CALL_CONNECTED: return "CONNECTED";
-        case BLE_CALL_ENDED:     return "CALL ENDED";
+    case BLE_CALL_INCOMING:
+        return "INCOMING CALL";
+    case BLE_CALL_CONNECTED:
+        return "CONNECTED";
+    case BLE_CALL_ENDED:
+        return "CALL ENDED";
     }
     return "UNKNOWN";
 }
@@ -45,19 +48,17 @@ static const char *call_state_text(ble_call_state_t state)
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_call_create(lv_obj_t *parent,
-                        const ble_incoming_call_data_t *data,
-                        uint8_t flags)
+void screen_call_create(lv_obj_t *parent, const ble_incoming_call_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted  = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
     /* Green accept button stays green even in night mode (intentional). */
-    lv_color_t col_green  = SCRAM_COLOR_GREEN;
-    lv_color_t col_red    = SCRAM_COLOR_RED;
-    lv_color_t col_state  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_GREEN;
-    lv_color_t col_avatar = night ? lv_color_hex(0x220000)  : lv_color_hex(0x333333);
+    lv_color_t col_green = SCRAM_COLOR_GREEN;
+    lv_color_t col_red = SCRAM_COLOR_RED;
+    lv_color_t col_state = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_GREEN;
+    lv_color_t col_avatar = night ? lv_color_hex(0x220000) : lv_color_hex(0x333333);
 
     (void)flags;
 
@@ -68,7 +69,7 @@ void screen_call_create(lv_obj_t *parent,
     /* --- Static glow ring (outermost) --- */
     lv_obj_t *glow_ring = lv_obj_create(parent);
     lv_obj_set_size(glow_ring, 150, 150);
-    lv_obj_set_style_radius(glow_ring, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(glow_ring, 75, 0);
     lv_obj_set_style_bg_color(glow_ring, col_green, 0);
     lv_obj_set_style_bg_opa(glow_ring, LV_OPA_20, 0);
     lv_obj_set_style_border_width(glow_ring, 0, 0);
@@ -78,7 +79,7 @@ void screen_call_create(lv_obj_t *parent,
     /* --- Middle glow ring --- */
     lv_obj_t *mid_ring = lv_obj_create(parent);
     lv_obj_set_size(mid_ring, 120, 120);
-    lv_obj_set_style_radius(mid_ring, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(mid_ring, 60, 0);
     lv_obj_set_style_bg_color(mid_ring, col_green, 0);
     lv_obj_set_style_bg_opa(mid_ring, LV_OPA_30, 0);
     lv_obj_set_style_border_width(mid_ring, 0, 0);
@@ -88,7 +89,7 @@ void screen_call_create(lv_obj_t *parent,
     /* --- Avatar circle --- */
     lv_obj_t *avatar = lv_obj_create(parent);
     lv_obj_set_size(avatar, 90, 90);
-    lv_obj_set_style_radius(avatar, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(avatar, 45, 0);
     lv_obj_set_style_bg_color(avatar, col_avatar, 0);
     lv_obj_set_style_bg_opa(avatar, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(avatar, 0, 0);
@@ -131,7 +132,7 @@ void screen_call_create(lv_obj_t *parent,
     /* Accept button (green circle with checkmark). */
     lv_obj_t *btn_accept = lv_obj_create(parent);
     lv_obj_set_size(btn_accept, 50, 50);
-    lv_obj_set_style_radius(btn_accept, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(btn_accept, 25, 0);
     lv_obj_set_style_bg_color(btn_accept, col_green, 0);
     lv_obj_set_style_bg_opa(btn_accept, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(btn_accept, 0, 0);
@@ -154,7 +155,7 @@ void screen_call_create(lv_obj_t *parent,
     /* Reject button (red circle with X). */
     lv_obj_t *btn_reject = lv_obj_create(parent);
     lv_obj_set_size(btn_reject, 50, 50);
-    lv_obj_set_style_radius(btn_reject, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(btn_reject, 25, 0);
     lv_obj_set_style_bg_color(btn_reject, col_red, 0);
     lv_obj_set_style_bg_opa(btn_reject, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(btn_reject, 0, 0);

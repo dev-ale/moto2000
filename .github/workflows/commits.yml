@@ -3,6 +3,10 @@ name: Commits
 on:
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   conventional-commits:
     name: Conventional Commits

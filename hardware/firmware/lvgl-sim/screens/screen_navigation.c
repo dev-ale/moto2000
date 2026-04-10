@@ -37,9 +37,9 @@
 #define CENTER       (DISPLAY_SIZE / 2)
 
 /* Arrow region: centered horizontally, upper portion of screen. */
-#define ARROW_CX     CENTER
-#define ARROW_CY     130      /* center of arrow drawing region */
-#define ARROW_SIZE   90       /* half-extent of arrow shapes */
+#define ARROW_CX   CENTER
+#define ARROW_CY   130 /* center of arrow drawing region */
+#define ARROW_SIZE 90  /* half-extent of arrow shapes */
 
 /* ------------------------------------------------------------------ */
 /*  Maneuver type to arrow shape and label                             */
@@ -66,22 +66,38 @@ typedef enum {
 static nav_arrow_t maneuver_to_arrow(ble_maneuver_t m)
 {
     switch (m) {
-        case BLE_MANEUVER_STRAIGHT:         return NAV_ARROW_STRAIGHT;
-        case BLE_MANEUVER_SLIGHT_LEFT:      return NAV_ARROW_SLIGHT_LEFT;
-        case BLE_MANEUVER_LEFT:             return NAV_ARROW_LEFT;
-        case BLE_MANEUVER_SHARP_LEFT:       return NAV_ARROW_SHARP_LEFT;
-        case BLE_MANEUVER_U_TURN_LEFT:      return NAV_ARROW_U_TURN_LEFT;
-        case BLE_MANEUVER_SLIGHT_RIGHT:     return NAV_ARROW_SLIGHT_RIGHT;
-        case BLE_MANEUVER_RIGHT:            return NAV_ARROW_RIGHT;
-        case BLE_MANEUVER_SHARP_RIGHT:      return NAV_ARROW_SHARP_RIGHT;
-        case BLE_MANEUVER_U_TURN_RIGHT:     return NAV_ARROW_U_TURN_RIGHT;
-        case BLE_MANEUVER_ROUNDABOUT_ENTER: return NAV_ARROW_ROUNDABOUT;
-        case BLE_MANEUVER_ROUNDABOUT_EXIT:  return NAV_ARROW_ROUNDABOUT;
-        case BLE_MANEUVER_MERGE:            return NAV_ARROW_MERGE;
-        case BLE_MANEUVER_FORK_LEFT:        return NAV_ARROW_FORK_LEFT;
-        case BLE_MANEUVER_FORK_RIGHT:       return NAV_ARROW_FORK_RIGHT;
-        case BLE_MANEUVER_ARRIVE:           return NAV_ARROW_ARRIVE;
-        case BLE_MANEUVER_NONE:             return NAV_ARROW_NONE;
+    case BLE_MANEUVER_STRAIGHT:
+        return NAV_ARROW_STRAIGHT;
+    case BLE_MANEUVER_SLIGHT_LEFT:
+        return NAV_ARROW_SLIGHT_LEFT;
+    case BLE_MANEUVER_LEFT:
+        return NAV_ARROW_LEFT;
+    case BLE_MANEUVER_SHARP_LEFT:
+        return NAV_ARROW_SHARP_LEFT;
+    case BLE_MANEUVER_U_TURN_LEFT:
+        return NAV_ARROW_U_TURN_LEFT;
+    case BLE_MANEUVER_SLIGHT_RIGHT:
+        return NAV_ARROW_SLIGHT_RIGHT;
+    case BLE_MANEUVER_RIGHT:
+        return NAV_ARROW_RIGHT;
+    case BLE_MANEUVER_SHARP_RIGHT:
+        return NAV_ARROW_SHARP_RIGHT;
+    case BLE_MANEUVER_U_TURN_RIGHT:
+        return NAV_ARROW_U_TURN_RIGHT;
+    case BLE_MANEUVER_ROUNDABOUT_ENTER:
+        return NAV_ARROW_ROUNDABOUT;
+    case BLE_MANEUVER_ROUNDABOUT_EXIT:
+        return NAV_ARROW_ROUNDABOUT;
+    case BLE_MANEUVER_MERGE:
+        return NAV_ARROW_MERGE;
+    case BLE_MANEUVER_FORK_LEFT:
+        return NAV_ARROW_FORK_LEFT;
+    case BLE_MANEUVER_FORK_RIGHT:
+        return NAV_ARROW_FORK_RIGHT;
+    case BLE_MANEUVER_ARRIVE:
+        return NAV_ARROW_ARRIVE;
+    case BLE_MANEUVER_NONE:
+        return NAV_ARROW_NONE;
     }
     return NAV_ARROW_STRAIGHT;
 }
@@ -89,22 +105,38 @@ static nav_arrow_t maneuver_to_arrow(ble_maneuver_t m)
 static const char *maneuver_to_text(ble_maneuver_t m)
 {
     switch (m) {
-        case BLE_MANEUVER_STRAIGHT:         return "Continue straight";
-        case BLE_MANEUVER_SLIGHT_LEFT:      return "Slight left";
-        case BLE_MANEUVER_LEFT:             return "Turn left";
-        case BLE_MANEUVER_SHARP_LEFT:       return "Sharp left";
-        case BLE_MANEUVER_U_TURN_LEFT:      return "U-turn left";
-        case BLE_MANEUVER_SLIGHT_RIGHT:     return "Slight right";
-        case BLE_MANEUVER_RIGHT:            return "Turn right";
-        case BLE_MANEUVER_SHARP_RIGHT:      return "Sharp right";
-        case BLE_MANEUVER_U_TURN_RIGHT:     return "U-turn right";
-        case BLE_MANEUVER_ROUNDABOUT_ENTER: return "Enter roundabout";
-        case BLE_MANEUVER_ROUNDABOUT_EXIT:  return "Exit roundabout";
-        case BLE_MANEUVER_MERGE:            return "Merge";
-        case BLE_MANEUVER_FORK_LEFT:        return "Fork left";
-        case BLE_MANEUVER_FORK_RIGHT:       return "Fork right";
-        case BLE_MANEUVER_ARRIVE:           return "Arrive";
-        case BLE_MANEUVER_NONE:             return "";
+    case BLE_MANEUVER_STRAIGHT:
+        return "Continue straight";
+    case BLE_MANEUVER_SLIGHT_LEFT:
+        return "Slight left";
+    case BLE_MANEUVER_LEFT:
+        return "Turn left";
+    case BLE_MANEUVER_SHARP_LEFT:
+        return "Sharp left";
+    case BLE_MANEUVER_U_TURN_LEFT:
+        return "U-turn left";
+    case BLE_MANEUVER_SLIGHT_RIGHT:
+        return "Slight right";
+    case BLE_MANEUVER_RIGHT:
+        return "Turn right";
+    case BLE_MANEUVER_SHARP_RIGHT:
+        return "Sharp right";
+    case BLE_MANEUVER_U_TURN_RIGHT:
+        return "U-turn right";
+    case BLE_MANEUVER_ROUNDABOUT_ENTER:
+        return "Enter roundabout";
+    case BLE_MANEUVER_ROUNDABOUT_EXIT:
+        return "Exit roundabout";
+    case BLE_MANEUVER_MERGE:
+        return "Merge";
+    case BLE_MANEUVER_FORK_LEFT:
+        return "Fork left";
+    case BLE_MANEUVER_FORK_RIGHT:
+        return "Fork right";
+    case BLE_MANEUVER_ARRIVE:
+        return "Arrive";
+    case BLE_MANEUVER_NONE:
+        return "";
     }
     return "";
 }
@@ -120,20 +152,21 @@ static const char *maneuver_to_text(ble_maneuver_t m)
  */
 
 /* Maximum number of fill steps per triangle. */
-#define FILL_STEPS 24
+#define FILL_STEPS 12
 
 /* Static storage for line points. We need enough slots for all triangles
  * drawn during a single screen build. Each arrow uses at most 6 triangles
  * x FILL_STEPS lines x 2 points. We use a pool and bump-allocate. */
-#define MAX_LINE_PAIRS 256
+#define MAX_LINE_PAIRS 512
 static lv_point_precise_t s_pts[MAX_LINE_PAIRS][2];
 static int s_pts_idx;
 
-static void fill_triangle(lv_obj_t *parent, lv_color_t col,
-                          int ax, int ay, int bx, int by, int cx, int cy)
+static void fill_triangle(lv_obj_t *parent, lv_color_t col, int ax, int ay, int bx, int by, int cx,
+                          int cy)
 {
     for (int i = 0; i <= FILL_STEPS; i++) {
-        if (s_pts_idx >= MAX_LINE_PAIRS) return;
+        if (s_pts_idx >= MAX_LINE_PAIRS)
+            return;
         double t = (double)i / (double)FILL_STEPS;
         int ex = (int)lround((double)bx + t * ((double)cx - (double)bx));
         int ey = (int)lround((double)by + t * ((double)cy - (double)by));
@@ -154,18 +187,16 @@ static void fill_triangle(lv_obj_t *parent, lv_color_t col,
 }
 
 /* Draw a filled rectangle using two triangles. */
-static void fill_rect_tri(lv_obj_t *parent, lv_color_t col,
-                          int x, int y, int w, int h)
+static void fill_rect_tri(lv_obj_t *parent, lv_color_t col, int x, int y, int w, int h)
 {
     fill_triangle(parent, col, x, y, x + w, y, x, y + h);
     fill_triangle(parent, col, x + w, y, x + w, y + h, x, y + h);
 }
 
 /* Draw a filled circle approximation (using triangle fan from center). */
-static void fill_circle(lv_obj_t *parent, lv_color_t col,
-                        int cx, int cy, int radius)
+static void fill_circle(lv_obj_t *parent, lv_color_t col, int cx, int cy, int radius)
 {
-    int segments = 16;
+    int segments = 10;
     for (int i = 0; i < segments; i++) {
         double a0 = 2.0 * M_PI * (double)i / (double)segments;
         double a1 = 2.0 * M_PI * (double)(i + 1) / (double)segments;
@@ -187,10 +218,9 @@ static void draw_arrow_straight(lv_obj_t *parent, lv_color_t col)
     int cx = ARROW_CX;
     int cy = ARROW_CY;
     /* Triangular head: tip at top, wide base. */
-    fill_triangle(parent, col,
-                  cx, cy - 70,             /* tip */
-                  cx - 50, cy - 10,        /* left base */
-                  cx + 50, cy - 10);       /* right base */
+    fill_triangle(parent, col, cx, cy - 70, /* tip */
+                  cx - 50, cy - 10,         /* left base */
+                  cx + 50, cy - 10);        /* right base */
     /* Shaft: vertical rectangle below head. */
     fill_rect_tri(parent, col, cx - 16, cy - 15, 32, 60);
 }
@@ -201,10 +231,9 @@ static void draw_arrow_left(lv_obj_t *parent, lv_color_t col)
     int cx = ARROW_CX;
     int cy = ARROW_CY;
     /* Triangular head pointing left. */
-    fill_triangle(parent, col,
-                  cx - 70, cy,             /* tip */
-                  cx - 10, cy - 50,        /* top base */
-                  cx - 10, cy + 50);       /* bottom base */
+    fill_triangle(parent, col, cx - 70, cy, /* tip */
+                  cx - 10, cy - 50,         /* top base */
+                  cx - 10, cy + 50);        /* bottom base */
     /* Horizontal shaft to the right. */
     fill_rect_tri(parent, col, cx - 15, cy - 16, 60, 32);
 }
@@ -214,10 +243,7 @@ static void draw_arrow_right(lv_obj_t *parent, lv_color_t col)
 {
     int cx = ARROW_CX;
     int cy = ARROW_CY;
-    fill_triangle(parent, col,
-                  cx + 70, cy,
-                  cx + 10, cy - 50,
-                  cx + 10, cy + 50);
+    fill_triangle(parent, col, cx + 70, cy, cx + 10, cy - 50, cx + 10, cy + 50);
     fill_rect_tri(parent, col, cx - 45, cy - 16, 60, 32);
 }
 
@@ -227,10 +253,9 @@ static void draw_arrow_slight_left(lv_obj_t *parent, lv_color_t col)
     int cx = ARROW_CX;
     int cy = ARROW_CY;
     /* Diagonal head pointing upper-left. */
-    fill_triangle(parent, col,
-                  cx - 50, cy - 55,        /* tip */
-                  cx + 5, cy - 40,         /* right */
-                  cx - 35, cy + 10);       /* bottom */
+    fill_triangle(parent, col, cx - 50, cy - 55, /* tip */
+                  cx + 5, cy - 40,               /* right */
+                  cx - 35, cy + 10);             /* bottom */
     /* Shaft going lower-right. */
     fill_rect_tri(parent, col, cx - 20, cy - 15, 28, 55);
 }
@@ -240,10 +265,7 @@ static void draw_arrow_slight_right(lv_obj_t *parent, lv_color_t col)
 {
     int cx = ARROW_CX;
     int cy = ARROW_CY;
-    fill_triangle(parent, col,
-                  cx + 50, cy - 55,
-                  cx - 5, cy - 40,
-                  cx + 35, cy + 10);
+    fill_triangle(parent, col, cx + 50, cy - 55, cx - 5, cy - 40, cx + 35, cy + 10);
     fill_rect_tri(parent, col, cx - 8, cy - 15, 28, 55);
 }
 
@@ -252,10 +274,9 @@ static void draw_arrow_sharp_left(lv_obj_t *parent, lv_color_t col)
 {
     int cx = ARROW_CX;
     int cy = ARROW_CY;
-    fill_triangle(parent, col,
-                  cx - 60, cy + 30,        /* tip */
-                  cx - 5, cy + 20,         /* right */
-                  cx - 45, cy - 30);       /* top */
+    fill_triangle(parent, col, cx - 60, cy + 30, /* tip */
+                  cx - 5, cy + 20,               /* right */
+                  cx - 45, cy - 30);             /* top */
     /* Shaft going up. */
     fill_rect_tri(parent, col, cx - 16, cy - 40, 32, 55);
 }
@@ -265,10 +286,7 @@ static void draw_arrow_sharp_right(lv_obj_t *parent, lv_color_t col)
 {
     int cx = ARROW_CX;
     int cy = ARROW_CY;
-    fill_triangle(parent, col,
-                  cx + 60, cy + 30,
-                  cx + 5, cy + 20,
-                  cx + 45, cy - 30);
+    fill_triangle(parent, col, cx + 60, cy + 30, cx + 5, cy + 20, cx + 45, cy - 30);
     fill_rect_tri(parent, col, cx - 16, cy - 40, 32, 55);
 }
 
@@ -284,10 +302,9 @@ static void draw_arrow_u_turn_left(lv_obj_t *parent, lv_color_t col)
     /* Left shaft going down. */
     fill_rect_tri(parent, col, cx - 25, cy - 35, 20, 60);
     /* Downward-pointing head at left shaft bottom. */
-    fill_triangle(parent, col,
-                  cx - 15, cy + 40,        /* tip */
-                  cx - 45, cy + 5,         /* left */
-                  cx + 15, cy + 5);        /* right */
+    fill_triangle(parent, col, cx - 15, cy + 40, /* tip */
+                  cx - 45, cy + 5,               /* left */
+                  cx + 15, cy + 5);              /* right */
 }
 
 /* U-turn right: mirror. */
@@ -298,10 +315,7 @@ static void draw_arrow_u_turn_right(lv_obj_t *parent, lv_color_t col)
     fill_rect_tri(parent, col, cx - 35, cy - 40, 20, 70);
     fill_rect_tri(parent, col, cx - 35, cy - 50, 60, 18);
     fill_rect_tri(parent, col, cx + 5, cy - 35, 20, 60);
-    fill_triangle(parent, col,
-                  cx + 15, cy + 40,
-                  cx - 15, cy + 5,
-                  cx + 45, cy + 5);
+    fill_triangle(parent, col, cx + 15, cy + 40, cx - 15, cy + 5, cx + 45, cy + 5);
 }
 
 /* Roundabout: circle ring + exit arrow. */
@@ -314,10 +328,9 @@ static void draw_arrow_roundabout(lv_obj_t *parent, lv_color_t col)
     /* Inner circle (background color to make ring). */
     fill_circle(parent, SCRAM_COLOR_BG, cx, cy + 5, 25);
     /* Exit arrow pointing up-right from the ring. */
-    fill_triangle(parent, col,
-                  cx + 20, cy - 55,        /* tip */
-                  cx - 5, cy - 30,         /* left */
-                  cx + 30, cy - 20);       /* right */
+    fill_triangle(parent, col, cx + 20, cy - 55, /* tip */
+                  cx - 5, cy - 30,               /* left */
+                  cx + 30, cy - 20);             /* right */
     fill_rect_tri(parent, col, cx - 2, cy - 35, 14, 20);
 }
 
@@ -339,15 +352,11 @@ static void draw_arrow_fork_left(lv_obj_t *parent, lv_color_t col)
     /* Main shaft. */
     fill_rect_tri(parent, col, cx - 12, cy - 20, 24, 65);
     /* Upward head. */
-    fill_triangle(parent, col,
-                  cx, cy - 55,
-                  cx - 35, cy - 15,
-                  cx + 35, cy - 15);
+    fill_triangle(parent, col, cx, cy - 55, cx - 35, cy - 15, cx + 35, cy - 15);
     /* Branch going upper-left. */
-    fill_triangle(parent, col,
-                  cx - 55, cy - 40,        /* tip */
-                  cx - 15, cy - 10,        /* right */
-                  cx - 15, cy - 35);       /* top-right */
+    fill_triangle(parent, col, cx - 55, cy - 40, /* tip */
+                  cx - 15, cy - 10,              /* right */
+                  cx - 15, cy - 35);             /* top-right */
 }
 
 /* Fork right: mirror. */
@@ -356,14 +365,8 @@ static void draw_arrow_fork_right(lv_obj_t *parent, lv_color_t col)
     int cx = ARROW_CX;
     int cy = ARROW_CY;
     fill_rect_tri(parent, col, cx - 12, cy - 20, 24, 65);
-    fill_triangle(parent, col,
-                  cx, cy - 55,
-                  cx - 35, cy - 15,
-                  cx + 35, cy - 15);
-    fill_triangle(parent, col,
-                  cx + 55, cy - 40,
-                  cx + 15, cy - 10,
-                  cx + 15, cy - 35);
+    fill_triangle(parent, col, cx, cy - 55, cx - 35, cy - 15, cx + 35, cy - 15);
+    fill_triangle(parent, col, cx + 55, cy - 40, cx + 15, cy - 10, cx + 15, cy - 35);
 }
 
 /* Merge: same as straight (merge onto the road ahead). */
@@ -375,21 +378,50 @@ static void draw_arrow_merge(lv_obj_t *parent, lv_color_t col)
 static void draw_arrow(lv_obj_t *parent, nav_arrow_t shape, lv_color_t col)
 {
     switch (shape) {
-        case NAV_ARROW_STRAIGHT:     draw_arrow_straight(parent, col);     return;
-        case NAV_ARROW_LEFT:         draw_arrow_left(parent, col);         return;
-        case NAV_ARROW_RIGHT:        draw_arrow_right(parent, col);        return;
-        case NAV_ARROW_SLIGHT_LEFT:  draw_arrow_slight_left(parent, col);  return;
-        case NAV_ARROW_SLIGHT_RIGHT: draw_arrow_slight_right(parent, col); return;
-        case NAV_ARROW_SHARP_LEFT:   draw_arrow_sharp_left(parent, col);   return;
-        case NAV_ARROW_SHARP_RIGHT:  draw_arrow_sharp_right(parent, col);  return;
-        case NAV_ARROW_U_TURN_LEFT:  draw_arrow_u_turn_left(parent, col);  return;
-        case NAV_ARROW_U_TURN_RIGHT: draw_arrow_u_turn_right(parent, col); return;
-        case NAV_ARROW_ROUNDABOUT:   draw_arrow_roundabout(parent, col);   return;
-        case NAV_ARROW_ARRIVE:       draw_arrow_arrive(parent, col);       return;
-        case NAV_ARROW_FORK_LEFT:    draw_arrow_fork_left(parent, col);    return;
-        case NAV_ARROW_FORK_RIGHT:   draw_arrow_fork_right(parent, col);   return;
-        case NAV_ARROW_MERGE:        draw_arrow_merge(parent, col);        return;
-        case NAV_ARROW_NONE:         return; /* no arrow */
+    case NAV_ARROW_STRAIGHT:
+        draw_arrow_straight(parent, col);
+        return;
+    case NAV_ARROW_LEFT:
+        draw_arrow_left(parent, col);
+        return;
+    case NAV_ARROW_RIGHT:
+        draw_arrow_right(parent, col);
+        return;
+    case NAV_ARROW_SLIGHT_LEFT:
+        draw_arrow_slight_left(parent, col);
+        return;
+    case NAV_ARROW_SLIGHT_RIGHT:
+        draw_arrow_slight_right(parent, col);
+        return;
+    case NAV_ARROW_SHARP_LEFT:
+        draw_arrow_sharp_left(parent, col);
+        return;
+    case NAV_ARROW_SHARP_RIGHT:
+        draw_arrow_sharp_right(parent, col);
+        return;
+    case NAV_ARROW_U_TURN_LEFT:
+        draw_arrow_u_turn_left(parent, col);
+        return;
+    case NAV_ARROW_U_TURN_RIGHT:
+        draw_arrow_u_turn_right(parent, col);
+        return;
+    case NAV_ARROW_ROUNDABOUT:
+        draw_arrow_roundabout(parent, col);
+        return;
+    case NAV_ARROW_ARRIVE:
+        draw_arrow_arrive(parent, col);
+        return;
+    case NAV_ARROW_FORK_LEFT:
+        draw_arrow_fork_left(parent, col);
+        return;
+    case NAV_ARROW_FORK_RIGHT:
+        draw_arrow_fork_right(parent, col);
+        return;
+    case NAV_ARROW_MERGE:
+        draw_arrow_merge(parent, col);
+        return;
+    case NAV_ARROW_NONE:
+        return; /* no arrow */
     }
 }
 
@@ -421,8 +453,8 @@ static void format_distance(uint16_t meters, char *buf, size_t buf_len)
 /*  ETA line formatting                                                */
 /* ------------------------------------------------------------------ */
 
-static void format_eta_line(uint16_t eta_minutes, uint16_t remaining_km_x10,
-                            char *buf, size_t buf_len)
+static void format_eta_line(uint16_t eta_minutes, uint16_t remaining_km_x10, char *buf,
+                            size_t buf_len)
 {
     char eta_part[16];
     char rem_part[16];
@@ -459,15 +491,13 @@ static void format_eta_line(uint16_t eta_minutes, uint16_t remaining_km_x10,
 /*  Public entry point                                                 */
 /* ------------------------------------------------------------------ */
 
-void screen_navigation_create(lv_obj_t *parent,
-                              const ble_nav_data_t *nav,
-                              uint8_t flags)
+void screen_navigation_create(lv_obj_t *parent, const ble_nav_data_t *nav, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text    = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted   = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_accent  = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_GREEN;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_accent = night ? SCRAM_COLOR_RED : SCRAM_COLOR_GREEN;
 
     (void)flags;
 
@@ -516,8 +546,7 @@ void screen_navigation_create(lv_obj_t *parent,
 
     /* --- ETA + remaining distance (muted, smallest, bottom) --- */
     char eta_buf[48];
-    format_eta_line(nav->eta_minutes, nav->remaining_km_x10,
-                    eta_buf, sizeof(eta_buf));
+    format_eta_line(nav->eta_minutes, nav->remaining_km_x10, eta_buf, sizeof(eta_buf));
 
     lv_obj_t *lbl_eta = lv_label_create(parent);
     lv_label_set_text(lbl_eta, eta_buf);

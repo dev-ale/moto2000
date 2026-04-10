@@ -10,7 +10,7 @@ void ota_fsm_init(ota_fsm_t *fsm)
     if (fsm == NULL) {
         return;
     }
-    fsm->state       = OTA_STATE_IDLE;
+    fsm->state = OTA_STATE_IDLE;
     fsm->retry_count = 0u;
     fsm->max_retries = OTA_DEFAULT_MAX_RETRIES;
 }
@@ -24,7 +24,7 @@ ota_action_t ota_fsm_handle(ota_fsm_t *fsm, ota_event_t event)
     switch (fsm->state) {
     case OTA_STATE_IDLE:
         if (event == OTA_EVENT_CHECK_REQUESTED) {
-            fsm->state       = OTA_STATE_CHECKING;
+            fsm->state = OTA_STATE_CHECKING;
             fsm->retry_count = 0u;
             return OTA_ACTION_START_CHECK;
         }
@@ -106,7 +106,7 @@ ota_action_t ota_fsm_handle(ota_fsm_t *fsm, ota_event_t event)
 
     case OTA_STATE_ERROR:
         if (event == OTA_EVENT_RESET) {
-            fsm->state       = OTA_STATE_IDLE;
+            fsm->state = OTA_STATE_IDLE;
             fsm->retry_count = 0u;
             return OTA_ACTION_NONE;
         }
@@ -120,31 +120,51 @@ ota_action_t ota_fsm_handle(ota_fsm_t *fsm, ota_event_t event)
 const char *ota_state_name(ota_state_t state)
 {
     switch (state) {
-    case OTA_STATE_IDLE:        return "IDLE";
-    case OTA_STATE_CHECKING:    return "CHECKING";
-    case OTA_STATE_DOWNLOADING: return "DOWNLOADING";
-    case OTA_STATE_VERIFYING:   return "VERIFYING";
-    case OTA_STATE_APPLYING:    return "APPLYING";
-    case OTA_STATE_REBOOTING:   return "REBOOTING";
-    case OTA_STATE_CONFIRMING:  return "CONFIRMING";
-    case OTA_STATE_ROLLBACK:    return "ROLLBACK";
-    case OTA_STATE_ERROR:       return "ERROR";
-    default:                    return "UNKNOWN";
+    case OTA_STATE_IDLE:
+        return "IDLE";
+    case OTA_STATE_CHECKING:
+        return "CHECKING";
+    case OTA_STATE_DOWNLOADING:
+        return "DOWNLOADING";
+    case OTA_STATE_VERIFYING:
+        return "VERIFYING";
+    case OTA_STATE_APPLYING:
+        return "APPLYING";
+    case OTA_STATE_REBOOTING:
+        return "REBOOTING";
+    case OTA_STATE_CONFIRMING:
+        return "CONFIRMING";
+    case OTA_STATE_ROLLBACK:
+        return "ROLLBACK";
+    case OTA_STATE_ERROR:
+        return "ERROR";
+    default:
+        return "UNKNOWN";
     }
 }
 
 const char *ota_action_name(ota_action_t action)
 {
     switch (action) {
-    case OTA_ACTION_NONE:           return "NONE";
-    case OTA_ACTION_START_CHECK:    return "START_CHECK";
-    case OTA_ACTION_START_DOWNLOAD: return "START_DOWNLOAD";
-    case OTA_ACTION_START_VERIFY:   return "START_VERIFY";
-    case OTA_ACTION_START_APPLY:    return "START_APPLY";
-    case OTA_ACTION_REBOOT:         return "REBOOT";
-    case OTA_ACTION_CONFIRM_BOOT:   return "CONFIRM_BOOT";
-    case OTA_ACTION_ROLLBACK:       return "ROLLBACK";
-    case OTA_ACTION_REPORT_ERROR:   return "REPORT_ERROR";
-    default:                        return "UNKNOWN";
+    case OTA_ACTION_NONE:
+        return "NONE";
+    case OTA_ACTION_START_CHECK:
+        return "START_CHECK";
+    case OTA_ACTION_START_DOWNLOAD:
+        return "START_DOWNLOAD";
+    case OTA_ACTION_START_VERIFY:
+        return "START_VERIFY";
+    case OTA_ACTION_START_APPLY:
+        return "START_APPLY";
+    case OTA_ACTION_REBOOT:
+        return "REBOOT";
+    case OTA_ACTION_CONFIRM_BOOT:
+        return "CONFIRM_BOOT";
+    case OTA_ACTION_ROLLBACK:
+        return "ROLLBACK";
+    case OTA_ACTION_REPORT_ERROR:
+        return "REPORT_ERROR";
+    default:
+        return "UNKNOWN";
     }
 }

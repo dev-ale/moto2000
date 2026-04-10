@@ -17,8 +17,6 @@
  *   - State text (INCOMING CALL / CONNECTED / CALL ENDED)
  *   - Decorative accept/reject buttons
  */
-void screen_call_create(lv_obj_t *parent,
-                        const ble_incoming_call_data_t *data,
-                        uint8_t flags);
+void screen_call_create(lv_obj_t *parent, const ble_incoming_call_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_CALL_H */

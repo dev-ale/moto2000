@@ -7,8 +7,7 @@
 
 #include "font8x8.h"
 
-static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
-                      uint8_t r, uint8_t g, uint8_t b)
+static void put_pixel(host_sim_canvas_t *canvas, int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height) {
         return;
@@ -19,14 +18,8 @@ static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
     canvas->pixels[idx + 2U] = b;
 }
 
-void host_sim_draw_text(host_sim_canvas_t *canvas,
-                        const char        *text,
-                        int                origin_x,
-                        int                origin_y,
-                        int                scale,
-                        uint8_t            r,
-                        uint8_t            g,
-                        uint8_t            b)
+void host_sim_draw_text(host_sim_canvas_t *canvas, const char *text, int origin_x, int origin_y,
+                        int scale, uint8_t r, uint8_t g, uint8_t b)
 {
     if (canvas == NULL || text == NULL || scale <= 0) {
         return;
@@ -42,9 +35,7 @@ void host_sim_draw_text(host_sim_canvas_t *canvas,
                 }
                 for (int sy = 0; sy < scale; ++sy) {
                     for (int sx = 0; sx < scale; ++sx) {
-                        put_pixel(canvas,
-                                  x_cursor + col * scale + sx,
-                                  origin_y + row * scale + sy,
+                        put_pixel(canvas, x_cursor + col * scale + sx, origin_y + row * scale + sy,
                                   r, g, b);
                     }
                 }

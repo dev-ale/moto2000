@@ -17,8 +17,6 @@
  *   - Progress bar with scrubber dot
  *   - Time labels (position / duration)
  */
-void screen_music_create(lv_obj_t *parent,
-                         const ble_music_data_t *data,
-                         uint8_t flags);
+void screen_music_create(lv_obj_t *parent, const ble_music_data_t *data, uint8_t flags);
 
 #endif /* SCREEN_MUSIC_H */

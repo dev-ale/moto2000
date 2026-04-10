@@ -20,8 +20,7 @@
 
 #include "ble_protocol.h"
 
-static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
-                      uint8_t r, uint8_t g, uint8_t b)
+static void put_pixel(host_sim_canvas_t *canvas, int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     if (x < 0 || y < 0 || x >= canvas->width || y >= canvas->height) {
         return;
@@ -33,9 +32,8 @@ static void put_pixel(host_sim_canvas_t *canvas, int x, int y,
 }
 
 /* Draw a filled triangle (warning icon placeholder). */
-static void draw_warning_triangle(host_sim_canvas_t *canvas,
-                                  int cx, int top_y, int size,
-                                  uint8_t r, uint8_t g, uint8_t b)
+static void draw_warning_triangle(host_sim_canvas_t *canvas, int cx, int top_y, int size, uint8_t r,
+                                  uint8_t g, uint8_t b)
 {
     /* Simple isoceles triangle pointing up. */
     for (int row = 0; row < size; ++row) {
@@ -47,9 +45,8 @@ static void draw_warning_triangle(host_sim_canvas_t *canvas,
     }
 }
 
-void host_sim_render_blitzer(host_sim_canvas_t          *canvas,
-                             const ble_blitzer_data_t   *blitzer,
-                             uint8_t                     header_flags)
+void host_sim_render_blitzer(host_sim_canvas_t *canvas, const ble_blitzer_data_t *blitzer,
+                             uint8_t header_flags)
 {
     const int night = (header_flags & BLE_FLAG_NIGHT_MODE) != 0U;
 
@@ -84,13 +81,7 @@ void host_sim_render_blitzer(host_sim_canvas_t          *canvas,
     const char exclaim[] = "!";
     const int ex_scale = 4;
     const int ex_w = host_sim_measure_text(exclaim, ex_scale);
-    host_sim_draw_text(canvas, exclaim,
-                       cx - ex_w / 2,
-                       60 + 12,
-                       ex_scale,
-                       night ? 0x00U : 0x00U,
-                       night ? 0x00U : 0x00U,
-                       night ? 0x00U : 0x00U);
+    host_sim_draw_text(canvas, exclaim, cx - ex_w / 2, 60 + 12, ex_scale, 0x00U, 0x00U, 0x00U);
 
     /* ---- Distance (hero text) ---- */
     char dist_buf[16];
@@ -98,10 +89,8 @@ void host_sim_render_blitzer(host_sim_canvas_t          *canvas,
     const int dist_scale = 6;
     const int dist_w = host_sim_measure_text(dist_buf, dist_scale);
     const int dist_y = 140;
-    host_sim_draw_text(canvas, dist_buf,
-                       cx - dist_w / 2, dist_y,
-                       dist_scale,
-                       text_r, text_g, text_b);
+    host_sim_draw_text(canvas, dist_buf, cx - dist_w / 2, dist_y, dist_scale, text_r, text_g,
+                       text_b);
 
     /* ---- Speed limit ---- */
     char limit_buf[16];
@@ -109,10 +98,8 @@ void host_sim_render_blitzer(host_sim_canvas_t          *canvas,
     const int limit_scale = 4;
     const int limit_w = host_sim_measure_text(limit_buf, limit_scale);
     const int limit_y = dist_y + dist_scale * 8 + 16;
-    host_sim_draw_text(canvas, limit_buf,
-                       cx - limit_w / 2, limit_y,
-                       limit_scale,
-                       text_r, text_g, text_b);
+    host_sim_draw_text(canvas, limit_buf, cx - limit_w / 2, limit_y, limit_scale, text_r, text_g,
+                       text_b);
 
     /* ---- Current speed ---- */
     char speed_buf[16];
@@ -122,18 +109,13 @@ void host_sim_render_blitzer(host_sim_canvas_t          *canvas,
     const int speed_w = host_sim_measure_text(speed_buf, speed_scale);
     const int speed_y = limit_y + limit_scale * 8 + 16;
 
-    const bool speeding = is_speeding(blitzer->current_speed_kmh_x10,
-                                      blitzer->speed_limit_kmh);
+    const bool speeding = is_speeding(blitzer->current_speed_kmh_x10, blitzer->speed_limit_kmh);
     if (speeding) {
-        host_sim_draw_text(canvas, speed_buf,
-                           cx - speed_w / 2, speed_y,
-                           speed_scale,
-                           speed_r, speed_g, speed_b);
+        host_sim_draw_text(canvas, speed_buf, cx - speed_w / 2, speed_y, speed_scale, speed_r,
+                           speed_g, speed_b);
     } else {
-        host_sim_draw_text(canvas, speed_buf,
-                           cx - speed_w / 2, speed_y,
-                           speed_scale,
-                           text_r, text_g, text_b);
+        host_sim_draw_text(canvas, speed_buf, cx - speed_w / 2, speed_y, speed_scale, text_r,
+                           text_g, text_b);
     }
 
     /* ---- Camera type ---- */
@@ -142,10 +124,8 @@ void host_sim_render_blitzer(host_sim_canvas_t          *canvas,
     const int type_scale = 2;
     const int type_w = host_sim_measure_text(type_buf, type_scale);
     const int type_y = speed_y + speed_scale * 8 + 20;
-    host_sim_draw_text(canvas, type_buf,
-                       cx - type_w / 2, type_y,
-                       type_scale,
-                       warn_r, warn_g, warn_b);
+    host_sim_draw_text(canvas, type_buf, cx - type_w / 2, type_y, type_scale, warn_r, warn_g,
+                       warn_b);
 
     host_sim_canvas_apply_round_mask(canvas);
 }

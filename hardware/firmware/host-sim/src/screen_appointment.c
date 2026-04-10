@@ -17,9 +17,8 @@
 
 #include "ble_protocol.h"
 
-void host_sim_render_appointment(host_sim_canvas_t              *canvas,
-                                 const ble_appointment_data_t   *appointment,
-                                 uint8_t                         header_flags)
+void host_sim_render_appointment(host_sim_canvas_t *canvas,
+                                 const ble_appointment_data_t *appointment, uint8_t header_flags)
 {
     const bool night = (header_flags & BLE_FLAG_NIGHT_MODE) != 0U;
     if (night) {
@@ -40,33 +39,30 @@ void host_sim_render_appointment(host_sim_canvas_t              *canvas,
     const int cx = canvas->width / 2;
 
     /* Hero: "IN 30M" / "NOW" / "15M AGO" */
-    char hero[16] = {0};
-    host_sim_appointment_format_starts_in(appointment->starts_in_minutes,
-                                          hero, sizeof(hero));
+    char hero[16] = { 0 };
+    host_sim_appointment_format_starts_in(appointment->starts_in_minutes, hero, sizeof(hero));
     const int hero_scale = 7;
-    const int hero_w     = host_sim_measure_text(hero, hero_scale);
-    const int hero_h     = 8 * hero_scale;
-    const int hero_y     = 150;
-    host_sim_draw_text(canvas, hero, cx - hero_w / 2, hero_y, hero_scale,
-                       text_r, text_g, text_b);
+    const int hero_w = host_sim_measure_text(hero, hero_scale);
+    const int hero_h = 8 * hero_scale;
+    const int hero_y = 150;
+    host_sim_draw_text(canvas, hero, cx - hero_w / 2, hero_y, hero_scale, text_r, text_g, text_b);
 
     /* Title: uppercase, medium text. */
-    char title[APPOINTMENT_LAYOUT_MAX_TITLE_CHARS + 1] = {0};
+    char title[APPOINTMENT_LAYOUT_MAX_TITLE_CHARS + 1] = { 0 };
     host_sim_appointment_uppercase_title(appointment->title, title, sizeof(title));
     const int title_scale = 3;
-    const int title_w     = host_sim_measure_text(title, title_scale);
-    const int title_y     = hero_y + hero_h + 24;
-    host_sim_draw_text(canvas, title, cx - title_w / 2, title_y, title_scale,
-                       text_r, text_g, text_b);
+    const int title_w = host_sim_measure_text(title, title_scale);
+    const int title_y = hero_y + hero_h + 24;
+    host_sim_draw_text(canvas, title, cx - title_w / 2, title_y, title_scale, text_r, text_g,
+                       text_b);
 
     /* Location: uppercase, small muted text. */
-    char loc[APPOINTMENT_LAYOUT_MAX_LOCATION_CHARS + 1] = {0};
+    char loc[APPOINTMENT_LAYOUT_MAX_LOCATION_CHARS + 1] = { 0 };
     host_sim_appointment_uppercase_location(appointment->location, loc, sizeof(loc));
     const int loc_scale = 2;
-    const int loc_w     = host_sim_measure_text(loc, loc_scale);
-    const int loc_y     = title_y + 8 * title_scale + 16;
-    host_sim_draw_text(canvas, loc, cx - loc_w / 2, loc_y, loc_scale,
-                       muted_r, muted_g, muted_b);
+    const int loc_w = host_sim_measure_text(loc, loc_scale);
+    const int loc_y = title_y + 8 * title_scale + 16;
+    host_sim_draw_text(canvas, loc, cx - loc_w / 2, loc_y, loc_scale, muted_r, muted_g, muted_b);
 
     host_sim_canvas_apply_round_mask(canvas);
 }

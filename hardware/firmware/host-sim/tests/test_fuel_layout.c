@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 
-void setUp(void)    {}
+void setUp(void) {}
 void tearDown(void) {}
 
 /* --------------------------------------------------------------------- */
@@ -17,21 +17,21 @@ void tearDown(void) {}
 
 static void test_format_tank_percent_full(void)
 {
-    char buf[8] = {0};
+    char buf[8] = { 0 };
     format_tank_percent(100, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("100%", buf);
 }
 
 static void test_format_tank_percent_zero(void)
 {
-    char buf[8] = {0};
+    char buf[8] = { 0 };
     format_tank_percent(0, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("0%", buf);
 }
 
 static void test_format_tank_percent_mid(void)
 {
-    char buf[8] = {0};
+    char buf[8] = { 0 };
     format_tank_percent(73, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("73%", buf);
 }
@@ -42,21 +42,21 @@ static void test_format_tank_percent_mid(void)
 
 static void test_format_range_known(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_range(175, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("175 KM", buf);
 }
 
 static void test_format_range_unknown(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_range(0xFFFF, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("-- KM", buf);
 }
 
 static void test_format_range_zero(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_range(0, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("0 KM", buf);
 }
@@ -67,14 +67,14 @@ static void test_format_range_zero(void)
 
 static void test_format_consumption_known(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_consumption(38, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("38 ML/KM", buf);
 }
 
 static void test_format_consumption_unknown(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_consumption(0xFFFF, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("-- ML/KM", buf);
 }
@@ -85,35 +85,35 @@ static void test_format_consumption_unknown(void)
 
 static void test_format_fuel_remaining_full(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_fuel_remaining(13000, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("13.0 L", buf);
 }
 
 static void test_format_fuel_remaining_half(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_fuel_remaining(6500, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("6.5 L", buf);
 }
 
 static void test_format_fuel_remaining_unknown(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_fuel_remaining(0xFFFF, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("-- L", buf);
 }
 
 static void test_format_fuel_remaining_zero(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_fuel_remaining(0, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("0.0 L", buf);
 }
 
 static void test_format_fuel_remaining_small(void)
 {
-    char buf[16] = {0};
+    char buf[16] = { 0 };
     format_fuel_remaining(1300, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_STRING("1.3 L", buf);
 }

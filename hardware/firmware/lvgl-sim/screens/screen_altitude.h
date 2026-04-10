@@ -19,8 +19,7 @@
  *   - X-axis distance labels
  *   - Ascent/descent totals at the bottom
  */
-void screen_altitude_create(lv_obj_t *parent,
-                            const ble_altitude_profile_data_t *data,
+void screen_altitude_create(lv_obj_t *parent, const ble_altitude_profile_data_t *data,
                             uint8_t flags);
 
 #endif /* SCREEN_ALTITUDE_H */

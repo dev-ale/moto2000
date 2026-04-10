@@ -28,8 +28,8 @@ size_t host_sim_nav_format_distance(uint16_t meters, char *buf, size_t buf_len)
     } else {
         /* 0.5KM, 1.2KM, ... 65KM. */
         const unsigned tenths = (unsigned)(meters / 100U); /* metres/100 = tenths of km */
-        const unsigned whole  = tenths / 10U;
-        const unsigned frac   = tenths % 10U;
+        const unsigned whole = tenths / 10U;
+        const unsigned frac = tenths % 10U;
         if (whole >= 100U) {
             written = snprintf(buf, buf_len, "%uKM", whole);
         } else {
@@ -43,10 +43,8 @@ size_t host_sim_nav_format_distance(uint16_t meters, char *buf, size_t buf_len)
     return (size_t)written;
 }
 
-size_t host_sim_nav_format_eta_line(uint16_t eta_minutes,
-                                    uint16_t remaining_km_x10,
-                                    char    *buf,
-                                    size_t   buf_len)
+size_t host_sim_nav_format_eta_line(uint16_t eta_minutes, uint16_t remaining_km_x10, char *buf,
+                                    size_t buf_len)
 {
     if (buf == NULL || buf_len == 0U) {
         return 0U;
@@ -64,7 +62,7 @@ size_t host_sim_nav_format_eta_line(uint16_t eta_minutes,
         (void)snprintf(rem_part, sizeof(rem_part), "REM --");
     } else {
         const unsigned whole = (unsigned)(remaining_km_x10 / 10U);
-        const unsigned frac  = (unsigned)(remaining_km_x10 % 10U);
+        const unsigned frac = (unsigned)(remaining_km_x10 % 10U);
         if (whole >= 100U) {
             (void)snprintf(rem_part, sizeof(rem_part), "REM %uKM", whole);
         } else {
@@ -83,31 +81,31 @@ size_t host_sim_nav_format_eta_line(uint16_t eta_minutes,
 host_sim_arrow_shape_t host_sim_nav_arrow_shape(ble_maneuver_t maneuver)
 {
     switch (maneuver) {
-        case BLE_MANEUVER_STRAIGHT:
-        case BLE_MANEUVER_MERGE:
-        case BLE_MANEUVER_NONE:
-            return HOST_SIM_ARROW_STRAIGHT;
-        case BLE_MANEUVER_SLIGHT_LEFT:
-        case BLE_MANEUVER_LEFT:
-        case BLE_MANEUVER_SHARP_LEFT:
-            return HOST_SIM_ARROW_LEFT;
-        case BLE_MANEUVER_SLIGHT_RIGHT:
-        case BLE_MANEUVER_RIGHT:
-        case BLE_MANEUVER_SHARP_RIGHT:
-            return HOST_SIM_ARROW_RIGHT;
-        case BLE_MANEUVER_U_TURN_LEFT:
-            return HOST_SIM_ARROW_U_TURN_LEFT;
-        case BLE_MANEUVER_U_TURN_RIGHT:
-            return HOST_SIM_ARROW_U_TURN_RIGHT;
-        case BLE_MANEUVER_ROUNDABOUT_ENTER:
-        case BLE_MANEUVER_ROUNDABOUT_EXIT:
-            return HOST_SIM_ARROW_ROUNDABOUT;
-        case BLE_MANEUVER_FORK_LEFT:
-            return HOST_SIM_ARROW_FORK_LEFT;
-        case BLE_MANEUVER_FORK_RIGHT:
-            return HOST_SIM_ARROW_FORK_RIGHT;
-        case BLE_MANEUVER_ARRIVE:
-            return HOST_SIM_ARROW_ARRIVE;
+    case BLE_MANEUVER_STRAIGHT:
+    case BLE_MANEUVER_MERGE:
+    case BLE_MANEUVER_NONE:
+        return HOST_SIM_ARROW_STRAIGHT;
+    case BLE_MANEUVER_SLIGHT_LEFT:
+    case BLE_MANEUVER_LEFT:
+    case BLE_MANEUVER_SHARP_LEFT:
+        return HOST_SIM_ARROW_LEFT;
+    case BLE_MANEUVER_SLIGHT_RIGHT:
+    case BLE_MANEUVER_RIGHT:
+    case BLE_MANEUVER_SHARP_RIGHT:
+        return HOST_SIM_ARROW_RIGHT;
+    case BLE_MANEUVER_U_TURN_LEFT:
+        return HOST_SIM_ARROW_U_TURN_LEFT;
+    case BLE_MANEUVER_U_TURN_RIGHT:
+        return HOST_SIM_ARROW_U_TURN_RIGHT;
+    case BLE_MANEUVER_ROUNDABOUT_ENTER:
+    case BLE_MANEUVER_ROUNDABOUT_EXIT:
+        return HOST_SIM_ARROW_ROUNDABOUT;
+    case BLE_MANEUVER_FORK_LEFT:
+        return HOST_SIM_ARROW_FORK_LEFT;
+    case BLE_MANEUVER_FORK_RIGHT:
+        return HOST_SIM_ARROW_FORK_RIGHT;
+    case BLE_MANEUVER_ARRIVE:
+        return HOST_SIM_ARROW_ARRIVE;
     }
     return HOST_SIM_ARROW_STRAIGHT;
 }

@@ -22,18 +22,13 @@ extern "C" {
  * Returns the number of characters written (excluding the trailing NUL),
  * or 0 on failure.
  */
-size_t host_sim_format_clock(int64_t unix_time,
-                             int16_t tz_offset_minutes,
-                             bool    is_24h,
-                             char   *out_buf,
-                             size_t  out_cap);
+size_t host_sim_format_clock(int64_t unix_time, int16_t tz_offset_minutes, bool is_24h,
+                             char *out_buf, size_t out_cap);
 
 /* Formats a short weekday + date line for the secondary label below the
  * time, e.g. "Fri 31 Jan". `out_buf` must hold at least 16 bytes. */
-size_t host_sim_format_date(int64_t unix_time,
-                            int16_t tz_offset_minutes,
-                            char   *out_buf,
-                            size_t  out_cap);
+size_t host_sim_format_date(int64_t unix_time, int16_t tz_offset_minutes, char *out_buf,
+                            size_t out_cap);
 
 #ifdef __cplusplus
 }

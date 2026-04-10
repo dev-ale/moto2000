@@ -25,7 +25,11 @@ final class ScreenPreferencesTests: XCTestCase {
             disabledScreenIDs: []
         )
         let result = prefs.apply(to: ScreenSelection.availableScreens)
-        XCTAssertEqual(result.map { $0.screenID.rawValue }, [0x03, 0x0D, 0x02, 0x01])
+        let ids = result.map { $0.screenID.rawValue }
+        // Preferred screens appear first in the requested order.
+        XCTAssertEqual(Array(ids.prefix(4)), [0x03, 0x0D, 0x02, 0x01])
+        // All available screens are present (preferred + appended remainder).
+        XCTAssertEqual(ids.count, ScreenSelection.availableScreens.count)
         XCTAssertTrue(result.allSatisfy { $0.isEnabled })
     }
 

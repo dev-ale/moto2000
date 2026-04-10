@@ -31,19 +31,14 @@
  *
  * `buf_len` must be at least 5 (sign + 3 digits + terminator).
  */
-void host_sim_weather_format_temperature(int16_t celsius_x10,
-                                         char   *buf,
-                                         size_t  buf_len);
+void host_sim_weather_format_temperature(int16_t celsius_x10, char *buf, size_t buf_len);
 
 /*
  * Format the high/low line. Result example: "H 25  L 13".
  *
  * `buf_len` must be at least 16.
  */
-void host_sim_weather_format_high_low(int16_t high_x10,
-                                      int16_t low_x10,
-                                      char   *buf,
-                                      size_t  buf_len);
+void host_sim_weather_format_high_low(int16_t high_x10, int16_t low_x10, char *buf, size_t buf_len);
 
 /*
  * Uppercase a location name and truncate to WEATHER_LAYOUT_MAX_LOCATION_CHARS.
@@ -55,17 +50,13 @@ void host_sim_weather_format_high_low(int16_t high_x10,
  *
  * `out_len` must be at least WEATHER_LAYOUT_MAX_LOCATION_CHARS + 1.
  */
-void host_sim_weather_uppercase_location(const char *in,
-                                         char       *out,
-                                         size_t      out_len);
+void host_sim_weather_uppercase_location(const char *in, char *out, size_t out_len);
 
 /*
  * Bounding box (width, height) of the glyph for a given condition. Used
  * by the renderer to center the glyph under the top of the screen.
  * Returns (0, 0) for unknown conditions.
  */
-void host_sim_weather_glyph_bounds(ble_weather_condition_t cond,
-                                   int                    *out_w,
-                                   int                    *out_h);
+void host_sim_weather_glyph_bounds(ble_weather_condition_t cond, int *out_w, int *out_h);
 
 #endif /* HOST_SIM_WEATHER_LAYOUT_H */

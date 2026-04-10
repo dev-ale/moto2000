@@ -29,11 +29,16 @@
 static const char *camera_type_text(ble_camera_type_t type)
 {
     switch (type) {
-        case BLE_CAMERA_TYPE_FIXED:     return "FIXED CAMERA";
-        case BLE_CAMERA_TYPE_MOBILE:    return "MOBILE";
-        case BLE_CAMERA_TYPE_RED_LIGHT: return "RED LIGHT";
-        case BLE_CAMERA_TYPE_SECTION:   return "SECTION";
-        case BLE_CAMERA_TYPE_UNKNOWN:   return "UNKNOWN";
+    case BLE_CAMERA_TYPE_FIXED:
+        return "FIXED CAMERA";
+    case BLE_CAMERA_TYPE_MOBILE:
+        return "MOBILE";
+    case BLE_CAMERA_TYPE_RED_LIGHT:
+        return "RED LIGHT";
+    case BLE_CAMERA_TYPE_SECTION:
+        return "SECTION";
+    case BLE_CAMERA_TYPE_UNKNOWN:
+        return "UNKNOWN";
     }
     return "UNKNOWN";
 }
@@ -42,15 +47,13 @@ static const char *camera_type_text(ble_camera_type_t type)
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_blitzer_create(lv_obj_t *parent,
-                           const ble_blitzer_data_t *data,
-                           uint8_t flags)
+void screen_blitzer_create(lv_obj_t *parent, const ble_blitzer_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted  = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_red    = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_RED;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_red = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_RED;
 
     (void)flags;
 
@@ -75,28 +78,29 @@ void screen_blitzer_create(lv_obj_t *parent,
     /* Outer red ring. */
     lv_obj_t *sign_outer = lv_obj_create(parent);
     lv_obj_set_size(sign_outer, 80, 80);
-    lv_obj_set_style_radius(sign_outer, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(sign_outer, 40, 0);
     lv_obj_set_style_bg_color(sign_outer, col_red, 0);
     lv_obj_set_style_bg_opa(sign_outer, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(sign_outer, 0, 0);
+    lv_obj_set_style_pad_all(sign_outer, 0, 0);
     lv_obj_clear_flag(sign_outer, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align(sign_outer, LV_ALIGN_CENTER, 0, -80);
 
     /* Inner white circle. */
     lv_obj_t *sign_inner = lv_obj_create(sign_outer);
     lv_obj_set_size(sign_inner, 64, 64);
-    lv_obj_set_style_radius(sign_inner, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(sign_inner, 32, 0);
     lv_obj_set_style_bg_color(sign_inner, SCRAM_COLOR_WHITE, 0);
     lv_obj_set_style_bg_opa(sign_inner, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(sign_inner, 0, 0);
+    lv_obj_set_style_pad_all(sign_inner, 0, 0);
     lv_obj_clear_flag(sign_inner, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(sign_inner);
 
     /* Speed limit number. */
     char limit_buf[8];
     if (has_limit) {
-        snprintf(limit_buf, sizeof(limit_buf), "%u",
-                 (unsigned)data->speed_limit_kmh);
+        snprintf(limit_buf, sizeof(limit_buf), "%u", (unsigned)data->speed_limit_kmh);
     } else {
         snprintf(limit_buf, sizeof(limit_buf), "--");
     }
@@ -112,7 +116,7 @@ void screen_blitzer_create(lv_obj_t *parent,
     /* Ring 1 (outermost, lowest opacity). */
     lv_obj_t *ring1 = lv_obj_create(parent);
     lv_obj_set_size(ring1, 300, 300);
-    lv_obj_set_style_radius(ring1, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(ring1, 150, 0);
     lv_obj_set_style_bg_opa(ring1, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_color(ring1, col_red, 0);
     lv_obj_set_style_border_width(ring1, 1, 0);
@@ -123,7 +127,7 @@ void screen_blitzer_create(lv_obj_t *parent,
     /* Ring 2 (middle). */
     lv_obj_t *ring2 = lv_obj_create(parent);
     lv_obj_set_size(ring2, 220, 220);
-    lv_obj_set_style_radius(ring2, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(ring2, 110, 0);
     lv_obj_set_style_bg_opa(ring2, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_color(ring2, col_red, 0);
     lv_obj_set_style_border_width(ring2, 1, 0);
@@ -134,7 +138,7 @@ void screen_blitzer_create(lv_obj_t *parent,
     /* Ring 3 (innermost, highest opacity). */
     lv_obj_t *ring3 = lv_obj_create(parent);
     lv_obj_set_size(ring3, 140, 140);
-    lv_obj_set_style_radius(ring3, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(ring3, 70, 0);
     lv_obj_set_style_bg_opa(ring3, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_color(ring3, col_red, 0);
     lv_obj_set_style_border_width(ring3, 1, 0);
@@ -147,11 +151,9 @@ void screen_blitzer_create(lv_obj_t *parent,
     if (data->distance_meters >= 1000) {
         uint16_t km = data->distance_meters / 1000;
         uint16_t hm = (data->distance_meters % 1000) / 100;
-        snprintf(dist_buf, sizeof(dist_buf), "%u.%ukm",
-                 (unsigned)km, (unsigned)hm);
+        snprintf(dist_buf, sizeof(dist_buf), "%u.%ukm", (unsigned)km, (unsigned)hm);
     } else {
-        snprintf(dist_buf, sizeof(dist_buf), "%um",
-                 (unsigned)data->distance_meters);
+        snprintf(dist_buf, sizeof(dist_buf), "%um", (unsigned)data->distance_meters);
     }
 
     lv_obj_t *lbl_dist = lv_label_create(parent);
@@ -173,18 +175,16 @@ void screen_blitzer_create(lv_obj_t *parent,
     /* Show "67 > 50" style. Red bg if speeding, dark bg otherwise. */
     char speed_buf[32];
     if (has_limit) {
-        snprintf(speed_buf, sizeof(speed_buf), "%u > %u",
-                 (unsigned)current_kmh, (unsigned)data->speed_limit_kmh);
+        snprintf(speed_buf, sizeof(speed_buf), "%u > %u", (unsigned)current_kmh,
+                 (unsigned)data->speed_limit_kmh);
     } else {
-        snprintf(speed_buf, sizeof(speed_buf), "%u km/h",
-                 (unsigned)current_kmh);
+        snprintf(speed_buf, sizeof(speed_buf), "%u km/h", (unsigned)current_kmh);
     }
 
     lv_obj_t *pill = lv_obj_create(parent);
     lv_obj_set_size(pill, 160, 36);
     lv_obj_set_style_radius(pill, 18, 0);
-    lv_obj_set_style_bg_color(pill,
-        is_speeding ? col_red : SCRAM_COLOR_INACTIVE, 0);
+    lv_obj_set_style_bg_color(pill, is_speeding ? col_red : SCRAM_COLOR_INACTIVE, 0);
     lv_obj_set_style_bg_opa(pill, is_speeding ? LV_OPA_80 : LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(pill, 0, 0);
     lv_obj_clear_flag(pill, LV_OBJ_FLAG_SCROLLABLE);

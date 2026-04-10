@@ -58,8 +58,7 @@ static void create_h_divider(lv_obj_t *parent, int y_offset, lv_color_t col)
     lv_obj_align(line, LV_ALIGN_CENTER, 0, y_offset);
 }
 
-static void create_v_divider(lv_obj_t *parent, int y_offset, int height,
-                             lv_color_t col)
+static void create_v_divider(lv_obj_t *parent, int y_offset, int height, lv_color_t col)
 {
     lv_obj_t *line = lv_obj_create(parent);
     lv_obj_set_size(line, 1, height);
@@ -75,18 +74,16 @@ static void create_v_divider(lv_obj_t *parent, int y_offset, int height,
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_trip_stats_create(lv_obj_t *parent,
-                              const ble_trip_stats_data_t *data,
-                              uint8_t flags)
+void screen_trip_stats_create(lv_obj_t *parent, const ble_trip_stats_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted  = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_green  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_GREEN;
-    lv_color_t col_orange = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_ORANGE;
-    lv_color_t col_blue   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_BLUE;
-    lv_color_t col_div    = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_INACTIVE;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_green = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_GREEN;
+    lv_color_t col_orange = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_ORANGE;
+    lv_color_t col_blue = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
+    lv_color_t col_div = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_INACTIVE;
 
     (void)flags;
 

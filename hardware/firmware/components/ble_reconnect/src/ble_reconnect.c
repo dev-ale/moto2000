@@ -11,9 +11,8 @@
 
 /* Backoff schedule in milliseconds, indexed by (attempt - 1). Matches the
  * iOS-side ReconnectStateMachine.backoffSchedule exactly. */
-static const uint32_t k_backoff_schedule_ms[BLE_RECONNECT_BACKOFF_STEPS] = {
-    100u, 200u, 400u, 800u, 1600u, 3000u
-};
+static const uint32_t k_backoff_schedule_ms[BLE_RECONNECT_BACKOFF_STEPS] = { 100u, 200u,  400u,
+                                                                             800u, 1600u, 3000u };
 
 uint32_t ble_reconnect_backoff_ms(uint8_t attempt)
 {
@@ -38,8 +37,7 @@ void ble_reconnect_init(ble_reconnect_fsm_t *fsm)
 
 /* Helper: schedule the next backoff slot using the FSM's current attempt
  * count. Caller must have already bumped `attempt`. */
-static ble_reconnect_action_t schedule_backoff(ble_reconnect_fsm_t *fsm,
-                                               uint32_t now_ms)
+static ble_reconnect_action_t schedule_backoff(ble_reconnect_fsm_t *fsm, uint32_t now_ms)
 {
     uint32_t delay = ble_reconnect_backoff_ms(fsm->attempt);
     fsm->backoff_ms = delay;
@@ -48,8 +46,7 @@ static ble_reconnect_action_t schedule_backoff(ble_reconnect_fsm_t *fsm,
     return BLE_RC_ACTION_WAIT;
 }
 
-ble_reconnect_action_t ble_reconnect_handle(ble_reconnect_fsm_t *fsm,
-                                            ble_reconnect_event_t event,
+ble_reconnect_action_t ble_reconnect_handle(ble_reconnect_fsm_t *fsm, ble_reconnect_event_t event,
                                             uint32_t now_ms)
 {
     if (fsm == NULL) {
@@ -111,11 +108,8 @@ void ble_payload_cache_init(ble_payload_cache_t *cache)
     memset(cache, 0, sizeof(*cache));
 }
 
-void ble_payload_cache_store(ble_payload_cache_t *cache,
-                             uint8_t screen_id,
-                             const uint8_t *body,
-                             uint16_t length,
-                             uint32_t now_ms)
+void ble_payload_cache_store(ble_payload_cache_t *cache, uint8_t screen_id, const uint8_t *body,
+                             uint16_t length, uint32_t now_ms)
 {
     if (cache == NULL) {
         return;
@@ -134,16 +128,15 @@ void ble_payload_cache_store(ble_payload_cache_t *cache,
     }
     /* Zero any unused tail so old data doesn't leak through get(). */
     if (to_copy < (uint16_t)BLE_PAYLOAD_CACHE_BODY_MAX) {
-        memset(&entry->body[to_copy], 0,
-               (size_t)((uint16_t)BLE_PAYLOAD_CACHE_BODY_MAX - to_copy));
+        memset(&entry->body[to_copy], 0, (size_t)((uint16_t)BLE_PAYLOAD_CACHE_BODY_MAX - to_copy));
     }
     entry->length = to_copy;
     entry->updated_ms = now_ms;
     entry->present = true;
 }
 
-const ble_payload_cache_entry_t *ble_payload_cache_get(
-    const ble_payload_cache_t *cache, uint8_t screen_id)
+const ble_payload_cache_entry_t *ble_payload_cache_get(const ble_payload_cache_t *cache,
+                                                       uint8_t screen_id)
 {
     if (cache == NULL) {
         return NULL;
@@ -158,10 +151,8 @@ const ble_payload_cache_entry_t *ble_payload_cache_get(
     return entry;
 }
 
-bool ble_payload_cache_is_stale(const ble_payload_cache_t *cache,
-                                uint8_t screen_id,
-                                uint32_t now_ms,
-                                uint32_t stale_threshold_ms)
+bool ble_payload_cache_is_stale(const ble_payload_cache_t *cache, uint8_t screen_id,
+                                uint32_t now_ms, uint32_t stale_threshold_ms)
 {
     if (cache == NULL) {
         return true;

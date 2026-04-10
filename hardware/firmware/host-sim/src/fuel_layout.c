@@ -49,7 +49,7 @@ void format_fuel_remaining(uint16_t ml, char *buf, size_t buf_len)
          * whole part and modulus for the fractional part avoids pulling
          * in floating-point printf on constrained targets. */
         const unsigned whole = (unsigned)ml / 1000U;
-        const unsigned frac  = ((unsigned)ml % 1000U) / 100U;
+        const unsigned frac = ((unsigned)ml % 1000U) / 100U;
         (void)snprintf(buf, buf_len, "%u.%u L", whole, frac);
     }
 }

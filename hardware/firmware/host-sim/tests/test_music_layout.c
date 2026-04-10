@@ -7,7 +7,7 @@
 
 #include <string.h>
 
-void setUp(void)    {}
+void setUp(void) {}
 void tearDown(void) {}
 
 /* -------------------------------------------------------------------- */
@@ -37,13 +37,13 @@ static void test_progress_clamped_when_position_exceeds_duration(void)
 static void test_progress_indeterminate_when_position_unknown(void)
 {
     TEST_ASSERT_EQUAL_INT(-1,
-        host_sim_music_progress_fill_width(HOST_SIM_MUSIC_UNKNOWN_U16, 100, 200));
+                          host_sim_music_progress_fill_width(HOST_SIM_MUSIC_UNKNOWN_U16, 100, 200));
 }
 
 static void test_progress_indeterminate_when_duration_unknown(void)
 {
     TEST_ASSERT_EQUAL_INT(-1,
-        host_sim_music_progress_fill_width(50, HOST_SIM_MUSIC_UNKNOWN_U16, 200));
+                          host_sim_music_progress_fill_width(50, HOST_SIM_MUSIC_UNKNOWN_U16, 200));
 }
 
 static void test_progress_zero_when_duration_zero(void)
@@ -65,7 +65,7 @@ static void test_truncate_passthrough(void)
 
 static void test_truncate_appends_ellipsis(void)
 {
-    char out[8];  /* capacity 8 → max 7 chars + NUL */
+    char out[8]; /* capacity 8 → max 7 chars + NUL */
     const size_t n = host_sim_music_truncate_with_ellipsis("ABCDEFGHIJ", out, sizeof(out));
     TEST_ASSERT_EQUAL_STRING("ABCDE..", out);
     TEST_ASSERT_EQUAL_size_t(7, n);
@@ -141,7 +141,7 @@ static void test_format_time_basic(void)
 static void test_format_time_two_digit_minutes(void)
 {
     char buf[12];
-    host_sim_music_format_time(754, buf, sizeof(buf));  /* 12:34 */
+    host_sim_music_format_time(754, buf, sizeof(buf)); /* 12:34 */
     TEST_ASSERT_EQUAL_STRING("12:34", buf);
 }
 

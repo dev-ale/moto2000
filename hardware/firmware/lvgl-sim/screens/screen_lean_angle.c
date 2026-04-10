@@ -28,18 +28,17 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#define DISPLAY_SIZE  466
-#define CENTER_X      (DISPLAY_SIZE / 2)
-#define PIVOT_Y       310          /* center-bottom pivot for the needle  */
-#define ARC_RADIUS    160          /* radius of the arc gauge             */
-#define NEEDLE_LEN    140          /* length from pivot to tip            */
+#define DISPLAY_SIZE 466
+#define CENTER_X     (DISPLAY_SIZE / 2)
+#define PIVOT_Y      310 /* center-bottom pivot for the needle  */
+#define ARC_RADIUS   160 /* radius of the arc gauge             */
+#define NEEDLE_LEN   140 /* length from pivot to tip            */
 
 /* ------------------------------------------------------------------ */
 /*  Needle via lv_line                                                  */
 /* ------------------------------------------------------------------ */
 
-static void create_needle(lv_obj_t *parent, int16_t lean_deg_x10,
-                          lv_color_t col)
+static void create_needle(lv_obj_t *parent, int16_t lean_deg_x10, lv_color_t col)
 {
     /* lean_deg_x10: negative = left, positive = right.
      * Map to angle: 0° lean = straight up from pivot (90° in screen coords).
@@ -49,7 +48,7 @@ static void create_needle(lv_obj_t *parent, int16_t lean_deg_x10,
     double angle_rad = angle_deg * (M_PI / 180.0);
 
     int tip_x = CENTER_X + (int)lround(sin(angle_rad) * NEEDLE_LEN);
-    int tip_y = PIVOT_Y  - (int)lround(cos(angle_rad) * NEEDLE_LEN);
+    int tip_y = PIVOT_Y - (int)lround(cos(angle_rad) * NEEDLE_LEN);
 
     static lv_point_precise_t needle_pts[2];
     needle_pts[0].x = CENTER_X;
@@ -68,7 +67,7 @@ static void create_needle(lv_obj_t *parent, int16_t lean_deg_x10,
     /* Pivot dot */
     lv_obj_t *dot = lv_obj_create(parent);
     lv_obj_set_size(dot, 12, 12);
-    lv_obj_set_style_radius(dot, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(dot, 6, 0);
     lv_obj_set_style_bg_color(dot, col, 0);
     lv_obj_set_style_bg_opa(dot, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(dot, 0, 0);
@@ -82,8 +81,7 @@ static void create_needle(lv_obj_t *parent, int16_t lean_deg_x10,
 
 /* Draw tick marks around the 180° arc from -90° to +90° lean.
  * Green for moderate (0-30°), orange for extreme (30-90°). */
-static void create_arc_ticks(lv_obj_t *parent, lv_color_t col_green,
-                             lv_color_t col_orange)
+static void create_arc_ticks(lv_obj_t *parent, lv_color_t col_green, lv_color_t col_orange)
 {
     /* Ticks at every 10° from -90 to +90 = 19 ticks. */
     for (int deg = -90; deg <= 90; deg += 10) {
@@ -96,9 +94,9 @@ static void create_arc_ticks(lv_obj_t *parent, lv_color_t col_green,
         int tick_inner = ARC_RADIUS - (major ? 16 : 10);
 
         int ox = CENTER_X + (int)lround(sin(angle_rad) * tick_outer);
-        int oy = PIVOT_Y  - (int)lround(cos(angle_rad) * tick_outer);
+        int oy = PIVOT_Y - (int)lround(cos(angle_rad) * tick_outer);
         int ix = CENTER_X + (int)lround(sin(angle_rad) * tick_inner);
-        int iy = PIVOT_Y  - (int)lround(cos(angle_rad) * tick_inner);
+        int iy = PIVOT_Y - (int)lround(cos(angle_rad) * tick_inner);
 
         static lv_point_precise_t tick_pts[19][2];
         int idx = (deg + 90) / 10;
@@ -120,17 +118,15 @@ static void create_arc_ticks(lv_obj_t *parent, lv_color_t col_green,
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_lean_angle_create(lv_obj_t *parent,
-                              const ble_lean_angle_data_t *data,
-                              uint8_t flags)
+void screen_lean_angle_create(lv_obj_t *parent, const ble_lean_angle_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted  = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_green  = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_GREEN;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_green = night ? SCRAM_COLOR_RED : SCRAM_COLOR_GREEN;
     lv_color_t col_orange = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_ORANGE;
-    lv_color_t col_needle = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_WHITE;
+    lv_color_t col_needle = night ? SCRAM_COLOR_RED : SCRAM_COLOR_WHITE;
 
     (void)flags;
 
@@ -188,8 +184,7 @@ void screen_lean_angle_create(lv_obj_t *parent,
 
     /* --- Max left indicator --- */
     char max_left_buf[24];
-    snprintf(max_left_buf, sizeof(max_left_buf), "MAX %u\xC2\xB0",
-             (unsigned)max_left_deg);
+    snprintf(max_left_buf, sizeof(max_left_buf), "MAX %u\xC2\xB0", (unsigned)max_left_deg);
 
     lv_obj_t *lbl_max_left = lv_label_create(parent);
     lv_label_set_text(lbl_max_left, max_left_buf);
@@ -199,8 +194,7 @@ void screen_lean_angle_create(lv_obj_t *parent,
 
     /* --- Max right indicator --- */
     char max_right_buf[24];
-    snprintf(max_right_buf, sizeof(max_right_buf), "MAX %u\xC2\xB0",
-             (unsigned)max_right_deg);
+    snprintf(max_right_buf, sizeof(max_right_buf), "MAX %u\xC2\xB0", (unsigned)max_right_deg);
 
     lv_obj_t *lbl_max_right = lv_label_create(parent);
     lv_label_set_text(lbl_max_right, max_right_buf);

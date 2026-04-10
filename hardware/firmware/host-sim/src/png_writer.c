@@ -12,11 +12,6 @@ int host_sim_canvas_write_png(const host_sim_canvas_t *canvas, const char *path)
         return 1;
     }
     const int stride = canvas->width * 3;
-    const int rc = stbi_write_png(path,
-                                  canvas->width,
-                                  canvas->height,
-                                  3,
-                                  canvas->pixels,
-                                  stride);
+    const int rc = stbi_write_png(path, canvas->width, canvas->height, 3, canvas->pixels, stride);
     return rc == 0 ? 2 : 0;
 }

@@ -78,6 +78,13 @@ static inline void ble_write_i64_le(uint8_t *p, int64_t v)
     ble_write_u64_le(p, (uint64_t)v);
 }
 
+/* Portable strnlen — strnlen is POSIX, not available in strict C11. */
+static inline size_t ble_strnlen(const char *s, size_t maxlen)
+{
+    const void *nul = memchr(s, '\0', maxlen);
+    return nul ? (size_t)((const char *)nul - s) : maxlen;
+}
+
 /* True if screen_id is a recognised enum value. */
 bool ble_is_known_screen(uint8_t screen_id);
 
@@ -88,9 +95,6 @@ size_t ble_expected_body_size(ble_screen_id_t screen);
  * Writes the 8-byte header into `out`. Caller is responsible for ensuring
  * `out` has at least BLE_PROTOCOL_HEADER_SIZE bytes.
  */
-void ble_write_header(uint8_t        *out,
-                      ble_screen_id_t screen,
-                      uint8_t         flags,
-                      uint16_t        body_length);
+void ble_write_header(uint8_t *out, ble_screen_id_t screen, uint8_t flags, uint16_t body_length);
 
 #endif /* BLE_PROTOCOL_INTERNAL_H */

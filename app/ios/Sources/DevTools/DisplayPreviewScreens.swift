@@ -207,13 +207,14 @@ struct AltitudeScreenContent: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(screenData.currentAltitudeM)")
-                .font(.system(size: 52, weight: .bold, design: .monospaced))
-                .foregroundStyle(previewGold)
-
-            Text("m")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color(hex: 0x666666))
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("\(screenData.currentAltitudeM)")
+                    .font(.system(size: 52, weight: .bold, design: .monospaced))
+                    .foregroundStyle(previewGold)
+                Text("m")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(Color(hex: 0x999999))
+            }
 
             HStack(spacing: 16) {
                 Label("\(screenData.totalAscentM)m", systemImage: "arrow.up")

@@ -12,6 +12,7 @@ public enum ScreenPayload: Equatable, Sendable {
     case music(MusicData, flags: ScreenFlags)
     case appointment(AppointmentData, flags: ScreenFlags)
     case fuelEstimate(FuelData, flags: ScreenFlags)
+    case altitude(AltitudeProfileData, flags: ScreenFlags)
 
     public var screenID: ScreenID {
         switch self {
@@ -25,6 +26,7 @@ public enum ScreenPayload: Equatable, Sendable {
         case .music: return .music
         case .appointment: return .appointment
         case .fuelEstimate: return .fuelEstimate
+        case .altitude: return .altitude
         }
     }
 
@@ -39,7 +41,8 @@ public enum ScreenPayload: Equatable, Sendable {
              .leanAngle(_, let flags),
              .music(_, let flags),
              .appointment(_, let flags),
-             .fuelEstimate(_, let flags):
+             .fuelEstimate(_, let flags),
+             .altitude(_, let flags):
             return flags
         }
     }
@@ -116,6 +119,8 @@ public enum ScreenPayloadCodec {
             return .appointment(try AppointmentData.decode(body), flags: flags)
         case .fuelEstimate:
             return .fuelEstimate(try FuelData.decode(body), flags: flags)
+        case .altitude:
+            return .altitude(try AltitudeProfileData.decode(body), flags: flags)
         default:
             // The other screens are reserved by Slice 1 but their bodies
             // land with their owning slices. Decoding one today is a bug.
@@ -147,6 +152,8 @@ public enum ScreenPayloadCodec {
             body = try appointment.encode()
         case .fuelEstimate(let fuel, _):
             body = try fuel.encode()
+        case .altitude(let altitude, _):
+            body = try altitude.encode()
         }
         guard body.count <= Int(UInt16.max) else {
             throw BLEProtocolError.valueOutOfRange(field: "body.count")

@@ -71,6 +71,8 @@ final class ValidFixtureTests: XCTestCase {
             return .appointment(try AppointmentData(parsing: body), flags: flags)
         case "fuelEstimate":
             return .fuelEstimate(try FuelData(parsing: body), flags: flags)
+        case "altitude":
+            return .altitude(try AltitudeProfileData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -374,6 +376,42 @@ extension FuelData {
             estimatedRangeKm: UInt16(range),
             consumptionMlPerKm: UInt16(consumption),
             fuelRemainingMl: UInt16(remaining)
+        )
+    }
+}
+
+extension AltitudeProfileData {
+    init(parsing body: [String: Any]) throws {
+        func intValue(_ key: String) throws -> Int {
+            if let i = body[key] as? Int { return i }
+            if let d = body[key] as? Double { return Int(d) }
+            throw FixtureError.missingField(key)
+        }
+        let currentAlt = try intValue("current_altitude_m")
+        let ascent = try intValue("total_ascent_m")
+        let descent = try intValue("total_descent_m")
+        let sampleCount = try intValue("sample_count")
+        let profileArray: [Int16]
+        if let arr = body["profile"] as? [Any] {
+            profileArray = arr.map { elem -> Int16 in
+                if let i = elem as? Int { return Int16(i) }
+                if let d = elem as? Double { return Int16(d) }
+                return 0
+            }
+        } else {
+            profileArray = []
+        }
+        // Pad to 60
+        var padded = profileArray
+        while padded.count < AltitudeProfileData.maxSamples {
+            padded.append(0)
+        }
+        self.init(
+            currentAltitudeM: Int16(currentAlt),
+            totalAscentM: UInt16(ascent),
+            totalDescentM: UInt16(descent),
+            sampleCount: UInt8(sampleCount),
+            profile: padded
         )
     }
 }

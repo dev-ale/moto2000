@@ -110,6 +110,9 @@ APPOINTMENT_LOCATION_LEN = 24
 FUEL_BODY_SIZE = 8
 FUEL_UNKNOWN_U16 = 0xFFFF
 
+ALTITUDE_BODY_SIZE = 128
+ALTITUDE_MAX_SAMPLES = 60
+
 
 def encode_flags(flags: list[str]) -> int:
     value = 0
@@ -347,6 +350,31 @@ def encode_fuel_body(spec: dict) -> bytes:
     return body
 
 
+def encode_altitude_body(spec: dict) -> bytes:
+    current_altitude_m = int(spec["current_altitude_m"])
+    total_ascent_m = int(spec["total_ascent_m"])
+    total_descent_m = int(spec["total_descent_m"])
+    profile = spec.get("profile", [])
+    sample_count = int(spec.get("sample_count", len(profile)))
+    # Header portion: int16 current_alt, uint16 ascent, uint16 descent, uint8 sample_count, uint8 reserved
+    body = struct.pack(
+        "<hHHBB",
+        current_altitude_m,
+        total_ascent_m,
+        total_descent_m,
+        sample_count,
+        0,  # reserved
+    )
+    # Profile: 60 int16 values. Pad with zeros beyond the provided samples.
+    padded_profile = list(profile) + [0] * (ALTITUDE_MAX_SAMPLES - len(profile))
+    for i in range(ALTITUDE_MAX_SAMPLES):
+        body += struct.pack("<h", int(padded_profile[i]))
+    assert len(body) == ALTITUDE_BODY_SIZE, (
+        f"altitude body is {len(body)} bytes, expected {ALTITUDE_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
@@ -358,6 +386,7 @@ BODY_ENCODERS = {
     "music": encode_music_body,
     "appointment": encode_appointment_body,
     "fuelEstimate": encode_fuel_body,
+    "altitude": encode_altitude_body,
 }
 
 

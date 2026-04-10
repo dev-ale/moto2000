@@ -1,0 +1,12 @@
+{
+  "description": "Altitude: just started riding, only 1 sample",
+  "screen": "altitude",
+  "flags": [],
+  "body": {
+    "current_altitude_m": 450,
+    "total_ascent_m": 0,
+    "total_descent_m": 0,
+    "sample_count": 1,
+    "profile": [450]
+  }
+}

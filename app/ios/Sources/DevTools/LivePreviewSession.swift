@@ -1,5 +1,6 @@
 import BLEProtocol
 import CoreLocation
+import EventKit
 import Foundation
 import Observation
 import RideSimulatorKit
@@ -62,6 +63,14 @@ final class LivePreviewSession {
         tasks.append(Task {
             await locationProvider.start()
             await motionProvider.start()
+
+            // Request calendar permission upfront
+            #if canImport(EventKit)
+            let store = EKEventStore()
+            if EKEventStore.authorizationStatus(for: .event) == .notDetermined {
+                _ = try? await store.requestFullAccessToEvents()
+            }
+            #endif
         })
 
         startLocationServices(locationProvider)

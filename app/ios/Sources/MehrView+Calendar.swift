@@ -68,15 +68,23 @@ extension MehrView {
     }
 
     func refreshCalendars() {
-        let calendars = Self.eventStore
-            .calendars(for: .event)
-            .sorted {
-                $0.title.localizedCaseInsensitiveCompare($1.title)
-                    == .orderedAscending
+        Task {
+            // Request permission if not yet determined
+            if EKEventStore.authorizationStatus(for: .event) == .notDetermined {
+                _ = try? await Self.eventStore.requestFullAccessToEvents()
             }
-        ekCalendars = calendars
 
-        let knownIDs = Set(calendars.map(\.calendarIdentifier))
-        Self.calendarPreferences.reconcile(knownCalendarIDs: knownIDs)
+            let calendars = Self.eventStore
+                .calendars(for: .event)
+                .sorted {
+                    $0.title.localizedCaseInsensitiveCompare($1.title)
+                        == .orderedAscending
+                }
+            await MainActor.run {
+                ekCalendars = calendars
+                let knownIDs = Set(calendars.map(\.calendarIdentifier))
+                Self.calendarPreferences.reconcile(knownCalendarIDs: knownIDs)
+            }
+        }
     }
 }

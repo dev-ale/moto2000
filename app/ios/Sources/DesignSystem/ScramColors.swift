@@ -18,8 +18,8 @@ extension Color {
 
     // MARK: - Semantic
 
-    static let scramGreen = Color(hex: 0x4DD88A)
-    static let scramGreenBg = Color(hex: 0x1A3A2A)
+    static let scramGreen = Color(hex: 0xEBAB00)
+    static let scramGreenBg = Color(hex: 0x2A2510)
     static let scramRed = Color(hex: 0xE24B4A)
     static let scramRedBg = Color(hex: 0x2A1A1A)
     static let scramBlue = Color(hex: 0x5BACF5)

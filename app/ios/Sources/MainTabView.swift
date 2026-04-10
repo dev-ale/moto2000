@@ -66,7 +66,7 @@ struct MainTabView: View {
         case .tank:
             PlaceholderTab(title: "Tank", icon: "fuelpump", subtitle: "Tankstopps und Verbrauch tracken")
         case .mehr:
-            PlaceholderTab(title: "Mehr", icon: "ellipsis", subtitle: "Einstellungen und Info")
+            MehrView(connection: connection)
         }
     }
 }

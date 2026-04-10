@@ -34,14 +34,14 @@
 
 #define DISPLAY_SIZE       466
 #define CENTER             (DISPLAY_SIZE / 2)
-#define OUTER_RADIUS       175    /* ~75% of half-display (233 * 0.75) */
+#define OUTER_RADIUS       175 /* ~75% of half-display (233 * 0.75) */
 #define TICK_OUTER_RADIUS  (OUTER_RADIUS - 2)
 #define TICK_MAJOR_LEN     18
 #define TICK_MINOR_LEN     10
 #define LABEL_RADIUS       (OUTER_RADIUS - 35)
-#define NEEDLE_TIP_RADIUS  95     /* distance from center to needle tip */
-#define NEEDLE_TAIL_RADIUS 95     /* distance from center to needle tail */
-#define NEEDLE_HALF_WIDTH  15     /* half-width at the center */
+#define NEEDLE_TIP_RADIUS  95 /* distance from center to needle tip */
+#define NEEDLE_TAIL_RADIUS 95 /* distance from center to needle tail */
+#define NEEDLE_HALF_WIDTH  15 /* half-width at the center */
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -53,13 +53,14 @@
 
 /* Convert a compass bearing (degrees x10, 0 = north, CW) relative to
  * the current heading into screen coordinates on a circle of given radius. */
-static void dial_point(uint16_t heading_x10, uint16_t bearing_x10,
-                       int radius, int *out_x, int *out_y)
+static void dial_point(uint16_t heading_x10, uint16_t bearing_x10, int radius, int *out_x,
+                       int *out_y)
 {
     int32_t rel = (int32_t)bearing_x10 - (int32_t)heading_x10;
     /* Normalize to 0..3599 */
     rel = rel % 3600;
-    if (rel < 0) rel += 3600;
+    if (rel < 0)
+        rel += 3600;
 
     double theta = (double)rel / 10.0 * (M_PI / 180.0);
     *out_x = CENTER + (int)lround(sin(theta) * (double)radius);
@@ -92,7 +93,7 @@ static void create_outer_ring(lv_obj_t *parent, lv_color_t col)
     lv_obj_t *ring = lv_obj_create(parent);
     lv_obj_set_size(ring, OUTER_RADIUS * 2, OUTER_RADIUS * 2);
     lv_obj_align(ring, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_radius(ring, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(ring, OUTER_RADIUS, 0);
     lv_obj_set_style_bg_opa(ring, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_color(ring, col, 0);
     lv_obj_set_style_border_width(ring, 2, 0);
@@ -105,8 +106,8 @@ static void create_outer_ring(lv_obj_t *parent, lv_color_t col)
 /* ------------------------------------------------------------------ */
 
 /* Each tick is a short lv_line from inner to outer radius. */
-static void create_ticks(lv_obj_t *parent, uint16_t heading_x10,
-                         lv_color_t col_major, lv_color_t col_minor)
+static void create_ticks(lv_obj_t *parent, uint16_t heading_x10, lv_color_t col_major,
+                         lv_color_t col_minor)
 {
     /* 12 ticks at 30-degree intervals. */
     for (int deg = 0; deg < 360; deg += 30) {
@@ -142,16 +143,15 @@ static void create_ticks(lv_obj_t *parent, uint16_t heading_x10,
 /*  Cardinal labels                                                    */
 /* ------------------------------------------------------------------ */
 
-static void create_cardinal_labels(lv_obj_t *parent, uint16_t heading_x10,
-                                   lv_color_t col_north, lv_color_t col_other)
+static void create_cardinal_labels(lv_obj_t *parent, uint16_t heading_x10, lv_color_t col_north,
+                                   lv_color_t col_other)
 {
-    static const char *labels[] = {"N", "E", "S", "W"};
-    static const int bearings[] = {0, 90, 180, 270};
+    static const char *labels[] = { "N", "E", "S", "W" };
+    static const int bearings[] = { 0, 90, 180, 270 };
 
     for (int i = 0; i < 4; i++) {
         int px, py;
-        dial_point(heading_x10, (uint16_t)(bearings[i] * 10),
-                   LABEL_RADIUS, &px, &py);
+        dial_point(heading_x10, (uint16_t)(bearings[i] * 10), LABEL_RADIUS, &px, &py);
 
         lv_obj_t *lbl = lv_label_create(parent);
         lv_label_set_text(lbl, labels[i]);
@@ -181,15 +181,15 @@ static void create_cardinal_labels(lv_obj_t *parent, uint16_t heading_x10,
  *
  * We draw the needle as two triangles (north half = red, south half = gray)
  * using lv_line to outline the diamond shape filled with colored objects. */
-static void create_needle(lv_obj_t *parent, uint16_t heading_x10,
-                          lv_color_t col_north, lv_color_t col_south)
+static void create_needle(lv_obj_t *parent, uint16_t heading_x10, lv_color_t col_north,
+                          lv_color_t col_south)
 {
     /* Needle points: tip_n (north tip), tip_s (south tip),
      * left and right at center. */
-    int nx, ny;  /* North tip */
-    int sx, sy;  /* South tip */
-    int lx, ly;  /* Left wing */
-    int rx, ry;  /* Right wing */
+    int nx, ny; /* North tip */
+    int sx, sy; /* South tip */
+    int lx, ly; /* Left wing */
+    int rx, ry; /* Right wing */
 
     dial_point(heading_x10, 0, NEEDLE_TIP_RADIUS, &nx, &ny);
     dial_point(heading_x10, 1800, NEEDLE_TAIL_RADIUS, &sx, &sy);
@@ -206,10 +206,14 @@ static void create_needle(lv_obj_t *parent, uint16_t heading_x10,
     /* North triangle (tip -> right -> center -> left -> tip) */
     {
         static lv_point_precise_t pts_n[4];
-        pts_n[0].x = nx; pts_n[0].y = ny;
-        pts_n[1].x = rx; pts_n[1].y = ry;
-        pts_n[2].x = lx; pts_n[2].y = ly;
-        pts_n[3].x = nx; pts_n[3].y = ny;
+        pts_n[0].x = nx;
+        pts_n[0].y = ny;
+        pts_n[1].x = rx;
+        pts_n[1].y = ry;
+        pts_n[2].x = lx;
+        pts_n[2].y = ly;
+        pts_n[3].x = nx;
+        pts_n[3].y = ny;
 
         /* Fill north triangle by drawing many lines from the tip to the base */
         int steps = 20;
@@ -261,19 +265,17 @@ static void create_needle(lv_obj_t *parent, uint16_t heading_x10,
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_compass_create(lv_obj_t *parent,
-                           const ble_compass_data_t *data,
-                           uint8_t flags)
+void screen_compass_create(lv_obj_t *parent, const ble_compass_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text    = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted   = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_ring    = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_INACTIVE;
-    lv_color_t col_north   = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_RED;
-    lv_color_t col_needle_s = night ? lv_color_hex(0x333333)  : lv_color_hex(0x444444);
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_ring = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_INACTIVE;
+    lv_color_t col_north = night ? SCRAM_COLOR_RED : SCRAM_COLOR_RED;
+    lv_color_t col_needle_s = night ? lv_color_hex(0x333333) : lv_color_hex(0x444444);
     lv_color_t col_tick_major = night ? SCRAM_COLOR_NIGHT_MUTED : lv_color_hex(0x333333);
-    lv_color_t col_tick_minor = night ? lv_color_hex(0x330808)  : lv_color_hex(0x222222);
+    lv_color_t col_tick_minor = night ? lv_color_hex(0x330808) : lv_color_hex(0x222222);
 
     (void)flags;
 

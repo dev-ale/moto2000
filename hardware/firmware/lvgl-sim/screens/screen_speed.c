@@ -27,13 +27,20 @@
 static const char *heading_to_cardinal(uint16_t heading_deg_x10)
 {
     uint16_t deg = heading_deg_x10 / 10;
-    if (deg >= 338 || deg < 23)  return "N";
-    if (deg < 68)  return "NE";
-    if (deg < 113) return "E";
-    if (deg < 158) return "SE";
-    if (deg < 203) return "S";
-    if (deg < 248) return "SW";
-    if (deg < 293) return "W";
+    if (deg >= 338 || deg < 23)
+        return "N";
+    if (deg < 68)
+        return "NE";
+    if (deg < 113)
+        return "E";
+    if (deg < 158)
+        return "SE";
+    if (deg < 203)
+        return "S";
+    if (deg < 248)
+        return "SW";
+    if (deg < 293)
+        return "W";
     return "NW";
 }
 
@@ -41,16 +48,14 @@ static const char *heading_to_cardinal(uint16_t heading_deg_x10)
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_speed_create(lv_obj_t *parent,
-                         const ble_speed_heading_data_t *data,
-                         uint8_t flags)
+void screen_speed_create(lv_obj_t *parent, const ble_speed_heading_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
     lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_arc   = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_GREEN;
-    lv_color_t col_head  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_BLUE;
+    lv_color_t col_arc = night ? SCRAM_COLOR_RED : SCRAM_COLOR_GREEN;
+    lv_color_t col_head = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
 
     (void)flags;
 
@@ -61,8 +66,8 @@ void screen_speed_create(lv_obj_t *parent,
     /* Derived values. */
     uint16_t speed_kmh = data->speed_kmh_x10 / 10;
     uint16_t heading_deg = data->heading_deg_x10 / 10;
-    int16_t  altitude_m = data->altitude_m;
-    int16_t  temp_whole = data->temperature_celsius_x10 / 10;
+    int16_t altitude_m = data->altitude_m;
+    int16_t temp_whole = data->temperature_celsius_x10 / 10;
 
     /* --- Arc gauge --- */
     /* The arc spans 270 deg (like a car speedometer), open at the bottom.
@@ -114,8 +119,7 @@ void screen_speed_create(lv_obj_t *parent,
     /* --- Heading with cardinal direction --- */
     char heading_buf[16];
     snprintf(heading_buf, sizeof(heading_buf), "%s %03u\xC2\xB0",
-             heading_to_cardinal(data->heading_deg_x10),
-             (unsigned)heading_deg);
+             heading_to_cardinal(data->heading_deg_x10), (unsigned)heading_deg);
 
     lv_obj_t *lbl_heading = lv_label_create(parent);
     lv_label_set_text(lbl_heading, heading_buf);
@@ -137,7 +141,7 @@ void screen_speed_create(lv_obj_t *parent,
     /* Altitude dot. */
     lv_obj_t *dot_alt = lv_obj_create(parent);
     lv_obj_set_size(dot_alt, 6, 6);
-    lv_obj_set_style_radius(dot_alt, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(dot_alt, 3, 0);
     lv_obj_set_style_bg_color(dot_alt, col_muted, 0);
     lv_obj_set_style_bg_opa(dot_alt, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(dot_alt, 0, 0);
@@ -146,7 +150,10 @@ void screen_speed_create(lv_obj_t *parent,
 
     /* --- Temperature (bottom-right) --- */
     char temp_buf[16];
-    snprintf(temp_buf, sizeof(temp_buf), "%d\xC2\xB0""C", (int)temp_whole);
+    snprintf(temp_buf, sizeof(temp_buf),
+             "%d\xC2\xB0"
+             "C",
+             (int)temp_whole);
 
     lv_obj_t *lbl_temp = lv_label_create(parent);
     lv_label_set_text(lbl_temp, temp_buf);
@@ -157,7 +164,7 @@ void screen_speed_create(lv_obj_t *parent,
     /* Temperature dot. */
     lv_obj_t *dot_temp = lv_obj_create(parent);
     lv_obj_set_size(dot_temp, 6, 6);
-    lv_obj_set_style_radius(dot_temp, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(dot_temp, 3, 0);
     lv_obj_set_style_bg_color(dot_temp, col_muted, 0);
     lv_obj_set_style_bg_opa(dot_temp, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(dot_temp, 0, 0);

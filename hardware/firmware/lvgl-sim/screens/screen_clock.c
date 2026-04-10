@@ -22,23 +22,20 @@
 /*  Deterministic time formatting (same algorithm as host-sim).       */
 /* ------------------------------------------------------------------ */
 
-static void civil_from_days(int64_t  days,
-                            int32_t *out_year,
-                            uint32_t *out_month,
-                            uint32_t *out_day)
+static void civil_from_days(int64_t days, int32_t *out_year, uint32_t *out_month, uint32_t *out_day)
 {
     days += 719468;
-    const int64_t  era = (days >= 0 ? days : days - 146096) / 146097;
+    const int64_t era = (days >= 0 ? days : days - 146096) / 146097;
     const uint32_t doe = (uint32_t)(days - era * 146097);
     const uint32_t yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
-    const int32_t  y   = (int32_t)yoe + (int32_t)(era * 400);
+    const int32_t y = (int32_t)yoe + (int32_t)(era * 400);
     const uint32_t doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    const uint32_t mp  = (5 * doy + 2) / 153;
-    const uint32_t d   = doy - (153 * mp + 2) / 5 + 1;
-    const uint32_t m   = mp < 10 ? mp + 3 : mp - 9;
-    *out_year  = y + (int32_t)(m <= 2 ? 1 : 0);
+    const uint32_t mp = (5 * doy + 2) / 153;
+    const uint32_t d = doy - (153 * mp + 2) / 5 + 1;
+    const uint32_t m = mp < 10 ? mp + 3 : mp - 9;
+    *out_year = y + (int32_t)(m <= 2 ? 1 : 0);
     *out_month = m;
-    *out_day   = d;
+    *out_day = d;
 }
 
 static uint32_t weekday_from_days(int64_t days)
@@ -50,12 +47,12 @@ static uint32_t weekday_from_days(int64_t days)
     return (uint32_t)w;
 }
 
-static void format_time(const ble_clock_data_t *data,
-                        char *buf, size_t cap)
+static void format_time(const ble_clock_data_t *data, char *buf, size_t cap)
 {
     const int64_t local = data->unix_time + (int64_t)data->tz_offset_minutes * 60;
     int64_t sod = local % 86400;
-    if (sod < 0) sod += 86400;
+    if (sod < 0)
+        sod += 86400;
     int h = (int)(sod / 3600);
     int m = (int)((sod / 60) % 60);
 
@@ -63,22 +60,23 @@ static void format_time(const ble_clock_data_t *data,
         snprintf(buf, cap, "%02d:%02d", h, m);
     } else {
         int h12 = h % 12;
-        if (h12 == 0) h12 = 12;
+        if (h12 == 0)
+            h12 = 12;
         snprintf(buf, cap, "%d:%02d %s", h12, m, h < 12 ? "AM" : "PM");
     }
 }
 
-static void format_date(const ble_clock_data_t *data,
-                        char *buf, size_t cap)
+static void format_date(const ble_clock_data_t *data, char *buf, size_t cap)
 {
     const int64_t local = data->unix_time + (int64_t)data->tz_offset_minutes * 60;
     int64_t days = local / 86400;
-    int64_t sod  = local % 86400;
-    if (sod < 0) days -= 1;
+    int64_t sod = local % 86400;
+    if (sod < 0)
+        days -= 1;
 
-    int32_t  year  = 0;
+    int32_t year = 0;
     uint32_t month = 0;
-    uint32_t day   = 0;
+    uint32_t day = 0;
     civil_from_days(days, &year, &month, &day);
     uint32_t wday = weekday_from_days(days);
 
@@ -87,29 +85,26 @@ static void format_date(const ble_clock_data_t *data,
         "SO", "MO", "DI", "MI", "DO", "FR", "SA",
     };
     static const char *const month_de[12] = {
-        "JANUAR", "FEBRUAR", "MAERZ", "APRIL", "MAI", "JUNI",
-        "JULI", "AUGUST", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DEZEMBER",
+        "JANUAR", "FEBRUAR", "MAERZ",     "APRIL",   "MAI",      "JUNI",
+        "JULI",   "AUGUST",  "SEPTEMBER", "OKTOBER", "NOVEMBER", "DEZEMBER",
     };
 
     (void)year;
-    snprintf(buf, cap, "%s, %u. %s", wday_de[wday], (unsigned)day,
-             month_de[month - 1]);
+    snprintf(buf, cap, "%s, %u. %s", wday_de[wday], (unsigned)day, month_de[month - 1]);
 }
 
 /* ------------------------------------------------------------------ */
 /*  Screen layout                                                     */
 /* ------------------------------------------------------------------ */
 
-void screen_clock_create(lv_obj_t *parent,
-                         const ble_clock_data_t *data,
-                         uint8_t flags)
+void screen_clock_create(lv_obj_t *parent, const ble_clock_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
     lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_green = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_GREEN;
-    lv_color_t col_blue  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_BLUE;
+    lv_color_t col_green = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_GREEN;
+    lv_color_t col_blue = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
 
     /* Remove padding/scrollbar from parent screen. */
     lv_obj_set_style_pad_all(parent, 0, 0);
@@ -152,7 +147,7 @@ void screen_clock_create(lv_obj_t *parent,
     /* BLE dot (green) */
     lv_obj_t *dot_ble = lv_obj_create(parent);
     lv_obj_set_size(dot_ble, 10, 10);
-    lv_obj_set_style_radius(dot_ble, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(dot_ble, 5, 0);
     lv_obj_set_style_bg_color(dot_ble, col_green, 0);
     lv_obj_set_style_bg_opa(dot_ble, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(dot_ble, 0, 0);
@@ -168,7 +163,7 @@ void screen_clock_create(lv_obj_t *parent,
     /* WiFi dot (blue) */
     lv_obj_t *dot_wifi = lv_obj_create(parent);
     lv_obj_set_size(dot_wifi, 10, 10);
-    lv_obj_set_style_radius(dot_wifi, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(dot_wifi, 5, 0);
     lv_obj_set_style_bg_color(dot_wifi, col_blue, 0);
     lv_obj_set_style_bg_opa(dot_wifi, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(dot_wifi, 0, 0);

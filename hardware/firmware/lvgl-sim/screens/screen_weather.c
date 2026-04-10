@@ -26,12 +26,18 @@
 static const char *condition_to_text(ble_weather_condition_t cond)
 {
     switch (cond) {
-        case BLE_WEATHER_CLEAR:        return "Clear";
-        case BLE_WEATHER_CLOUDY:       return "Cloudy";
-        case BLE_WEATHER_RAIN:         return "Rain";
-        case BLE_WEATHER_SNOW:         return "Snow";
-        case BLE_WEATHER_FOG:          return "Fog";
-        case BLE_WEATHER_THUNDERSTORM: return "Thunderstorm";
+    case BLE_WEATHER_CLEAR:
+        return "Clear";
+    case BLE_WEATHER_CLOUDY:
+        return "Cloudy";
+    case BLE_WEATHER_RAIN:
+        return "Rain";
+    case BLE_WEATHER_SNOW:
+        return "Snow";
+    case BLE_WEATHER_FOG:
+        return "Fog";
+    case BLE_WEATHER_THUNDERSTORM:
+        return "Thunderstorm";
     }
     return "Unknown";
 }
@@ -41,12 +47,11 @@ static const char *condition_to_text(ble_weather_condition_t cond)
 /* ------------------------------------------------------------------ */
 
 /* Helper: create a filled circle (dot/sun/etc). */
-static lv_obj_t *make_circle(lv_obj_t *parent, int cx, int cy, int r,
-                             lv_color_t col, lv_opa_t opa)
+static lv_obj_t *make_circle(lv_obj_t *parent, int cx, int cy, int r, lv_color_t col, lv_opa_t opa)
 {
     lv_obj_t *obj = lv_obj_create(parent);
     lv_obj_set_size(obj, r * 2, r * 2);
-    lv_obj_set_style_radius(obj, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(obj, r, 0);
     lv_obj_set_style_bg_color(obj, col, 0);
     lv_obj_set_style_bg_opa(obj, opa, 0);
     lv_obj_set_style_border_width(obj, 0, 0);
@@ -56,8 +61,7 @@ static lv_obj_t *make_circle(lv_obj_t *parent, int cx, int cy, int r,
 }
 
 /* Helper: create a rounded rectangle. */
-static lv_obj_t *make_rounded_rect(lv_obj_t *parent, int x, int y,
-                                   int w, int h, int radius,
+static lv_obj_t *make_rounded_rect(lv_obj_t *parent, int x, int y, int w, int h, int radius,
                                    lv_color_t col, lv_opa_t opa)
 {
     lv_obj_t *obj = lv_obj_create(parent);
@@ -72,12 +76,12 @@ static lv_obj_t *make_rounded_rect(lv_obj_t *parent, int x, int y,
 }
 
 /* Helper: create a small line segment for rain/lightning. */
-static void make_line(lv_obj_t *parent, int x1, int y1, int x2, int y2,
-                      lv_color_t col, int width)
+static void make_line(lv_obj_t *parent, int x1, int y1, int x2, int y2, lv_color_t col, int width)
 {
     static lv_point_precise_t pts_pool[32][2];
     static int pts_idx = 0;
-    if (pts_idx >= 32) pts_idx = 0;
+    if (pts_idx >= 32)
+        pts_idx = 0;
 
     pts_pool[pts_idx][0].x = x1;
     pts_pool[pts_idx][0].y = y1;
@@ -95,8 +99,7 @@ static void make_line(lv_obj_t *parent, int x1, int y1, int x2, int y2,
 }
 
 /* Sun icon: large circle with ray lines radiating outward. */
-static void draw_icon_clear(lv_obj_t *parent, int cx, int cy,
-                            lv_color_t col_sun)
+static void draw_icon_clear(lv_obj_t *parent, int cx, int cy, lv_color_t col_sun)
 {
     make_circle(parent, cx, cy, 28, col_sun, LV_OPA_90);
 
@@ -114,8 +117,7 @@ static void draw_icon_clear(lv_obj_t *parent, int cx, int cy,
 }
 
 /* Cloud icon: overlapping rounded rects + circles to form cloud body. */
-static void draw_icon_cloud(lv_obj_t *parent, int cx, int cy,
-                            lv_color_t col_cloud)
+static void draw_icon_cloud(lv_obj_t *parent, int cx, int cy, lv_color_t col_cloud)
 {
     /* Main cloud body: rounded rectangle. */
     make_rounded_rect(parent, cx - 50, cy - 5, 100, 40, 20, col_cloud, LV_OPA_80);
@@ -125,8 +127,8 @@ static void draw_icon_cloud(lv_obj_t *parent, int cx, int cy,
 }
 
 /* Partly cloudy: sun peeking behind a cloud. */
-static void draw_icon_partly_cloudy(lv_obj_t *parent, int cx, int cy,
-                                    lv_color_t col_sun, lv_color_t col_cloud)
+static void draw_icon_partly_cloudy(lv_obj_t *parent, int cx, int cy, lv_color_t col_sun,
+                                    lv_color_t col_cloud)
 {
     /* Sun behind and to the left. */
     make_circle(parent, cx - 20, cy - 15, 25, col_sun, LV_OPA_90);
@@ -137,32 +139,31 @@ static void draw_icon_partly_cloudy(lv_obj_t *parent, int cx, int cy,
 }
 
 /* Rain icon: cloud + rain drop lines. */
-static void draw_icon_rain(lv_obj_t *parent, int cx, int cy,
-                           lv_color_t col_cloud, lv_color_t col_rain)
+static void draw_icon_rain(lv_obj_t *parent, int cx, int cy, lv_color_t col_cloud,
+                           lv_color_t col_rain)
 {
     draw_icon_cloud(parent, cx, cy - 15, col_cloud);
     /* Rain drop lines below cloud. */
     make_line(parent, cx - 25, cy + 25, cx - 30, cy + 42, col_rain, 3);
-    make_line(parent, cx,      cy + 25, cx - 5,  cy + 42, col_rain, 3);
+    make_line(parent, cx, cy + 25, cx - 5, cy + 42, col_rain, 3);
     make_line(parent, cx + 25, cy + 25, cx + 20, cy + 42, col_rain, 3);
 }
 
 /* Snow icon: cloud + snowflake dots. */
-static void draw_icon_snow(lv_obj_t *parent, int cx, int cy,
-                           lv_color_t col_cloud, lv_color_t col_snow)
+static void draw_icon_snow(lv_obj_t *parent, int cx, int cy, lv_color_t col_cloud,
+                           lv_color_t col_snow)
 {
     draw_icon_cloud(parent, cx, cy - 15, col_cloud);
     /* Snowflake dots. */
     make_circle(parent, cx - 25, cy + 28, 4, col_snow, LV_OPA_COVER);
-    make_circle(parent, cx,      cy + 35, 4, col_snow, LV_OPA_COVER);
+    make_circle(parent, cx, cy + 35, 4, col_snow, LV_OPA_COVER);
     make_circle(parent, cx + 25, cy + 28, 4, col_snow, LV_OPA_COVER);
     make_circle(parent, cx - 12, cy + 42, 3, col_snow, LV_OPA_COVER);
     make_circle(parent, cx + 12, cy + 42, 3, col_snow, LV_OPA_COVER);
 }
 
 /* Fog icon: horizontal lines (stripes). */
-static void draw_icon_fog(lv_obj_t *parent, int cx, int cy,
-                          lv_color_t col_fog)
+static void draw_icon_fog(lv_obj_t *parent, int cx, int cy, lv_color_t col_fog)
 {
     for (int i = 0; i < 4; i++) {
         int y = cy - 20 + i * 16;
@@ -172,48 +173,48 @@ static void draw_icon_fog(lv_obj_t *parent, int cx, int cy,
 }
 
 /* Thunderstorm icon: cloud + lightning bolt lines. */
-static void draw_icon_thunderstorm(lv_obj_t *parent, int cx, int cy,
-                                   lv_color_t col_cloud, lv_color_t col_bolt)
+static void draw_icon_thunderstorm(lv_obj_t *parent, int cx, int cy, lv_color_t col_cloud,
+                                   lv_color_t col_bolt)
 {
     draw_icon_cloud(parent, cx, cy - 15, col_cloud);
     /* Lightning bolt: zigzag lines. */
-    make_line(parent, cx - 5,  cy + 20, cx + 5,  cy + 30, col_bolt, 4);
-    make_line(parent, cx + 5,  cy + 30, cx - 8,  cy + 38, col_bolt, 4);
-    make_line(parent, cx - 8,  cy + 38, cx + 3,  cy + 50, col_bolt, 4);
+    make_line(parent, cx - 5, cy + 20, cx + 5, cy + 30, col_bolt, 4);
+    make_line(parent, cx + 5, cy + 30, cx - 8, cy + 38, col_bolt, 4);
+    make_line(parent, cx - 8, cy + 38, cx + 3, cy + 50, col_bolt, 4);
 }
 
-static void draw_condition_icon(lv_obj_t *parent, int cx, int cy,
-                                ble_weather_condition_t cond, bool night)
+static void draw_condition_icon(lv_obj_t *parent, int cx, int cy, ble_weather_condition_t cond,
+                                bool night)
 {
-    lv_color_t col_sun   = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_ORANGE;
+    lv_color_t col_sun = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_ORANGE;
     lv_color_t col_cloud = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_BLUE;
-    lv_color_t col_snow  = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
-    lv_color_t col_fog   = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_bolt  = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_ORANGE;
-    lv_color_t col_rain  = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
+    lv_color_t col_snow = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_fog = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_bolt = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_ORANGE;
+    lv_color_t col_rain = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
 
     switch (cond) {
-        case BLE_WEATHER_CLEAR:
-            draw_icon_clear(parent, cx, cy, col_sun);
-            break;
-        case BLE_WEATHER_CLOUDY:
-            draw_icon_partly_cloudy(parent, cx, cy, col_sun, col_cloud);
-            break;
-        case BLE_WEATHER_RAIN:
-            draw_icon_rain(parent, cx, cy, col_cloud, col_rain);
-            break;
-        case BLE_WEATHER_SNOW:
-            draw_icon_snow(parent, cx, cy, col_cloud, col_snow);
-            break;
-        case BLE_WEATHER_FOG:
-            draw_icon_fog(parent, cx, cy, col_fog);
-            break;
-        case BLE_WEATHER_THUNDERSTORM:
-            draw_icon_thunderstorm(parent, cx, cy, col_cloud, col_bolt);
-            break;
-        default:
-            draw_icon_cloud(parent, cx, cy, col_cloud);
-            break;
+    case BLE_WEATHER_CLEAR:
+        draw_icon_clear(parent, cx, cy, col_sun);
+        break;
+    case BLE_WEATHER_CLOUDY:
+        draw_icon_partly_cloudy(parent, cx, cy, col_sun, col_cloud);
+        break;
+    case BLE_WEATHER_RAIN:
+        draw_icon_rain(parent, cx, cy, col_cloud, col_rain);
+        break;
+    case BLE_WEATHER_SNOW:
+        draw_icon_snow(parent, cx, cy, col_cloud, col_snow);
+        break;
+    case BLE_WEATHER_FOG:
+        draw_icon_fog(parent, cx, cy, col_fog);
+        break;
+    case BLE_WEATHER_THUNDERSTORM:
+        draw_icon_thunderstorm(parent, cx, cy, col_cloud, col_bolt);
+        break;
+    default:
+        draw_icon_cloud(parent, cx, cy, col_cloud);
+        break;
     }
 }
 
@@ -221,15 +222,13 @@ static void draw_condition_icon(lv_obj_t *parent, int cx, int cy,
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_weather_create(lv_obj_t *parent,
-                           const ble_weather_data_t *data,
-                           uint8_t flags)
+void screen_weather_create(lv_obj_t *parent, const ble_weather_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
     lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_blue  = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_BLUE;
+    lv_color_t col_blue = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
     lv_color_t col_orange = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_ORANGE;
 
     (void)flags;
@@ -263,10 +262,10 @@ void screen_weather_create(lv_obj_t *parent,
 
     /* --- High / Low temperatures --- */
     int16_t high_whole = data->high_celsius_x10 / 10;
-    int16_t low_whole  = data->low_celsius_x10 / 10;
+    int16_t low_whole = data->low_celsius_x10 / 10;
     char hilo_buf[32];
-    snprintf(hilo_buf, sizeof(hilo_buf), "H: %d\xC2\xB0  L: %d\xC2\xB0",
-             (int)high_whole, (int)low_whole);
+    snprintf(hilo_buf, sizeof(hilo_buf), "H: %d\xC2\xB0  L: %d\xC2\xB0", (int)high_whole,
+             (int)low_whole);
 
     lv_obj_t *lbl_hilo = lv_label_create(parent);
     lv_label_set_text(lbl_hilo, hilo_buf);

@@ -39,16 +39,14 @@ static void format_time_mss(uint16_t seconds, char *buf, size_t cap)
 /*  Screen layout                                                      */
 /* ------------------------------------------------------------------ */
 
-void screen_music_create(lv_obj_t *parent,
-                         const ble_music_data_t *data,
-                         uint8_t flags)
+void screen_music_create(lv_obj_t *parent, const ble_music_data_t *data, uint8_t flags)
 {
     bool night = scram_theme_is_night_mode();
 
-    lv_color_t col_text   = night ? SCRAM_COLOR_NIGHT_TEXT  : SCRAM_COLOR_WHITE;
-    lv_color_t col_muted  = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_accent = night ? SCRAM_COLOR_RED         : SCRAM_COLOR_GREEN;
-    lv_color_t col_art_bg = night ? lv_color_hex(0x1A0000)  : lv_color_hex(0x333333);
+    lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
+    lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
+    lv_color_t col_accent = night ? SCRAM_COLOR_RED : SCRAM_COLOR_GREEN;
+    lv_color_t col_art_bg = night ? lv_color_hex(0x1A0000) : lv_color_hex(0x333333);
 
     (void)flags;
 
@@ -104,7 +102,8 @@ void screen_music_create(lv_obj_t *parent,
 
     if (has_duration && has_position) {
         bar_value = (int32_t)data->position_seconds * 1000 / (int32_t)data->duration_seconds;
-        if (bar_value > 1000) bar_value = 1000;
+        if (bar_value > 1000)
+            bar_value = 1000;
     }
 
     lv_obj_t *bar = lv_bar_create(parent);
@@ -125,12 +124,12 @@ void screen_music_create(lv_obj_t *parent,
 
     /* --- Scrubber dot --- */
     /* Position the scrubber at the bar's fill percentage. */
-    int bar_x_start = -140;  /* bar left edge relative to center */
+    int bar_x_start = -140; /* bar left edge relative to center */
     int scrubber_x = bar_x_start + (int)(280 * bar_value / 1000);
 
     lv_obj_t *scrubber = lv_obj_create(parent);
     lv_obj_set_size(scrubber, 16, 16);
-    lv_obj_set_style_radius(scrubber, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_radius(scrubber, 8, 0);
     lv_obj_set_style_bg_color(scrubber, col_accent, 0);
     lv_obj_set_style_bg_opa(scrubber, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(scrubber, 0, 0);

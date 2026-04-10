@@ -70,6 +70,9 @@ SNAPSHOTS=(
     "blitzer_mobile_close            blitzer_mobile_close.bin"
     "blitzer_section                 blitzer_section.bin"
     "blitzer_unknown_limit           blitzer_unknown_limit.bin"
+    "speed_urban_45kmh_night         speed_urban_45kmh_night.bin"
+    "compass_north_magnetic_night    compass_north_magnetic_night.bin"
+    "nav_straight_night              nav_straight_night.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

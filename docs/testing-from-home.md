@@ -202,6 +202,43 @@ roughly:
 The first region is the only piece this slice owns; the other two are
 covered by the firmware integration tests and the device bring-up report.
 
+## Workflow: test night mode via the dev panel
+
+Slice 16 adds a `NightModeService` that automatically toggles night mode
+based on time-of-day or ambient light. To test it without waiting for
+sunset:
+
+1. **Force night mode via user override.** In the debug panel, the
+   brightness section will gain a "Force Night" / "Force Day" / "Auto"
+   segmented control (once the SwiftUI view lands). In tests, call:
+   ```swift
+   await nightModeService.setUserOverride(.autoWithNightMode)
+   ```
+
+2. **Inject fake lux samples.** Use `MockAmbientLightProvider` to emit
+   low-lux samples:
+   ```swift
+   let mockLight = MockAmbientLightProvider()
+   mockLight.emit(AmbientLightSample(lux: 10, timestamp: Date()))
+   ```
+   The service picks up the sample and switches to night mode within one
+   evaluation cycle (< 1 s in tests, 60 s in production).
+
+3. **Render via the host simulator.** Pass any fixture `.bin` with the
+   `NIGHT_MODE` flag set to the host-sim:
+   ```sh
+   ./hardware/firmware/host-sim/build/scramscreen-host-sim \
+       --in protocol/fixtures/valid/speed_urban_45kmh_night.bin \
+       --out /tmp/speed_night.png
+   open /tmp/speed_night.png
+   ```
+
+4. **Run snapshot tests.** The night-mode snapshot tests verify the red
+   palette renders correctly for speed, compass, navigation, and clock:
+   ```sh
+   ctest --test-dir hardware/firmware/host-sim/build -R night
+   ```
+
 ## What doesn't work yet
 
 - **Real data sources** — each real provider (wrapping `CLLocationManager`,

@@ -259,6 +259,8 @@ final class LivePreviewSession {
             clock: clock,
             coordinate: coord
         )
+        services.append(weatherProvider)
+        tasks.append(Task { await weatherProvider.start() })
         let weatherService = WeatherService(provider: weatherProvider)
         weatherService.start()
         services.append(weatherService)

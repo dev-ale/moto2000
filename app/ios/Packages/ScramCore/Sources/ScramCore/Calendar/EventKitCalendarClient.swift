@@ -18,7 +18,7 @@ public struct EventKitCalendarClient: CalendarServiceClient, @unchecked Sendable
     private let store: EKEventStore
 
     /// Look-ahead window: fetch events starting within the next 24 hours.
-    private static let lookAheadSeconds: TimeInterval = 24 * 60 * 60
+    private static let lookAheadSeconds: TimeInterval = 2 * 60 * 60
 
     public init(preferences: CalendarPreferences? = nil) {
         self.preferences = preferences

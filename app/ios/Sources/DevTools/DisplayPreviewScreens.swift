@@ -47,9 +47,9 @@ struct SpeedScreenContent: View {
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(dimGray)
             }
-            .padding(.horizontal, 40)
+            .padding(.horizontal, 50)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 24)
         }
     }
 

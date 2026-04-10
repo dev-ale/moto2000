@@ -1,0 +1,15 @@
+{
+  "description": "Altitude: flat terrain, 20 samples at 260m, ascent=0, descent=0",
+  "screen": "altitude",
+  "flags": [],
+  "body": {
+    "current_altitude_m": 260,
+    "total_ascent_m": 0,
+    "total_descent_m": 0,
+    "sample_count": 20,
+    "profile": [
+      260, 260, 260, 260, 260, 260, 260, 260, 260, 260,
+      260, 260, 260, 260, 260, 260, 260, 260, 260, 260
+    ]
+  }
+}

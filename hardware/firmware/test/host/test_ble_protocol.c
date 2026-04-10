@@ -611,6 +611,100 @@ static void test_control_set_active_unknown_screen_rejected(void)
     TEST_ASSERT_EQUAL(BLE_ERR_UNKNOWN_SCREEN_ID, result);
 }
 
+/* ---- fuel (Slice 12) ---------------------------------------------------- */
+
+static void assert_fuel_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t         flags = 0xFF;
+    ble_fuel_data_t decoded_body;
+    const ble_result_t decoded =
+        ble_decode_fuel(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_fuel(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_fuel_full_tank_roundtrip(void)
+{
+    assert_fuel_fixture_roundtrips("fuel_full_tank");
+}
+
+static void test_fuel_half_tank_roundtrip(void)
+{
+    assert_fuel_fixture_roundtrips("fuel_half_tank");
+}
+
+static void test_fuel_low_roundtrip(void)
+{
+    assert_fuel_fixture_roundtrips("fuel_low");
+}
+
+static void test_fuel_percent_over_100_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "fuel_percent_over_100", &blob));
+    ble_fuel_data_t body;
+    const ble_result_t result =
+        ble_decode_fuel(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
+
+/* ---- altitude (Slice 15) ------------------------------------------------ */
+
+static void assert_altitude_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t                      flags = 0xFF;
+    ble_altitude_profile_data_t  decoded_body;
+    const ble_result_t decoded =
+        ble_decode_altitude(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_altitude(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_altitude_flat_roundtrip(void)
+{
+    assert_altitude_fixture_roundtrips("altitude_flat");
+}
+
+static void test_altitude_mountain_pass_roundtrip(void)
+{
+    assert_altitude_fixture_roundtrips("altitude_mountain_pass");
+}
+
+static void test_altitude_start_roundtrip(void)
+{
+    assert_altitude_fixture_roundtrips("altitude_start");
+}
+
+static void test_altitude_too_many_samples_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "altitude_too_many_samples", &blob));
+    ble_altitude_profile_data_t body;
+    const ble_result_t result =
+        ble_decode_altitude(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
+
 /* ------------------------------------------------------------------------- */
 
 int main(void)
@@ -667,5 +761,13 @@ int main(void)
     RUN_TEST(test_appointment_now_roundtrip);
     RUN_TEST(test_appointment_past_roundtrip);
     RUN_TEST(test_appointment_title_too_long_rejected);
+    RUN_TEST(test_fuel_full_tank_roundtrip);
+    RUN_TEST(test_fuel_half_tank_roundtrip);
+    RUN_TEST(test_fuel_low_roundtrip);
+    RUN_TEST(test_fuel_percent_over_100_rejected);
+    RUN_TEST(test_altitude_flat_roundtrip);
+    RUN_TEST(test_altitude_mountain_pass_roundtrip);
+    RUN_TEST(test_altitude_start_roundtrip);
+    RUN_TEST(test_altitude_too_many_samples_rejected);
     return UNITY_END();
 }

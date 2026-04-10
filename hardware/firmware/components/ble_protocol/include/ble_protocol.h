@@ -29,6 +29,12 @@ extern "C" {
 #define BLE_PROTOCOL_MUSIC_BODY_SIZE ((size_t)86)
 #define BLE_PROTOCOL_APPOINTMENT_BODY_SIZE ((size_t)60)
 #define BLE_PROTOCOL_FUEL_BODY_SIZE ((size_t)8)
+#define BLE_PROTOCOL_ALTITUDE_BODY_SIZE ((size_t)128)
+
+/* Altitude profile constants. */
+#define BLE_ALTITUDE_MAX_SAMPLES  60
+#define BLE_ALTITUDE_MIN_M        ((int16_t)-500)
+#define BLE_ALTITUDE_MAX_M        ((int16_t)9000)
 
 /* Sentinel for unknown fuel estimate fields. */
 #define BLE_FUEL_UNKNOWN ((uint16_t)0xFFFFU)
@@ -202,6 +208,14 @@ typedef struct {
 } ble_fuel_data_t;
 
 typedef struct {
+    int16_t  current_altitude_m;        /* -500..=9000 */
+    uint16_t total_ascent_m;
+    uint16_t total_descent_m;
+    uint8_t  sample_count;              /* 0..=60 */
+    int16_t  profile[60];               /* altitude samples in meters */
+} ble_altitude_profile_data_t;
+
+typedef struct {
     ble_screen_id_t screen_id;
     uint8_t         flags;
     uint16_t        body_length;
@@ -372,6 +386,17 @@ ble_result_t ble_encode_fuel(const ble_fuel_data_t *in,
                              uint8_t               *out_buf,
                              size_t                 out_cap,
                              size_t                *out_written);
+
+ble_result_t ble_decode_altitude(const uint8_t                  *data,
+                                 size_t                          length,
+                                 uint8_t                        *out_flags,
+                                 ble_altitude_profile_data_t    *out);
+
+ble_result_t ble_encode_altitude(const ble_altitude_profile_data_t *in,
+                                 uint8_t                            flags,
+                                 uint8_t                           *out_buf,
+                                 size_t                             out_cap,
+                                 size_t                            *out_written);
 
 #ifdef __cplusplus
 }

@@ -4,6 +4,8 @@ import SwiftUI
 /// Debug-only live display preview that renders real sensor data
 /// in a round AMOLED-style circle, approximating what the ESP32 display shows.
 struct DisplayPreviewView: View {
+    @Environment(\.dismiss)
+    private var dismiss
     @State private var session = LivePreviewSession()
     @State private var currentIndex: Int = 0
 
@@ -76,10 +78,13 @@ struct DisplayPreviewView: View {
     }
 
     private var dismissButton: some View {
-        Button("Close") { session.stop() }
-            .font(.system(size: 14, weight: .medium))
-            .foregroundStyle(Color(hex: 0x666666))
-            .padding(.bottom, 32)
+        Button("Schliessen") {
+            session.stop()
+            dismiss()
+        }
+        .font(.system(size: 14, weight: .medium))
+        .foregroundStyle(Color(hex: 0x666666))
+        .padding(.bottom, 32)
     }
 
     private var swipeGesture: some Gesture {

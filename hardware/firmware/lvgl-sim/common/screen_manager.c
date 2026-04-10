@@ -17,6 +17,7 @@
 #include "screens/screen_trip_stats.h"
 #include "screens/screen_lean_angle.h"
 #include "screens/screen_altitude.h"
+#include "screens/screen_calendar.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -179,9 +180,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
             screen_altitude_create(scr, &altitude, alt_flags);
             break;
         }
-        case BLE_SCREEN_APPOINTMENT:
-            screen_placeholder_create(scr, "APPOINTMENT");
+        case BLE_SCREEN_APPOINTMENT: {
+            ble_appointment_data_t appt;
+            uint8_t appt_flags = 0;
+            rc = ble_decode_appointment(data, len, &appt_flags, &appt);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: appointment decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "APPOINTMENT (decode error)");
+                break;
+            }
+            screen_calendar_create(scr, &appt, appt_flags);
             break;
+        }
         default: {
             char name[32];
             snprintf(name, sizeof(name), "UNKNOWN (0x%02X)",

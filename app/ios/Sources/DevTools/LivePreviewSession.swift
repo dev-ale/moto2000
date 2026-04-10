@@ -2,6 +2,9 @@ import BLEProtocol
 import CoreLocation
 import EventKit
 import Foundation
+#if canImport(MapKit)
+import MapKit
+#endif
 import Observation
 import RideSimulatorKit
 import ScramCore
@@ -9,6 +12,7 @@ import ScramCore
 /// Debug-only session that creates real providers and services without BLE,
 /// decodes each service's encoded payloads back to typed data, and publishes
 /// them for the ``DisplayPreviewView`` to render live.
+// swiftlint:disable:next type_body_length
 @Observable
 @MainActor
 final class LivePreviewSession {
@@ -35,6 +39,7 @@ final class LivePreviewSession {
     let availableScreens: [ScreenID] = [
         .speedHeading,
         .compass,
+        .navigation,
         .tripStats,
         .leanAngle,
         .clock,
@@ -50,6 +55,7 @@ final class LivePreviewSession {
     private var services: [Any] = []
     private var tasks: [Task<Void, Never>] = []
     private var isRunning = false
+    private var locationProvider: RealLocationProvider?
 
     // MARK: - Lifecycle
 
@@ -57,6 +63,7 @@ final class LivePreviewSession {
         guard !isRunning else { return }
         isRunning = true
         let locationProvider = RealLocationProvider()
+        self.locationProvider = locationProvider
         let motionProvider = RealMotionProvider()
 
         // Request permissions and start providers
@@ -82,6 +89,48 @@ final class LivePreviewSession {
         startCallService()
         startBlitzerService(locationProvider: locationProvider)
         startFuelService(locationProvider: locationProvider)
+        listenForNavigation(locationProvider: locationProvider)
+    }
+
+    func startNavigation(latitude: Double, longitude: Double) {
+        guard let locationProvider else { return }
+        #if canImport(MapKit)
+        let engine = MKDirectionsRouteEngine()
+        let navService = NavigationService(
+            routeEngine: engine,
+            locationProvider: locationProvider
+        )
+        services.append(navService)
+        let dest = NavigationRoute.LocationCoordinate(
+            latitude: latitude,
+            longitude: longitude
+        )
+        tasks.append(Task { @MainActor [weak self] in
+            try? await navService.start(destination: dest)
+            for await data in navService.navDataPayloads {
+                guard self != nil else { return }
+                if let payload = try? ScreenPayloadCodec.decode(data),
+                   case .navigation(let decoded, _) = payload {
+                    self?.latestNav = decoded
+                }
+            }
+        })
+        #endif
+    }
+
+    private func listenForNavigation(locationProvider: RealLocationProvider) {
+        tasks.append(Task { @MainActor [weak self] in
+            for await notification in NotificationCenter.default.notifications(
+                named: .scramNavigationStartRequested
+            ) {
+                guard let self,
+                      let userInfo = notification.userInfo,
+                      let lat = userInfo["latitude"] as? Double,
+                      let lon = userInfo["longitude"] as? Double
+                else { continue }
+                self.startNavigation(latitude: lat, longitude: lon)
+            }
+        })
     }
 
     func stop() {

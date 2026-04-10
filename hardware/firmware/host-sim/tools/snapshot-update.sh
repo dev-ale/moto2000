@@ -57,6 +57,9 @@ SNAPSHOTS=(
     "appointment_soon                appointment_soon.bin"
     "appointment_now                 appointment_now.bin"
     "appointment_past                appointment_past.bin"
+    "fuel_full_tank                  fuel_full_tank.bin"
+    "fuel_half_tank                  fuel_half_tank.bin"
+    "fuel_low                        fuel_low.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

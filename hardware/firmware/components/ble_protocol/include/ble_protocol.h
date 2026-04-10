@@ -27,6 +27,11 @@ extern "C" {
 #define BLE_PROTOCOL_WEATHER_BODY_SIZE ((size_t)28)
 #define BLE_PROTOCOL_LEAN_ANGLE_BODY_SIZE ((size_t)8)
 #define BLE_PROTOCOL_MUSIC_BODY_SIZE ((size_t)86)
+#define BLE_PROTOCOL_APPOINTMENT_BODY_SIZE ((size_t)60)
+
+/* Appointment starts_in_minutes range. */
+#define BLE_APPOINTMENT_MIN_STARTS_IN_MINUTES ((int16_t)-1440)
+#define BLE_APPOINTMENT_MAX_STARTS_IN_MINUTES ((int16_t)10080)
 
 /* Maximum absolute lean angle (× 10) carried on the wire = ±90.0°. */
 #define BLE_LEAN_ANGLE_MAX_ABS_X10 ((int16_t)900)
@@ -180,6 +185,12 @@ typedef struct {
 } ble_music_data_t;
 
 typedef struct {
+    int16_t starts_in_minutes;          /* -1440..=10080 */
+    char    title[32];                  /* null-terminated UTF-8 */
+    char    location[24];               /* null-terminated UTF-8 */
+} ble_appointment_data_t;
+
+typedef struct {
     ble_screen_id_t screen_id;
     uint8_t         flags;
     uint16_t        body_length;
@@ -328,6 +339,17 @@ ble_result_t ble_encode_music(const ble_music_data_t *in,
                               uint8_t                *out_buf,
                               size_t                  out_cap,
                               size_t                 *out_written);
+
+ble_result_t ble_decode_appointment(const uint8_t              *data,
+                                    size_t                      length,
+                                    uint8_t                    *out_flags,
+                                    ble_appointment_data_t     *out);
+
+ble_result_t ble_encode_appointment(const ble_appointment_data_t *in,
+                                    uint8_t                       flags,
+                                    uint8_t                      *out_buf,
+                                    size_t                        out_cap,
+                                    size_t                       *out_written);
 
 #ifdef __cplusplus
 }

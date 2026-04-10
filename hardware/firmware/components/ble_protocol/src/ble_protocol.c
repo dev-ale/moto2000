@@ -84,6 +84,8 @@ size_t ble_expected_body_size(ble_screen_id_t screen)
             return BLE_PROTOCOL_LEAN_ANGLE_BODY_SIZE;
         case BLE_SCREEN_MUSIC:
             return BLE_PROTOCOL_MUSIC_BODY_SIZE;
+        case BLE_SCREEN_APPOINTMENT:
+            return BLE_PROTOCOL_APPOINTMENT_BODY_SIZE;
         default:
             return 0;
     }

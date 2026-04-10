@@ -472,6 +472,8 @@ CONTROL_COMMANDS = {
     "sleep":             0x03,
     "wake":              0x04,
     "clearAlertOverlay": 0x05,
+    "checkOTAUpdate":    0x06,
+    "setScreenOrder":    0x07,
 }
 
 CONTROL_PAYLOAD_SIZE = 4
@@ -498,7 +500,38 @@ def encode_control_command(spec: dict) -> bytes:
         value0 = int(spec["brightness"])
         if not (0 <= value0 <= 100):
             raise ValueError(f"brightness {value0} out of range 0..100")
+    elif name == "setScreenOrder":
+        screens = spec["screens"]
+        screen_ids = []
+        for s in screens:
+            if s not in SCREEN_IDS:
+                raise ValueError(f"unknown screen for setScreenOrder: {s}")
+            screen_ids.append(SCREEN_IDS[s])
+        return bytes([PROTOCOL_VERSION, cmd, len(screen_ids)] + screen_ids)
     return bytes([PROTOCOL_VERSION, cmd, value0, value1])
+
+
+# --------------------------------------------------------------------------- #
+# Status characteristic (Slice 21)                                            #
+# --------------------------------------------------------------------------- #
+
+STATUS_TYPES = {
+    "screenChanged": 0x01,
+}
+
+
+def encode_status_message(spec: dict) -> bytes:
+    """Encode a status notification per docs/ble-protocol.md."""
+    name = spec["type"]
+    if name not in STATUS_TYPES:
+        raise ValueError(f"unknown status type: {name}")
+    type_byte = STATUS_TYPES[name]
+    if name == "screenChanged":
+        screen = spec["screen"]
+        if screen not in SCREEN_IDS:
+            raise ValueError(f"unknown screen for screenChanged: {screen}")
+        return bytes([PROTOCOL_VERSION, type_byte, SCREEN_IDS[screen]])
+    raise ValueError(f"unhandled status type: {name}")
 
 
 def process(directory: Path, encoder):
@@ -539,6 +572,16 @@ def main() -> int:
     if control_invalid.exists():
         print(f"\n{control_invalid.relative_to(root.parent)}:")
         total += process(control_invalid, encode_invalid)
+
+    # Status characteristic fixtures.
+    status_valid = root / "status" / "valid"
+    status_invalid = root / "status" / "invalid"
+    if status_valid.exists():
+        print(f"\n{status_valid.relative_to(root.parent)}:")
+        total += process(status_valid, encode_status_message)
+    if status_invalid.exists():
+        print(f"\n{status_invalid.relative_to(root.parent)}:")
+        total += process(status_invalid, encode_invalid)
 
     print(f"\nWrote {total} fixture(s).")
     return 0

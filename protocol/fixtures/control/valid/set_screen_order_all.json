@@ -1,0 +1,9 @@
+{
+  "description": "Set screen order to all 13 screens",
+  "command": "setScreenOrder",
+  "screens": [
+    "navigation", "speedHeading", "compass", "weather", "tripStats",
+    "music", "leanAngle", "blitzer", "incomingCall", "fuelEstimate",
+    "altitude", "appointment", "clock"
+  ]
+}

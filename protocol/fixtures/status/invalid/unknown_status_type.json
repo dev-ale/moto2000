@@ -1,0 +1,5 @@
+{
+  "description": "Unknown status type byte",
+  "raw_bytes_hex": "01 FF 01",
+  "expected_error": "unknownStatusType"
+}

@@ -5,7 +5,11 @@ import XCTest
 final class ControlCommandTests: XCTestCase {
     private func roundTrip(_ command: ControlCommand) throws {
         let encoded = command.encode()
-        XCTAssertEqual(encoded.count, ControlCommand.encodedSize)
+        if case .setScreenOrder = command {
+            // Variable-length: version + cmd + count + screen_ids
+        } else {
+            XCTAssertEqual(encoded.count, ControlCommand.encodedSize)
+        }
         let decoded = try ControlCommand.decode(encoded)
         XCTAssertEqual(decoded, command)
     }
@@ -31,6 +35,22 @@ final class ControlCommandTests: XCTestCase {
 
     func test_checkForOTAUpdate_roundTrip() throws {
         try roundTrip(.checkForOTAUpdate)
+    }
+
+    func test_setScreenOrder_roundTrip() throws {
+        try roundTrip(.setScreenOrder([.navigation, .compass, .clock]))
+        try roundTrip(.setScreenOrder([]))
+        try roundTrip(.setScreenOrder([.speedHeading]))
+    }
+
+    func test_setScreenOrder_encodedBytesAreCorrectLayout() {
+        let bytes = ControlCommand.setScreenOrder([.navigation, .compass, .clock]).encode()
+        XCTAssertEqual(Array(bytes), [0x01, 0x07, 0x03, 0x01, 0x03, 0x0D])
+    }
+
+    func test_setScreenOrder_empty_encodedBytesAreCorrectLayout() {
+        let bytes = ControlCommand.setScreenOrder([]).encode()
+        XCTAssertEqual(Array(bytes), [0x01, 0x07, 0x00])
     }
 
     func test_checkForOTAUpdate_encodedBytesAreFixedLayout() {

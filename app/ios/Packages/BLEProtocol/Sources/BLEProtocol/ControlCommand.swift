@@ -28,9 +28,14 @@ public enum ControlCommand: Equatable, Sendable {
     case clearAlertOverlay
     /// Trigger the ESP32 to check for an OTA firmware update.
     case checkForOTAUpdate
+    /// Set the ordered list of enabled screens. Payload: count + screen IDs.
+    case setScreenOrder([ScreenID])
 
-    /// Wire-format size of every encoded command in bytes.
+    /// Wire-format size of every fixed-size encoded command in bytes.
     public static let encodedSize: Int = 4
+
+    /// Maximum number of screens in a `setScreenOrder` command.
+    public static let maxScreenOrderCount: Int = 13
 
     /// Numeric command byte as documented in `docs/ble-protocol.md`.
     public var commandByte: UInt8 {
@@ -41,6 +46,7 @@ public enum ControlCommand: Equatable, Sendable {
         case .wake:            return 0x04
         case .clearAlertOverlay: return 0x05
         case .checkForOTAUpdate: return 0x06
+        case .setScreenOrder:  return 0x07
         }
     }
 
@@ -59,13 +65,21 @@ public enum ControlCommand: Equatable, Sendable {
         case .sleep, .wake, .clearAlertOverlay, .checkForOTAUpdate:
             writer.writeUInt8(0)
             writer.writeUInt8(0)
+        case .setScreenOrder(let screens):
+            writer.writeUInt8(UInt8(screens.count))
+            for screen in screens {
+                writer.writeUInt8(screen.rawValue)
+            }
         }
         return writer.data
     }
 
-    /// Decode a 4-byte BLE write payload into a ``ControlCommand``.
+    /// Decode a BLE write payload into a ``ControlCommand``.
+    ///
+    /// Fixed-size commands are 4 bytes. Variable-size commands (e.g.
+    /// `setScreenOrder`) require at least 3 bytes (version + cmd + count).
     public static func decode(_ data: Data) throws -> ControlCommand {
-        guard data.count >= Self.encodedSize else {
+        guard data.count >= 2 else {
             throw BLEProtocolError.truncatedHeader
         }
         var reader = ByteReader(data)
@@ -74,6 +88,35 @@ public enum ControlCommand: Equatable, Sendable {
             throw BLEProtocolError.unsupportedVersion(version)
         }
         let cmd = try reader.readUInt8()
+
+        // Variable-length command: setScreenOrder
+        if cmd == 0x07 {
+            guard reader.remaining >= 1 else {
+                throw BLEProtocolError.truncatedHeader
+            }
+            let count = try reader.readUInt8()
+            guard count <= Self.maxScreenOrderCount else {
+                throw BLEProtocolError.invalidCommandValue(field: "screenOrder.count")
+            }
+            guard reader.remaining >= Int(count) else {
+                throw BLEProtocolError.truncatedBody(declared: Int(count), available: reader.remaining)
+            }
+            var screens: [ScreenID] = []
+            screens.reserveCapacity(Int(count))
+            for _ in 0..<count {
+                let raw = try reader.readUInt8()
+                guard let screen = ScreenID(rawValue: raw) else {
+                    throw BLEProtocolError.unknownScreenId(raw)
+                }
+                screens.append(screen)
+            }
+            return .setScreenOrder(screens)
+        }
+
+        // Fixed-size commands: need exactly 4 bytes total.
+        guard data.count >= Self.encodedSize else {
+            throw BLEProtocolError.truncatedHeader
+        }
         let value0 = try reader.readUInt8()
         let value1 = try reader.readUInt8()
 

@@ -1,0 +1,5 @@
+{
+  "description": "Set screen order to navigation, compass, clock (3 screens)",
+  "command": "setScreenOrder",
+  "screens": ["navigation", "compass", "clock"]
+}

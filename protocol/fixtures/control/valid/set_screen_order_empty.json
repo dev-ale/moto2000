@@ -1,0 +1,5 @@
+{
+  "description": "Set screen order to empty (no screens enabled)",
+  "command": "setScreenOrder",
+  "screens": []
+}

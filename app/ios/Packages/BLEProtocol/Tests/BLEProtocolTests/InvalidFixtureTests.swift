@@ -50,6 +50,7 @@ extension BLEProtocolError {
         case .nonZeroBodyReserved: return "nonZeroBodyReserved"
         case .unknownCommand: return "unknownCommand"
         case .invalidCommandValue: return "invalidCommandValue"
+        case .unknownStatusType: return "unknownStatusType"
         }
     }
 }

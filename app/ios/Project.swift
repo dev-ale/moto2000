@@ -51,6 +51,7 @@ let project = Project(
             bundleId: "com.alejandro.moto2000.ScramScreen",
             deploymentTargets: .iOS("26.0"),
             infoPlist: .extendingDefault(with: [
+                "CFBundleName": "ScramScreen",
                 "CFBundleDisplayName": "ScramScreen",
                 "UILaunchScreen": [:],
                 "UISupportedInterfaceOrientations": [

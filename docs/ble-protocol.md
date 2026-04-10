@@ -83,7 +83,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x08` | `blitzer`       | Blitzer / Radar   | 14  | TBD |
 | `0x09` | `incomingCall`  | Incoming Call     | 13  | TBD |
 | `0x0A` | `fuelEstimate`  | Fuel Estimate     | 12  | `fuel_data_t` |
-| `0x0B` | `altitude`      | Altitude Profile  | 15  | TBD |
+| `0x0B` | `altitude`      | Altitude Profile  | 15  | `altitude_profile_data_t` |
 | `0x0C` | `appointment`   | Next Appointment  | 11  | `appointment_data_t` |
 | `0x0D` | `clock`         | Idle / Clock      | 2   | `clock_data_t` |
 
@@ -224,6 +224,29 @@ uint16 fields are set to `0xFFFF`.
 The `tank_percent` is derived from `fuel_remaining_ml / tank_capacity_ml * 100`
 where `tank_capacity_ml` is a user-configurable constant (default 13 000 mL
 for the Scram 411's 13 L tank).
+
+### `altitude_profile_data_t` (screen `0x0B`)
+
+Body size: **128 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `current_altitude_m` | `int16` | Current altitude in metres. Range `-500..=9000`. |
+| 2 | `total_ascent_m` | `uint16` | Cumulative ascent in metres since ride start. |
+| 4 | `total_descent_m` | `uint16` | Cumulative descent in metres since ride start. |
+| 6 | `sample_count` | `uint8` | Number of valid samples in the `profile` array. Range `0..=60`. |
+| 7 | `reserved` | `uint8` | Must be `0x00`. |
+| 8 | `profile` | `int16[60]` | Altitude samples in metres, evenly spaced over the ride duration. Entries beyond `sample_count` must be `0x0000`. |
+
+This is the largest screen payload (128-byte body, 136 bytes total with header).
+The `profile` array is a downsampled elevation history — the iOS service bins
+the full altitude trace into 60 evenly-spaced buckets (by averaging) so it fits
+in a single BLE write. Each bucket holds the average altitude during that time
+window. When fewer than 60 samples have been collected, `sample_count` reflects
+the actual count and unused profile slots are zero-padded.
+
+Ascent and descent totals are jitter-filtered (deltas under 1 m are discarded)
+to suppress GPS noise, matching the `TripStatsAccumulator` behaviour.
 
 ### EventKit integration note (Slice 11)
 

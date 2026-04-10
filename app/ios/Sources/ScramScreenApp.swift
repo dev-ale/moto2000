@@ -1,15 +1,22 @@
+import BLECentralClient
+import RideSimulatorKit
 import SwiftUI
 
-/// Entry point for the ScramScreen companion app.
-///
-/// The real dashboard UI, BLE central, and data providers land in later slices.
-/// This stub exists so Slice 0 can prove the Tuist + Xcode + CI pipeline builds
-/// and tests a running app end to end.
 @main
 struct ScramScreenApp: App {
+    @State private var connection: ConnectionViewModel
+
+    init() {
+        let client = CoreBluetoothCentralClient()
+        // swiftlint:disable:next force_try
+        let clock = try! WallClock(speedMultiplier: 1)
+        let coordinator = ReconnectCoordinator(client: client, clock: clock)
+        _connection = State(initialValue: ConnectionViewModel(coordinator: coordinator))
+    }
+
     var body: some Scene {
         WindowGroup {
-            RootView()
+            MainTabView(connection: connection)
         }
     }
 }

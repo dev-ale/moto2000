@@ -16,7 +16,7 @@ let developmentTeam: SettingValue = .string(
 
 let baseSettings: SettingsDictionary = [
     "SWIFT_VERSION": "6.0",
-    "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
+    "IPHONEOS_DEPLOYMENT_TARGET": "26.0",
     "SWIFT_STRICT_CONCURRENCY": "complete",
     "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
     "DEVELOPMENT_TEAM": developmentTeam,
@@ -32,6 +32,7 @@ let project = Project(
     ),
     packages: [
         .local(path: "Packages/BLEProtocol"),
+        .local(path: "Packages/BLECentralClient"),
         .local(path: "Packages/RideSimulatorKit"),
         .local(path: "Packages/ScramCore"),
     ],
@@ -48,7 +49,7 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "com.alejandro.moto2000.ScramScreen",
-            deploymentTargets: .iOS("18.0"),
+            deploymentTargets: .iOS("26.0"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "ScramScreen",
                 "UILaunchScreen": [:],
@@ -61,6 +62,9 @@ let project = Project(
                     "ScramScreen uses your location to show speed, heading, and navigation on your motorcycle display.",
                 "NSLocationAlwaysAndWhenInUseUsageDescription":
                     "ScramScreen continues to read your location during rides so your dashboard stays live in the background.",
+                "NSAccessorySetupKitSupports": [
+                    "Bluetooth",
+                ],
                 "UIBackgroundModes": [
                     "bluetooth-central",
                     "location",
@@ -77,6 +81,7 @@ let project = Project(
             ],
             dependencies: [
                 .package(product: "BLEProtocol"),
+                .package(product: "BLECentralClient"),
                 .package(product: "RideSimulatorKit"),
                 .package(product: "ScramCore"),
             ]
@@ -86,7 +91,7 @@ let project = Project(
             destinations: .iOS,
             product: .unitTests,
             bundleId: "com.alejandro.moto2000.ScramScreenTests",
-            deploymentTargets: .iOS("18.0"),
+            deploymentTargets: .iOS("26.0"),
             infoPlist: .default,
             sources: ["Tests/**"],
             dependencies: [
@@ -98,7 +103,7 @@ let project = Project(
             destinations: .iOS,
             product: .uiTests,
             bundleId: "com.alejandro.moto2000.ScramScreenUITests",
-            deploymentTargets: .iOS("18.0"),
+            deploymentTargets: .iOS("26.0"),
             infoPlist: .default,
             sources: ["UITests/**"],
             dependencies: [

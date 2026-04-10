@@ -82,7 +82,7 @@ clock screen that sends only the body below — still non-empty).
 | `0x07` | `leanAngle`     | Lean Angle        | 10  | `lean_angle_data_t` |
 | `0x08` | `blitzer`       | Blitzer / Radar   | 14  | TBD |
 | `0x09` | `incomingCall`  | Incoming Call     | 13  | TBD |
-| `0x0A` | `fuelEstimate`  | Fuel Estimate     | 12  | TBD |
+| `0x0A` | `fuelEstimate`  | Fuel Estimate     | 12  | `fuel_data_t` |
 | `0x0B` | `altitude`      | Altitude Profile  | 15  | TBD |
 | `0x0C` | `appointment`   | Next Appointment  | 11  | `appointment_data_t` |
 | `0x0D` | `clock`         | Idle / Clock      | 2   | `clock_data_t` |
@@ -203,6 +203,27 @@ Body size: **60 bytes**
 | 2 | `title` | `char[32]` | UTF-8, zero-padded, null-terminated. Must contain a terminator (len < 32). |
 | 34 | `location` | `char[24]` | UTF-8, zero-padded, null-terminated. Must contain a terminator (len < 24). |
 | 58 | `reserved` | `uint16` | Must be `0x0000`. |
+
+### `fuel_data_t` (screen `0x0A`)
+
+Body size: **8 bytes**
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `tank_percent` | `uint8` | Estimated fuel remaining as percentage. Range `0..=100`. |
+| 1 | `reserved` | `uint8` | Must be `0x00`. |
+| 2 | `estimated_range_km` | `uint16` | Estimated remaining range in km. `0xFFFF` = unknown. |
+| 4 | `consumption_ml_per_km` | `uint16` | Average fuel consumption in mL/km. `0xFFFF` = unknown. |
+| 6 | `fuel_remaining_ml` | `uint16` | Estimated fuel remaining in mL. `0xFFFF` = unknown. |
+
+The Scram 411 has no fuel sensor or OBD port. All values are computed from
+manual fill logging: the rider records fill-ups and the app tracks distance
+via GPS. If no full fills have been logged, consumption is unknown and all
+uint16 fields are set to `0xFFFF`.
+
+The `tank_percent` is derived from `fuel_remaining_ml / tank_capacity_ml * 100`
+where `tank_capacity_ml` is a user-configurable constant (default 13 000 mL
+for the Scram 411's 13 L tank).
 
 ### EventKit integration note (Slice 11)
 

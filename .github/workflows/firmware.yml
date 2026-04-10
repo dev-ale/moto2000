@@ -23,8 +23,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  host-tests:
-    name: Unity host tests
+  lint-and-test:
+    name: Lint + test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,27 +35,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             build-essential cmake ninja-build cppcheck clang-format
 
-      - name: Configure
-        run: cmake -S hardware/firmware/test/host -B hardware/firmware/test/host/build -G Ninja
-
-      - name: Build
-        run: cmake --build hardware/firmware/test/host/build
-
-      - name: Test
-        run: ctest --test-dir hardware/firmware/test/host/build --output-on-failure
-
-  lint:
-    name: clang-format + cppcheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends clang-format cppcheck
-
-      - name: clang-format --dry-run
+      - name: clang-format
         run: |
           find hardware/firmware \
             \( -name '*.c' -o -name '*.h' \) \
@@ -79,13 +59,16 @@ jobs:
             hardware/firmware/host-sim/include \
             hardware/firmware/host-sim/tests
 
+      - name: Unity host tests
+        run: |
+          cmake -S hardware/firmware/test/host -B hardware/firmware/test/host/build -G Ninja
+          cmake --build hardware/firmware/test/host/build
+          ctest --test-dir hardware/firmware/test/host/build --output-on-failure
+
   host-sim:
     name: Host simulator + snapshot tests
     runs-on: ubuntu-latest
     env:
-      # Headless: the software rasteriser does not use SDL at runtime,
-      # but set the dummy driver anyway so any future LVGL-SDL fallback
-      # inherits a safe default.
       SDL_VIDEODRIVER: dummy
     steps:
       - uses: actions/checkout@v4
@@ -96,14 +79,11 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             build-essential cmake ninja-build
 
-      - name: Configure
-        run: cmake -S hardware/firmware/host-sim -B hardware/firmware/host-sim/build -G Ninja
-
-      - name: Build
-        run: cmake --build hardware/firmware/host-sim/build
-
-      - name: Run snapshot + logic tests
-        run: ctest --test-dir hardware/firmware/host-sim/build --output-on-failure
+      - name: Build + test
+        run: |
+          cmake -S hardware/firmware/host-sim -B hardware/firmware/host-sim/build -G Ninja
+          cmake --build hardware/firmware/host-sim/build
+          ctest --test-dir hardware/firmware/host-sim/build --output-on-failure
 
       - name: Upload mismatched snapshots on failure
         if: failure()
@@ -150,9 +130,6 @@ jobs:
         shell: bash
         run: |
           echo "TODO: sign build/scramscreen.bin with HMAC-SHA256 using OTA_SIGNING_KEY secret"
-          # Real signing:
-          # openssl dgst -sha256 -hmac "$OTA_SIGNING_KEY" -binary \
-          #   hardware/firmware/build/scramscreen.bin > hardware/firmware/build/scramscreen.sig
 
       - uses: actions/upload-artifact@v4
         with:

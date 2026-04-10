@@ -17,63 +17,76 @@ on:
       - ".swift-format"
       - ".github/workflows/ios.yml"
 
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ios-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint (SwiftLint + swift-format)
+  conventional-commits:
+    name: Conventional Commits
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            revert
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" must start with a lowercase letter.
+
+  lint-and-test:
+    name: Lint + test
     runs-on: [self-hosted, macOS]
     steps:
       - uses: actions/checkout@v4
 
       - name: swift-format --lint
         working-directory: app/ios
-        run: |
-          swift-format lint --configuration ../../.swift-format --recursive Sources Tests UITests
+        run: swift-format lint --configuration ../../.swift-format --recursive Sources Tests UITests
 
       - name: SwiftLint
         run: swiftlint --strict --config .swiftlint.yml
 
-  package-tests:
-    name: Swift package tests (${{ matrix.package }})
-    runs-on: [self-hosted, macOS]
-    needs: lint
-    strategy:
-      fail-fast: false
-      matrix:
-        package:
-          - BLEProtocol
-          - RideSimulatorKit
-          - BLECentralClient
-          - ScramCore
-    steps:
-      - uses: actions/checkout@v4
+      - name: Swift package tests
+        run: |
+          for pkg in BLEProtocol RideSimulatorKit BLECentralClient ScramCore; do
+            echo "--- Testing $pkg ---"
+            swift test --parallel --package-path "app/ios/Packages/$pkg"
+          done
 
-      - name: swift test
-        working-directory: app/ios/Packages/${{ matrix.package }}
-        run: swift test --parallel
-
-  test:
+  build:
     name: Build & test
     runs-on: [self-hosted, macOS]
-    needs: [lint, package-tests]
+    needs: lint-and-test
     env:
       TUIST_DEVELOPMENT_TEAM: ${{ secrets.TUIST_DEVELOPMENT_TEAM }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Tuist version
-        run: tuist version
-
-      - name: Tuist install
+      - name: Tuist install + generate
         working-directory: app/ios
-        run: tuist install
-
-      - name: Tuist generate
-        working-directory: app/ios
-        run: tuist generate --no-open
+        run: |
+          tuist install
+          tuist generate --no-open
 
       - name: Pick iOS 26 simulator
         id: sim

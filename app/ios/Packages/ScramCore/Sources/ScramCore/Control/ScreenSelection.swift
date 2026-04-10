@@ -31,8 +31,17 @@ public struct ScreenSelection: Equatable, Hashable, Identifiable, Sendable {
     /// renderers should append themselves here as their slices land.
     public static let availableScreens: [ScreenSelection] = [
         .init(screenID: .clock,        displayName: "Clock",           iconName: "clock"),
-        .init(screenID: .compass,      displayName: "Compass",         iconName: "location.north.line"),
         .init(screenID: .speedHeading, displayName: "Speed + Heading", iconName: "speedometer"),
         .init(screenID: .navigation,   displayName: "Navigation",      iconName: "arrow.triangle.turn.up.right.diamond"),
+        .init(screenID: .compass,      displayName: "Compass",         iconName: "location.north.line"),
+        .init(screenID: .weather,      displayName: "Weather",         iconName: "cloud.sun"),
+        .init(screenID: .tripStats,    displayName: "Trip Stats",      iconName: "chart.bar"),
+        .init(screenID: .music,        displayName: "Music",           iconName: "music.note"),
+        .init(screenID: .leanAngle,    displayName: "Lean Angle",      iconName: "angle"),
+        .init(screenID: .altitude,     displayName: "Altitude",        iconName: "mountain.2"),
+        .init(screenID: .fuelEstimate, displayName: "Fuel",            iconName: "fuelpump"),
+        .init(screenID: .appointment,  displayName: "Calendar",        iconName: "calendar"),
+        .init(screenID: .incomingCall, displayName: "Incoming Call",   iconName: "phone.arrow.down.left", isEnabled: true),
+        .init(screenID: .blitzer,      displayName: "Blitzer",         iconName: "exclamationmark.triangle", isEnabled: true),
     ]
 }

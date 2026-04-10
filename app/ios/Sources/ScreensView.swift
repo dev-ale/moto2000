@@ -80,6 +80,15 @@ struct ScreensView: View {
 
     private func displayPreview(for screen: ScreenSelection) -> some View {
         ZStack {
+            displayBezel
+            displayScreen
+            displayContent(for: screen)
+        }
+        .opacity(screen.isEnabled ? 1.0 : 0.35)
+    }
+
+    private var displayBezel: some View {
+        ZStack {
             Circle()
                 .fill(Color(hex: 0x0A0A0A))
                 .frame(width: 290, height: 290)
@@ -106,7 +115,11 @@ struct ScreensView: View {
                     lineWidth: 1
                 )
                 .frame(width: 290, height: 290)
+        }
+    }
 
+    private var displayScreen: some View {
+        ZStack {
             Circle()
                 .fill(Color(hex: 0x050505))
                 .frame(width: 264, height: 264)
@@ -121,20 +134,22 @@ struct ScreensView: View {
                     )
                 )
                 .frame(width: 258, height: 258)
-
-            if let imageName = screen.previewImageName {
-                Image(imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 252, height: 252)
-                    .clipShape(Circle())
-            } else {
-                Image(systemName: screen.iconName)
-                    .font(.system(size: 48, weight: .light))
-                    .foregroundStyle(Color.scramGreen)
-            }
         }
-        .opacity(screen.isEnabled ? 1.0 : 0.35)
+    }
+
+    @ViewBuilder
+    private func displayContent(for screen: ScreenSelection) -> some View {
+        if let imageName = screen.previewImageName {
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 252, height: 252)
+                .clipShape(Circle())
+        } else {
+            Image(systemName: screen.iconName)
+                .font(.system(size: 48, weight: .light))
+                .foregroundStyle(Color.scramGreen)
+        }
     }
 
     // MARK: - Check toggle

@@ -28,7 +28,11 @@ import RideSimulatorKit
 #warning("EventKit integration deferred to follow-up PR — Slice 11 ships a stub that always throws .notImplemented. Requires NSCalendarsFullAccessUsageDescription in Info.plist for iOS 17+.")
 
 public struct EventKitCalendarClient: CalendarServiceClient, Sendable {
-    public init() {}
+    private let preferences: CalendarPreferences?
+
+    public init(preferences: CalendarPreferences? = nil) {
+        self.preferences = preferences
+    }
 
     public func fetchNextEvent() async throws -> CalendarServiceResponse? {
         throw CalendarServiceError.notImplemented

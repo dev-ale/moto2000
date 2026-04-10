@@ -3,7 +3,8 @@ import SwiftUI
 
 struct ScreenSortView: View {
     @ObservedObject var viewModel: ScreenPickerViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss)
+    private var dismiss
 
     var body: some View {
         NavigationStack {

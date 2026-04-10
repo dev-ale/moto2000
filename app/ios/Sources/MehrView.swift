@@ -24,6 +24,7 @@ struct MehrView: View {
     @State var ekCalendars: [EKCalendar] = []
     @State private var availableUpdate: FirmwareUpdate?
     @State private var showOTASheet = false
+    @State private var showCalendarSheet = false
     @State var weatherText: String?
     @State var weatherIcon: String = "cloud"
 
@@ -63,7 +64,14 @@ struct MehrView: View {
                 // MARK: - Calendar
 
                 settingsSection("Kalender") {
-                    calendarSection
+                    Button { showCalendarSheet = true } label: {
+                        settingsRow(
+                            icon: "calendar",
+                            title: "Kalender auswaehlen",
+                            detail: "\(ekCalendars.filter { Self.calendarPreferences.isSelected($0.calendarIdentifier) }.count) aktiv",
+                            chevron: true
+                        )
+                    }
                 }
 
                 // MARK: - Tank
@@ -98,6 +106,12 @@ struct MehrView: View {
                     onStartUpdate: {}
                 )
             }
+        }
+        .sheet(isPresented: $showCalendarSheet) {
+            CalendarSelectionSheet(
+                calendars: ekCalendars,
+                preferences: Self.calendarPreferences
+            )
         }
         .task {
             await checkForFirmwareUpdate()

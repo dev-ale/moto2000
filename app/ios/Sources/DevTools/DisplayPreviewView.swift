@@ -110,17 +110,18 @@ struct DisplayPreviewView: View {
     @ViewBuilder
     private var leanAngleScreen: some View {
         if !session.leanCalibrated {
-            VStack(spacing: 12) {
-                Image(systemName: "iphone.gen3.radiowaves.left.and.right")
-                    .font(.system(size: 36))
-                    .foregroundStyle(gold)
-                Text("Doppeltippen\nzum Kalibrieren")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-            }
-            .onTapGesture(count: 2) {
+            Button {
                 session.calibrateLeanAngle()
+            } label: {
+                VStack(spacing: 12) {
+                    Image(systemName: "iphone.gen3.radiowaves.left.and.right")
+                        .font(.system(size: 36))
+                        .foregroundStyle(gold)
+                    Text("Tippen zum\nKalibrieren")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                }
             }
         } else if let data = session.latestLeanAngle {
             LeanAngleScreenContent(screenData: data)

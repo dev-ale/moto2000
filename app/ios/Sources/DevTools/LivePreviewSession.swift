@@ -121,6 +121,15 @@ final class LivePreviewSession {
     }
 
     private func listenForNavigation(locationProvider: RealLocationProvider) {
+        // Check if navigation was already started before preview opened
+        let defaults = UserDefaults.standard
+        if let lat = defaults.object(forKey: "scramNav.lat") as? Double,
+           let lon = defaults.object(forKey: "scramNav.lon") as? Double,
+           defaults.bool(forKey: "scramNav.active") {
+            startNavigation(latitude: lat, longitude: lon)
+        }
+
+        // Listen for future navigation starts
         tasks.append(Task { @MainActor [weak self] in
             for await notification in NotificationCenter.default.notifications(
                 named: .scramNavigationStartRequested

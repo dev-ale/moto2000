@@ -218,6 +218,10 @@ struct DisplayPreviewView: View {
             optionalScreen(
                 session.latestAppointment, "Keine Termine", AppointmentScreenContent.init
             )
+        case .navigation:
+            optionalScreen(
+                session.latestNav, "Navigation starten\nauf dem Home Tab", NavScreenContent.init
+            )
         default: PreviewPlaceholder(text: "—")
         }
     }

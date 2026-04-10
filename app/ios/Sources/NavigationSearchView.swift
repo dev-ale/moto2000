@@ -210,6 +210,11 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
         // of the parent coordinator / ScreenController that observes this
         // view model's published state. This view model only drives the
         // UI state machine.
+        // Persist for Live Preview to pick up
+        UserDefaults.standard.set(dest.coordinate.latitude, forKey: "scramNav.lat")
+        UserDefaults.standard.set(dest.coordinate.longitude, forKey: "scramNav.lon")
+        UserDefaults.standard.set(true, forKey: "scramNav.active")
+
         NotificationCenter.default.post(
             name: .scramNavigationStartRequested,
             object: nil,
@@ -224,6 +229,7 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
     func stopNavigation() {
         isNavigating = false
         destinationName = ""
+        UserDefaults.standard.set(false, forKey: "scramNav.active")
         NotificationCenter.default.post(
             name: .scramNavigationStopRequested,
             object: nil

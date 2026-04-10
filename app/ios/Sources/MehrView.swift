@@ -3,6 +3,7 @@ import EventKit
 import ScramCore
 import SwiftUI
 
+// swiftlint:disable:next type_body_length
 struct MehrView: View {
     @State var connection: ConnectionViewModel
 
@@ -21,6 +22,8 @@ struct MehrView: View {
 
     @State private var showUnpairConfirm = false
     @State var ekCalendars: [EKCalendar] = []
+    @State private var availableUpdate: FirmwareUpdate?
+    @State private var showOTASheet = false
 
     var body: some View {
         ScrollView {
@@ -73,6 +76,18 @@ struct MehrView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.scramBackground)
         .onAppear { refreshCalendars() }
+        .sheet(isPresented: $showOTASheet) {
+            if let update = availableUpdate {
+                OTAUpdateView(
+                    currentVersion: connection.firmwareVersion,
+                    update: update,
+                    onStartUpdate: {}
+                )
+            }
+        }
+        .task {
+            await checkForFirmwareUpdate()
+        }
     }
 
     // MARK: - Section wrapper
@@ -103,11 +118,7 @@ struct MehrView: View {
                     detailColor: connection.statusColor
                 )
 
-                settingsRow(
-                    icon: "cpu",
-                    title: "Firmware",
-                    detail: "--"
-                )
+                firmwareRow
 
                 Button { showUnpairConfirm = true } label: {
                     settingsRow(
@@ -274,5 +285,60 @@ struct MehrView: View {
             .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
         }
         .padding(ScramSpacing.lg)
+    }
+
+    // MARK: - Firmware row
+
+    private var firmwareRow: some View {
+        Group {
+            if let update = availableUpdate {
+                Button { showOTASheet = true } label: {
+                    HStack(spacing: ScramSpacing.md) {
+                        Image(systemName: "cpu")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Color.scramGreen)
+                            .frame(width: 24)
+
+                        Text("Firmware")
+                            .font(.scramBody)
+                            .foregroundStyle(Color.scramTextPrimary)
+
+                        Spacer()
+
+                        Text("v\(update.version.versionString) verfuegbar")
+                            .font(.scramCaption)
+                            .foregroundStyle(Color.scramGreen)
+
+                        Circle()
+                            .fill(Color.scramGreen)
+                            .frame(width: 8, height: 8)
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Color.scramTextTertiary)
+                    }
+                    .padding(ScramSpacing.lg)
+                }
+            } else {
+                settingsRow(
+                    icon: "cpu",
+                    title: "Firmware",
+                    detail: connection.firmwareVersion?.versionString ?? "--"
+                )
+            }
+        }
+    }
+
+    // MARK: - OTA check
+
+    private func checkForFirmwareUpdate() async {
+        guard connection.isPaired else { return }
+        let checker = GitHubReleaseChecker()
+        let currentVersion = connection.firmwareVersion ?? FirmwareVersion(major: 0, minor: 0, patch: 0)
+        do {
+            availableUpdate = try await checker.checkForUpdate(currentVersion: currentVersion)
+        } catch {
+            // Silently ignore — update badge simply won't appear
+        }
     }
 }

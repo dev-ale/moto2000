@@ -11,6 +11,7 @@
 #include "screens/screen_clock.h"
 #include "screens/screen_speed.h"
 #include "screens/screen_compass.h"
+#include "screens/screen_navigation.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -60,9 +61,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
             break;
         }
 
-        case BLE_SCREEN_NAVIGATION:
-            screen_placeholder_create(scr, "NAVIGATION");
+        case BLE_SCREEN_NAVIGATION: {
+            ble_nav_data_t nav;
+            uint8_t nav_flags = 0;
+            rc = ble_decode_nav(data, len, &nav_flags, &nav);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: nav decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "NAV (decode error)");
+                break;
+            }
+            screen_navigation_create(scr, &nav, nav_flags);
             break;
+        }
         case BLE_SCREEN_SPEED_HEADING: {
             ble_speed_heading_data_t speed;
             uint8_t speed_flags = 0;

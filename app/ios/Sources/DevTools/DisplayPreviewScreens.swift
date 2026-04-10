@@ -221,7 +221,7 @@ struct LeanAngleScreenContent: View {
         let current = Double(screenData.currentLeanDegX10) / 10.0
         let maxL = Double(screenData.maxLeftLeanDegX10) / 10.0
         let maxR = Double(screenData.maxRightLeanDegX10) / 10.0
-        let direction = current > 0 ? "links" : current < 0 ? "rechts" : "--"
+        let direction = current < 0 ? "links" : current > 0 ? "rechts" : "--"
 
         ZStack {
             // Arc gauge background

@@ -261,11 +261,11 @@ final class LivePreviewSession {
         to stream: AsyncStream<Data>,
         handler: @MainActor @escaping (ScreenPayload) -> Void
     ) {
-        tasks.append(Task { [weak self] in
+        tasks.append(Task { @MainActor [weak self] in
             for await data in stream {
                 guard self != nil else { return }
                 if let payload = try? ScreenPayloadCodec.decode(data) {
-                    await MainActor.run { handler(payload) }
+                    handler(payload)
                 }
             }
         })

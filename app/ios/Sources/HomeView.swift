@@ -218,7 +218,7 @@ struct HomeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: ScramRadius.card))
             }
             .fullScreenCover(isPresented: $showLivePreview) {
-                DisplayPreviewView()
+                DisplayPreviewView(isPresented: $showLivePreview)
             }
         }
     }

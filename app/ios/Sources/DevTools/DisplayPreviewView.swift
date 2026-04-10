@@ -1,11 +1,10 @@
 import BLEProtocol
 import SwiftUI
 
-/// Debug-only live display preview that renders real sensor data
-/// in a round AMOLED-style circle, approximating what the ESP32 display shows.
+/// Live display preview — shows what the ESP32 AMOLED would render
+/// using real sensor data from the phone.
 struct DisplayPreviewView: View {
-    @Environment(\.dismiss)
-    private var dismiss
+    @Binding var isPresented: Bool
     @State private var session = LivePreviewSession()
     @State private var currentIndex: Int = 0
 
@@ -15,7 +14,22 @@ struct DisplayPreviewView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
+                // Close button top-right
+                HStack {
+                    Spacer()
+                    Button {
+                        session.stop()
+                        isPresented = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundStyle(Color(hex: 0x444444))
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.top, 12)
+                }
+
                 Spacer()
 
                 screenLabel
@@ -23,8 +37,6 @@ struct DisplayPreviewView: View {
                 navigationControls
 
                 Spacer()
-
-                dismissButton
             }
         }
         .gesture(swipeGesture)
@@ -36,8 +48,6 @@ struct DisplayPreviewView: View {
     private var currentScreenID: ScreenID {
         session.availableScreens[currentIndex]
     }
-
-    // MARK: - Top-level layout pieces
 
     private var screenLabel: some View {
         Text(session.displayName(for: currentScreenID))
@@ -77,16 +87,6 @@ struct DisplayPreviewView: View {
         }
     }
 
-    private var dismissButton: some View {
-        Button("Schliessen") {
-            session.stop()
-            dismiss()
-        }
-        .font(.system(size: 14, weight: .medium))
-        .foregroundStyle(Color(hex: 0x666666))
-        .padding(.bottom, 32)
-    }
-
     private var swipeGesture: some Gesture {
         DragGesture(minimumDistance: 30, coordinateSpace: .local)
             .onEnded { value in
@@ -100,12 +100,12 @@ struct DisplayPreviewView: View {
 
     private func navigate(by offset: Int) {
         let count = session.availableScreens.count
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withAnimation(.easeInOut(duration: 0.15)) {
             currentIndex = (currentIndex + offset + count) % count
         }
     }
 
-    // MARK: - Bezel (reuses ScreensView style)
+    // MARK: - Bezel
 
     private var displayBezel: some View {
         ZStack {
@@ -118,7 +118,11 @@ struct DisplayPreviewView: View {
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: [Color(hex: 0x2A2A2A), Color(hex: 0x1A1A1A), Color(hex: 0x151515)],
+                        colors: [
+                            Color(hex: 0x2A2A2A),
+                            Color(hex: 0x1A1A1A),
+                            Color(hex: 0x151515),
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -128,7 +132,11 @@ struct DisplayPreviewView: View {
             Circle()
                 .stroke(
                     LinearGradient(
-                        colors: [Color(hex: 0x444444), Color(hex: 0x222222), Color(hex: 0x111111)],
+                        colors: [
+                            Color(hex: 0x444444),
+                            Color(hex: 0x222222),
+                            Color(hex: 0x111111),
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
@@ -163,28 +171,33 @@ struct DisplayPreviewView: View {
     @ViewBuilder
     private func screenContent(for screenID: ScreenID) -> some View {
         switch screenID {
-        case .speedHeading: sensorScreen(session.latestSpeed, SpeedScreenContent.init)
-        case .compass: sensorScreen(session.latestCompass, CompassScreenContent.init)
-        case .tripStats: sensorScreen(session.latestTripStats, TripStatsScreenContent.init)
-        case .leanAngle: sensorScreen(session.latestLeanAngle, LeanAngleScreenContent.init)
-        case .clock: sensorScreen(session.latestClock, ClockScreenContent.init)
-        case .altitude: sensorScreen(session.latestAltitude, AltitudeScreenContent.init)
-        case .weather: optionalScreen(session.latestWeather, "Waiting for weather...", WeatherScreenContent.init)
-        case .music: optionalScreen(session.latestMusic, "No music playing", MusicScreenContent.init)
-        case .fuelEstimate: optionalScreen(session.latestFuel, "No fuel data", FuelScreenContent.init)
-        case .navigation: optionalScreen(session.latestNav, "No navigation active", NavScreenContent.init)
+        case .speedHeading:
+            sensorScreen(session.latestSpeed, SpeedScreenContent.init)
+        case .compass:
+            sensorScreen(session.latestCompass, CompassScreenContent.init)
+        case .tripStats:
+            sensorScreen(session.latestTripStats, TripStatsScreenContent.init)
+        case .leanAngle:
+            sensorScreen(session.latestLeanAngle, LeanAngleScreenContent.init)
+        case .clock:
+            sensorScreen(session.latestClock, ClockScreenContent.init)
+        case .altitude:
+            sensorScreen(session.latestAltitude, AltitudeScreenContent.init)
+        case .weather:
+            optionalScreen(session.latestWeather, "Wetter laden...", WeatherScreenContent.init)
+        case .music:
+            optionalScreen(session.latestMusic, "Keine Musik", MusicScreenContent.init)
+        case .fuelEstimate:
+            optionalScreen(session.latestFuel, "Keine Tankdaten", FuelScreenContent.init)
         case .appointment:
-            optionalScreen(session.latestAppointment, "No appointments", AppointmentScreenContent.init)
-        case .incomingCall:
-            optionalScreen(session.latestIncomingCall, "No calls", IncomingCallScreenContent.init)
-        case .blitzer:
-            optionalScreen(session.latestBlitzer, "No speed cameras nearby", BlitzerScreenContent.init)
-        @unknown default: PreviewPlaceholder(text: "Unknown")
+            optionalScreen(
+                session.latestAppointment, "Keine Termine", AppointmentScreenContent.init
+            )
+        default: PreviewPlaceholder(text: "—")
         }
     }
     // swiftlint:enable cyclomatic_complexity
 
-    /// Shows a sensor-backed screen with a spinner while waiting for first data.
     @ViewBuilder
     private func sensorScreen<T, V: View>(_ value: T?, _ builder: (T) -> V) -> some View {
         if let value {
@@ -194,7 +207,6 @@ struct DisplayPreviewView: View {
         }
     }
 
-    /// Shows an optional-data screen with a placeholder message when no data.
     @ViewBuilder
     private func optionalScreen<T, V: View>(
         _ value: T?,

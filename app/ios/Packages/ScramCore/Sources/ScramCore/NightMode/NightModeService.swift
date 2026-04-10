@@ -40,6 +40,7 @@ public actor NightModeService {
     private let ambientLightProvider: (any AmbientLightProvider)?
     private let dateProvider: @Sendable () -> Date
     private let evaluationInterval: TimeInterval
+    private var nightModePreference: NightModePreference = .automatisch
 
     // MARK: - Internal state
 
@@ -152,6 +153,12 @@ public actor NightModeService {
         self.timeZoneOffset = offset
     }
 
+    /// Set the night mode preference. Takes effect on the next evaluation.
+    public func setNightModePreference(_ preference: NightModePreference) {
+        self.nightModePreference = preference
+        evaluate()
+    }
+
     // MARK: - Internal
 
     private func updateLocation(_ sample: LocationSample) {
@@ -175,11 +182,22 @@ public actor NightModeService {
             timeZoneOffset: timeZoneOffset
         )
 
+        // Apply night mode preference override before the policy.
+        let effectiveOverride: BrightnessOverride?
+        switch nightModePreference {
+        case .automatisch:
+            effectiveOverride = userOverride
+        case .tag:
+            effectiveOverride = .autoWithDayMode
+        case .nacht:
+            effectiveOverride = .autoWithNightMode
+        }
+
         let decision = BrightnessPolicy.decide(
             currentTime: now,
             sunTimes: sunTimes,
             ambientLux: latestLux,
-            userOverride: userOverride
+            userOverride: effectiveOverride
         )
 
         let changed = decision != lastDecision

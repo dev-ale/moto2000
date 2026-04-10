@@ -78,6 +78,7 @@ struct ScreensView: View {
 
     // MARK: - Display preview
 
+    // swiftlint:disable:next function_body_length
     private func displayPreview(for screen: ScreenSelection) -> some View {
         ZStack {
             Circle()

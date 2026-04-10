@@ -30,9 +30,7 @@ static bool ble_maneuver_is_known(uint8_t m)
     return m <= BLE_MANEUVER_ARRIVE;
 }
 
-ble_result_t ble_decode_nav(const uint8_t  *data,
-                            size_t          length,
-                            uint8_t        *out_flags,
+ble_result_t ble_decode_nav(const uint8_t *data, size_t length, uint8_t *out_flags,
                             ble_nav_data_t *out_nav)
 {
     ble_header_t header;
@@ -46,14 +44,14 @@ ble_result_t ble_decode_nav(const uint8_t  *data,
     if (header.body_length != BLE_PROTOCOL_NAV_BODY_SIZE) {
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
-    const uint8_t *body      = header.body;
-    const int32_t  lat       = ble_read_i32_le(&body[0]);
-    const int32_t  lng       = ble_read_i32_le(&body[4]);
-    const uint16_t speed     = ble_read_u16_le(&body[8]);
-    const uint16_t heading   = ble_read_u16_le(&body[10]);
-    const uint16_t distance  = ble_read_u16_le(&body[12]);
-    const uint8_t  maneuver  = body[14];
-    const uint8_t  reserved1 = body[15];
+    const uint8_t *body = header.body;
+    const int32_t lat = ble_read_i32_le(&body[0]);
+    const int32_t lng = ble_read_i32_le(&body[4]);
+    const uint16_t speed = ble_read_u16_le(&body[8]);
+    const uint16_t heading = ble_read_u16_le(&body[10]);
+    const uint16_t distance = ble_read_u16_le(&body[12]);
+    const uint8_t maneuver = body[14];
+    const uint8_t reserved1 = body[15];
     if (reserved1 != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
@@ -63,7 +61,7 @@ ble_result_t ble_decode_nav(const uint8_t  *data,
 
     /* street_name: 32 bytes, must contain a null terminator */
     const uint8_t *street = &body[16];
-    bool           terminator_found = false;
+    bool terminator_found = false;
     for (size_t i = 0; i < STREET_NAME_FIELD_LEN; ++i) {
         if (street[i] == 0) {
             terminator_found = true;
@@ -74,7 +72,7 @@ ble_result_t ble_decode_nav(const uint8_t  *data,
         return BLE_ERR_UNTERMINATED_STRING;
     }
 
-    const uint16_t eta       = ble_read_u16_le(&body[48]);
+    const uint16_t eta = ble_read_u16_le(&body[48]);
     const uint16_t remaining = ble_read_u16_le(&body[50]);
     const uint32_t reserved2 = ble_read_u32_le(&body[52]);
     if (reserved2 != 0) {
@@ -84,27 +82,24 @@ ble_result_t ble_decode_nav(const uint8_t  *data,
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
 
-    out_nav->latitude_e7            = lat;
-    out_nav->longitude_e7           = lng;
-    out_nav->speed_kmh_x10          = speed;
-    out_nav->heading_deg_x10        = heading;
+    out_nav->latitude_e7 = lat;
+    out_nav->longitude_e7 = lng;
+    out_nav->speed_kmh_x10 = speed;
+    out_nav->heading_deg_x10 = heading;
     out_nav->distance_to_maneuver_m = distance;
-    out_nav->maneuver               = (ble_maneuver_t)maneuver;
+    out_nav->maneuver = (ble_maneuver_t)maneuver;
     memset(out_nav->street_name, 0, sizeof(out_nav->street_name));
     memcpy(out_nav->street_name, street, STREET_NAME_FIELD_LEN);
-    out_nav->eta_minutes       = eta;
-    out_nav->remaining_km_x10  = remaining;
+    out_nav->eta_minutes = eta;
+    out_nav->remaining_km_x10 = remaining;
     if (out_flags != NULL) {
         *out_flags = header.flags;
     }
     return BLE_OK;
 }
 
-ble_result_t ble_encode_nav(const ble_nav_data_t *nav,
-                            uint8_t               flags,
-                            uint8_t              *out_buf,
-                            size_t                out_cap,
-                            size_t               *out_written)
+ble_result_t ble_encode_nav(const ble_nav_data_t *nav, uint8_t flags, uint8_t *out_buf,
+                            size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_NAV_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;
@@ -112,14 +107,15 @@ ble_result_t ble_encode_nav(const ble_nav_data_t *nav,
     if ((flags & BLE_FLAG_RESERVED_MASK) != 0) {
         return BLE_ERR_RESERVED_FLAGS_SET;
     }
-    if (!ble_nav_ranges_ok(nav->latitude_e7, nav->longitude_e7, nav->speed_kmh_x10, nav->heading_deg_x10)) {
+    if (!ble_nav_ranges_ok(nav->latitude_e7, nav->longitude_e7, nav->speed_kmh_x10,
+                           nav->heading_deg_x10)) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
     if (!ble_maneuver_is_known((uint8_t)nav->maneuver)) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
     /* street_name must fit with a null terminator. */
-    size_t name_len = strnlen(nav->street_name, STREET_NAME_FIELD_LEN);
+    size_t name_len = ble_strnlen(nav->street_name, STREET_NAME_FIELD_LEN);
     if (name_len >= STREET_NAME_FIELD_LEN) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }

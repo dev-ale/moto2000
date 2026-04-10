@@ -34,9 +34,7 @@ static bool field_is_terminated(const uint8_t *field, size_t len)
     return false;
 }
 
-ble_result_t ble_decode_music(const uint8_t    *data,
-                              size_t            length,
-                              uint8_t          *out_flags,
+ble_result_t ble_decode_music(const uint8_t *data, size_t length, uint8_t *out_flags,
                               ble_music_data_t *out)
 {
     ble_header_t header;
@@ -51,9 +49,9 @@ ble_result_t ble_decode_music(const uint8_t    *data,
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
 
-    const uint8_t *body     = header.body;
-    const uint8_t  flags    = body[0];
-    const uint8_t  reserved = body[1];
+    const uint8_t *body = header.body;
+    const uint8_t flags = body[0];
+    const uint8_t reserved = body[1];
     if (reserved != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
@@ -73,7 +71,7 @@ ble_result_t ble_decode_music(const uint8_t    *data,
         return BLE_ERR_UNTERMINATED_STRING;
     }
 
-    out->music_flags      = flags;
+    out->music_flags = flags;
     out->position_seconds = position;
     out->duration_seconds = duration;
     memset(out->title, 0, sizeof(out->title));
@@ -88,11 +86,8 @@ ble_result_t ble_decode_music(const uint8_t    *data,
     return BLE_OK;
 }
 
-ble_result_t ble_encode_music(const ble_music_data_t *in,
-                              uint8_t                 flags,
-                              uint8_t                *out_buf,
-                              size_t                  out_cap,
-                              size_t                 *out_written)
+ble_result_t ble_encode_music(const ble_music_data_t *in, uint8_t flags, uint8_t *out_buf,
+                              size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_MUSIC_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;
@@ -103,12 +98,11 @@ ble_result_t ble_encode_music(const ble_music_data_t *in,
     if ((in->music_flags & BLE_MUSIC_FLAG_RESERVED_MASK) != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
-    const size_t title_len  = strnlen(in->title,  MUSIC_TITLE_LEN);
-    const size_t artist_len = strnlen(in->artist, MUSIC_ARTIST_LEN);
-    const size_t album_len  = strnlen(in->album,  MUSIC_ALBUM_LEN);
-    if (title_len  >= MUSIC_TITLE_LEN  ||
-        artist_len >= MUSIC_ARTIST_LEN ||
-        album_len  >= MUSIC_ALBUM_LEN) {
+    const size_t title_len = ble_strnlen(in->title, MUSIC_TITLE_LEN);
+    const size_t artist_len = ble_strnlen(in->artist, MUSIC_ARTIST_LEN);
+    const size_t album_len = ble_strnlen(in->album, MUSIC_ALBUM_LEN);
+    if (title_len >= MUSIC_TITLE_LEN || artist_len >= MUSIC_ARTIST_LEN ||
+        album_len >= MUSIC_ALBUM_LEN) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
 
@@ -118,12 +112,12 @@ ble_result_t ble_encode_music(const ble_music_data_t *in,
     body[1] = 0;
     ble_write_u16_le(&body[2], in->position_seconds);
     ble_write_u16_le(&body[4], in->duration_seconds);
-    memset(&body[MUSIC_TITLE_OFFSET],  0, MUSIC_TITLE_LEN);
-    memcpy(&body[MUSIC_TITLE_OFFSET],  in->title,  title_len);
+    memset(&body[MUSIC_TITLE_OFFSET], 0, MUSIC_TITLE_LEN);
+    memcpy(&body[MUSIC_TITLE_OFFSET], in->title, title_len);
     memset(&body[MUSIC_ARTIST_OFFSET], 0, MUSIC_ARTIST_LEN);
     memcpy(&body[MUSIC_ARTIST_OFFSET], in->artist, artist_len);
-    memset(&body[MUSIC_ALBUM_OFFSET],  0, MUSIC_ALBUM_LEN);
-    memcpy(&body[MUSIC_ALBUM_OFFSET],  in->album,  album_len);
+    memset(&body[MUSIC_ALBUM_OFFSET], 0, MUSIC_ALBUM_LEN);
+    memcpy(&body[MUSIC_ALBUM_OFFSET], in->album, album_len);
     if (out_written != NULL) {
         *out_written = BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_MUSIC_BODY_SIZE;
     }

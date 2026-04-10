@@ -28,9 +28,7 @@ static bool ble_weather_condition_known(uint8_t c)
     return c <= BLE_WEATHER_THUNDERSTORM;
 }
 
-ble_result_t ble_decode_weather(const uint8_t      *data,
-                                size_t              length,
-                                uint8_t            *out_flags,
+ble_result_t ble_decode_weather(const uint8_t *data, size_t length, uint8_t *out_flags,
                                 ble_weather_data_t *out)
 {
     ble_header_t header;
@@ -44,9 +42,9 @@ ble_result_t ble_decode_weather(const uint8_t      *data,
     if (header.body_length != BLE_PROTOCOL_WEATHER_BODY_SIZE) {
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
-    const uint8_t *body     = header.body;
-    const uint8_t  cond     = body[0];
-    const uint8_t  reserved = body[1];
+    const uint8_t *body = header.body;
+    const uint8_t cond = body[0];
+    const uint8_t reserved = body[1];
     if (reserved != 0) {
         return BLE_ERR_NON_ZERO_BODY_RESERVED;
     }
@@ -55,16 +53,15 @@ ble_result_t ble_decode_weather(const uint8_t      *data,
     }
     const int16_t temp = ble_read_i16_le(&body[2]);
     const int16_t high = ble_read_i16_le(&body[4]);
-    const int16_t low  = ble_read_i16_le(&body[6]);
-    if (!ble_weather_temp_in_range(temp) ||
-        !ble_weather_temp_in_range(high) ||
+    const int16_t low = ble_read_i16_le(&body[6]);
+    if (!ble_weather_temp_in_range(temp) || !ble_weather_temp_in_range(high) ||
         !ble_weather_temp_in_range(low)) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
 
     /* location_name: 20 bytes, must contain a null terminator */
-    const uint8_t *name             = &body[8];
-    bool           terminator_found = false;
+    const uint8_t *name = &body[8];
+    bool terminator_found = false;
     for (size_t i = 0; i < LOCATION_NAME_FIELD_LEN; ++i) {
         if (name[i] == 0) {
             terminator_found = true;
@@ -75,10 +72,10 @@ ble_result_t ble_decode_weather(const uint8_t      *data,
         return BLE_ERR_UNTERMINATED_STRING;
     }
 
-    out->condition               = (ble_weather_condition_t)cond;
+    out->condition = (ble_weather_condition_t)cond;
     out->temperature_celsius_x10 = temp;
-    out->high_celsius_x10        = high;
-    out->low_celsius_x10         = low;
+    out->high_celsius_x10 = high;
+    out->low_celsius_x10 = low;
     memset(out->location_name, 0, sizeof(out->location_name));
     memcpy(out->location_name, name, LOCATION_NAME_FIELD_LEN);
     if (out_flags != NULL) {
@@ -87,11 +84,8 @@ ble_result_t ble_decode_weather(const uint8_t      *data,
     return BLE_OK;
 }
 
-ble_result_t ble_encode_weather(const ble_weather_data_t *in,
-                                uint8_t                   flags,
-                                uint8_t                  *out_buf,
-                                size_t                    out_cap,
-                                size_t                   *out_written)
+ble_result_t ble_encode_weather(const ble_weather_data_t *in, uint8_t flags, uint8_t *out_buf,
+                                size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_WEATHER_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;
@@ -107,13 +101,12 @@ ble_result_t ble_encode_weather(const ble_weather_data_t *in,
         !ble_weather_temp_in_range(in->low_celsius_x10)) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
-    const size_t name_len = strnlen(in->location_name, LOCATION_NAME_FIELD_LEN);
+    const size_t name_len = ble_strnlen(in->location_name, LOCATION_NAME_FIELD_LEN);
     if (name_len >= LOCATION_NAME_FIELD_LEN) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
 
-    ble_write_header(out_buf, BLE_SCREEN_WEATHER, flags,
-                     (uint16_t)BLE_PROTOCOL_WEATHER_BODY_SIZE);
+    ble_write_header(out_buf, BLE_SCREEN_WEATHER, flags, (uint16_t)BLE_PROTOCOL_WEATHER_BODY_SIZE);
     uint8_t *body = out_buf + BLE_PROTOCOL_HEADER_SIZE;
     body[0] = (uint8_t)in->condition;
     body[1] = 0;

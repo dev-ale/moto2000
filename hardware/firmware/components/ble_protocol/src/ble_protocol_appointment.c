@@ -30,10 +30,8 @@ static bool field_is_terminated(const uint8_t *field, size_t len)
     return false;
 }
 
-ble_result_t ble_decode_appointment(const uint8_t              *data,
-                                    size_t                      length,
-                                    uint8_t                    *out_flags,
-                                    ble_appointment_data_t     *out)
+ble_result_t ble_decode_appointment(const uint8_t *data, size_t length, uint8_t *out_flags,
+                                    ble_appointment_data_t *out)
 {
     ble_header_t header;
     const ble_result_t hdr = ble_decode_header(data, length, &header);
@@ -47,8 +45,8 @@ ble_result_t ble_decode_appointment(const uint8_t              *data,
         return BLE_ERR_BODY_LENGTH_MISMATCH;
     }
 
-    const uint8_t *body     = header.body;
-    const int16_t  minutes  = ble_read_i16_le(&body[0]);
+    const uint8_t *body = header.body;
+    const int16_t minutes = ble_read_i16_le(&body[0]);
     if (minutes < BLE_APPOINTMENT_MIN_STARTS_IN_MINUTES ||
         minutes > BLE_APPOINTMENT_MAX_STARTS_IN_MINUTES) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
@@ -77,11 +75,8 @@ ble_result_t ble_decode_appointment(const uint8_t              *data,
     return BLE_OK;
 }
 
-ble_result_t ble_encode_appointment(const ble_appointment_data_t *in,
-                                    uint8_t                       flags,
-                                    uint8_t                      *out_buf,
-                                    size_t                        out_cap,
-                                    size_t                       *out_written)
+ble_result_t ble_encode_appointment(const ble_appointment_data_t *in, uint8_t flags,
+                                    uint8_t *out_buf, size_t out_cap, size_t *out_written)
 {
     if (out_cap < BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_APPOINTMENT_BODY_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;
@@ -93,10 +88,9 @@ ble_result_t ble_encode_appointment(const ble_appointment_data_t *in,
         in->starts_in_minutes > BLE_APPOINTMENT_MAX_STARTS_IN_MINUTES) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
-    const size_t title_len    = strnlen(in->title,    APPOINTMENT_TITLE_LEN);
-    const size_t location_len = strnlen(in->location, APPOINTMENT_LOCATION_LEN);
-    if (title_len    >= APPOINTMENT_TITLE_LEN ||
-        location_len >= APPOINTMENT_LOCATION_LEN) {
+    const size_t title_len = ble_strnlen(in->title, APPOINTMENT_TITLE_LEN);
+    const size_t location_len = ble_strnlen(in->location, APPOINTMENT_LOCATION_LEN);
+    if (title_len >= APPOINTMENT_TITLE_LEN || location_len >= APPOINTMENT_LOCATION_LEN) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
 

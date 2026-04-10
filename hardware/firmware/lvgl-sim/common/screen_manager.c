@@ -18,6 +18,7 @@
 #include "screens/screen_lean_angle.h"
 #include "screens/screen_altitude.h"
 #include "screens/screen_calendar.h"
+#include "screens/screen_call.h"
 #include "screens/screen_fuel.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
@@ -162,9 +163,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
         case BLE_SCREEN_BLITZER:
             screen_placeholder_create(scr, "BLITZER");
             break;
-        case BLE_SCREEN_INCOMING_CALL:
-            screen_placeholder_create(scr, "INCOMING CALL");
+        case BLE_SCREEN_INCOMING_CALL: {
+            ble_incoming_call_data_t call;
+            uint8_t call_flags = 0;
+            rc = ble_decode_incoming_call(data, len, &call_flags, &call);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: incoming_call decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "CALL (decode error)");
+                break;
+            }
+            screen_call_create(scr, &call, call_flags);
             break;
+        }
         case BLE_SCREEN_FUEL_ESTIMATE: {
             ble_fuel_data_t fuel;
             uint8_t fuel_flags = 0;

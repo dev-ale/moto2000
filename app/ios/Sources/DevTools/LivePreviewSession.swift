@@ -1,4 +1,5 @@
 import BLEProtocol
+import CoreLocation
 import Foundation
 import Observation
 import RideSimulatorKit
@@ -59,6 +60,13 @@ final class LivePreviewSession {
         isRunning = true
         let locationProvider = RealLocationProvider()
         let motionProvider = RealMotionProvider()
+
+        // Request permissions and start providers
+        tasks.append(Task {
+            await locationProvider.start()
+            await motionProvider.start()
+        })
+
         startLocationServices(locationProvider)
         startMotionServices(motionProvider)
         startClockService()
@@ -150,10 +158,15 @@ final class LivePreviewSession {
     private func startWeatherService() {
         #if canImport(WeatherKit)
         guard let clock = try? WallClock(speedMultiplier: 1) else { return }
+        let loc = CLLocationManager().location
+        let coord = RealWeatherProvider.Coordinate(
+            latitude: loc?.coordinate.latitude ?? 47.56,
+            longitude: loc?.coordinate.longitude ?? 7.59
+        )
         let weatherProvider = RealWeatherProvider(
             client: WeatherKitClient(),
             clock: clock,
-            coordinate: .init(latitude: 0, longitude: 0)
+            coordinate: coord
         )
         let weatherService = WeatherService(provider: weatherProvider)
         weatherService.start()

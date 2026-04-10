@@ -50,6 +50,7 @@ let project = Project(
             product: .app,
             bundleId: "com.alejandro.moto2000.ScramScreen",
             deploymentTargets: .iOS("26.0"),
+            entitlements: .file(path: "ScramScreen.entitlements"),
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": "ScramScreen",
                 "UILaunchScreen": [:],

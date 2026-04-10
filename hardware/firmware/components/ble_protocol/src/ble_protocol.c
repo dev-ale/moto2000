@@ -38,6 +38,8 @@ const char *ble_result_name(ble_result_t result)
         return "unknownCommand";
     case BLE_ERR_INVALID_COMMAND_VALUE:
         return "invalidCommandValue";
+    case BLE_ERR_UNKNOWN_STATUS_TYPE:
+        return "unknownStatusType";
     default:
         return "unknown";
     }

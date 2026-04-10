@@ -1,0 +1,5 @@
+{
+  "description": "ESP32 switched to clock screen",
+  "type": "screenChanged",
+  "screen": "clock"
+}

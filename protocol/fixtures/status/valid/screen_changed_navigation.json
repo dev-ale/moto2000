@@ -1,0 +1,5 @@
+{
+  "description": "ESP32 switched to navigation screen",
+  "type": "screenChanged",
+  "screen": "navigation"
+}

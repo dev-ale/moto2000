@@ -30,4 +30,6 @@ public enum BLEProtocolError: Error, Equatable, Sendable {
     case unknownCommand(UInt8)
     /// A control command's value bytes are outside the documented range.
     case invalidCommandValue(field: String)
+    /// Status message type byte is not a known ``StatusMessage`` value.
+    case unknownStatusType(UInt8)
 }

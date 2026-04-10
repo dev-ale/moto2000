@@ -429,6 +429,28 @@ verifiable against the golden fixtures under `protocol/fixtures/control/`.
 | `0x03` | `sleep`             | 0 | both bytes `0x00` | Dim and enter sleep state. |
 | `0x04` | `wake`              | 0 | both bytes `0x00` | Wake from sleep, return to the previously selected screen. |
 | `0x05` | `clearAlertOverlay` | 0 | both bytes `0x00` | Clear any active alert overlay and return to the previously selected screen. |
+| `0x06` | `checkForOTAUpdate` | 0 | both bytes `0x00` | Trigger the ESP32 to check for an OTA firmware update. |
+| `0x07` | `setScreenOrder`    | variable | See below | Set the ordered list of enabled screens (Slice 21). |
+
+### `setScreenOrder` command (Slice 21)
+
+Unlike the fixed 4-byte commands, `setScreenOrder` is variable-length:
+
+```
+ 0       1       2       3       4     ...   2+count
++-------+-------+-------+-------+-------+---+-------+
+|version|  0x07 | count |  id0  |  id1  |...|  idN  |
++-------+-------+-------+-------+-------+---+-------+
+```
+
+| Field | Type | Notes |
+|---|---|---|
+| `version` | `uint8` | `0x01`. |
+| `command` | `uint8` | `0x07`. |
+| `count` | `uint8` | Number of screens in the order list. Range `0..=13`. |
+| `screen_ids` | `uint8[count]` | Ordered list of enabled screen IDs. Each must be a valid [Screen ID](#screen-ids). |
+
+Total size: `3 + count` bytes (minimum 3, maximum 16).
 
 ### Decoder rules
 
@@ -444,7 +466,39 @@ Decoders must fail with a clear error if any of the following hold:
 
 ## Status notifications
 
-Defined in Slice 2 (#3). Placeholder.
+Defined in Slice 2 (#3). The `status` characteristic sends notifications from
+the ESP32 to the phone. Each notification shares a common 2-byte envelope:
+
+```
+ 0       1       2
++-------+-------+-------+
+|version|  type |  ...  |
++-------+-------+-------+
+```
+
+| Field | Type | Notes |
+|---|---|---|
+| `version` | `uint8` | `0x01`, same as other characteristics. |
+| `type` | `uint8` | See status type table below. |
+| payload | varies | Type-specific. |
+
+### Status type table
+
+| ID | Name | Payload | Meaning |
+|---|---|---|---|
+| `0x01` | `SCREEN_CHANGED` | `uint8 screen_id` | ESP32 switched to a different screen (Slice 21). |
+
+### `SCREEN_CHANGED` (Slice 21)
+
+Total size: **3 bytes** (version + type + screen_id).
+
+| Offset | Field | Type | Notes |
+|---|---|---|---|
+| 0 | `version` | `uint8` | `0x01`. |
+| 1 | `type` | `uint8` | `0x01`. |
+| 2 | `screen_id` | `uint8` | The screen the ESP32 switched to. Must be a valid [Screen ID](#screen-ids). |
+
+Decoders must reject unknown `type` values with `unknownStatusType`.
 
 ### Staleness flag and the last-known-payload cache
 

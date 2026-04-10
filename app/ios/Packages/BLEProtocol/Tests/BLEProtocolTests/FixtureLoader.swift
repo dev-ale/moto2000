@@ -56,6 +56,16 @@ enum FixtureLoader {
         try listNames(in: "control/invalid")
     }
 
+    /// All basenames (without extension) under `status/valid/`.
+    static func statusValidFixtureNames() throws -> [String] {
+        try listNames(in: "status/valid")
+    }
+
+    /// All basenames (without extension) under `status/invalid/`.
+    static func statusInvalidFixtureNames() throws -> [String] {
+        try listNames(in: "status/invalid")
+    }
+
     private static func listNames(in subdirectory: String) throws -> [String] {
         let url = fixturesDirectory.appendingPathComponent(subdirectory, isDirectory: true)
         let contents = try FileManager.default.contentsOfDirectory(

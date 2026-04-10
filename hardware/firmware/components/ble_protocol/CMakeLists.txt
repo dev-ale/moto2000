@@ -21,6 +21,7 @@ idf_component_register(
         "src/ble_protocol_lean_angle.c"
         "src/ble_protocol_music.c"
         "src/ble_protocol_call.c"
+        "src/ble_protocol_status.c"
     INCLUDE_DIRS
         "include"
     PRIV_INCLUDE_DIRS

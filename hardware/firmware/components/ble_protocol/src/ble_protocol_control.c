@@ -22,6 +22,31 @@ ble_result_t ble_encode_control(const ble_control_payload_t *in, uint8_t *out_bu
     if (in == NULL || out_buf == NULL) {
         return BLE_ERR_BUFFER_TOO_SMALL;
     }
+    /* Variable-length command: setScreenOrder. */
+    if (in->command == BLE_CONTROL_CMD_SET_SCREEN_ORDER) {
+        if (in->screen_order_count > BLE_CONTROL_MAX_SCREEN_ORDER) {
+            return BLE_ERR_INVALID_COMMAND_VALUE;
+        }
+        const size_t needed = 3u + in->screen_order_count;
+        if (out_cap < needed) {
+            return BLE_ERR_BUFFER_TOO_SMALL;
+        }
+        out_buf[0] = BLE_PROTOCOL_VERSION;
+        out_buf[1] = (uint8_t)BLE_CONTROL_CMD_SET_SCREEN_ORDER;
+        out_buf[2] = in->screen_order_count;
+        for (uint8_t i = 0; i < in->screen_order_count; ++i) {
+            if (!ble_is_known_screen(in->screen_order[i])) {
+                return BLE_ERR_UNKNOWN_SCREEN_ID;
+            }
+            out_buf[3 + i] = in->screen_order[i];
+        }
+        if (out_written != NULL) {
+            *out_written = needed;
+        }
+        return BLE_OK;
+    }
+
+    /* Fixed-size commands. */
     if (out_cap < BLE_CONTROL_PAYLOAD_SIZE) {
         return BLE_ERR_BUFFER_TOO_SMALL;
     }
@@ -63,17 +88,45 @@ ble_result_t ble_decode_control(const uint8_t *data, size_t length,
     if (data == NULL || out_payload == NULL) {
         return BLE_ERR_BUFFER_TOO_SMALL;
     }
-    if (length < BLE_CONTROL_PAYLOAD_SIZE) {
+    if (length < 2) {
         return BLE_ERR_TRUNCATED_HEADER;
     }
     if (data[0] != BLE_PROTOCOL_VERSION) {
         return BLE_ERR_UNSUPPORTED_VERSION;
     }
     const uint8_t cmd = data[1];
-    const uint8_t value0 = data[2];
-    const uint8_t value1 = data[3];
 
     memset(out_payload, 0, sizeof(*out_payload));
+
+    /* Variable-length command: setScreenOrder. */
+    if (cmd == BLE_CONTROL_CMD_SET_SCREEN_ORDER) {
+        if (length < 3) {
+            return BLE_ERR_TRUNCATED_HEADER;
+        }
+        const uint8_t count = data[2];
+        if (count > BLE_CONTROL_MAX_SCREEN_ORDER) {
+            return BLE_ERR_INVALID_COMMAND_VALUE;
+        }
+        if (length < 3u + count) {
+            return BLE_ERR_TRUNCATED_BODY;
+        }
+        out_payload->command = BLE_CONTROL_CMD_SET_SCREEN_ORDER;
+        out_payload->screen_order_count = count;
+        for (uint8_t i = 0; i < count; ++i) {
+            if (!ble_is_known_screen(data[3 + i])) {
+                return BLE_ERR_UNKNOWN_SCREEN_ID;
+            }
+            out_payload->screen_order[i] = data[3 + i];
+        }
+        return BLE_OK;
+    }
+
+    /* Fixed-size commands require exactly 4 bytes. */
+    if (length < BLE_CONTROL_PAYLOAD_SIZE) {
+        return BLE_ERR_TRUNCATED_HEADER;
+    }
+    const uint8_t value0 = data[2];
+    const uint8_t value1 = data[3];
 
     switch (cmd) {
     case BLE_CONTROL_CMD_SET_ACTIVE_SCREEN:

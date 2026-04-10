@@ -118,6 +118,7 @@ typedef enum {
     BLE_ERR_BUFFER_TOO_SMALL,
     BLE_ERR_UNKNOWN_COMMAND,
     BLE_ERR_INVALID_COMMAND_VALUE,
+    BLE_ERR_UNKNOWN_STATUS_TYPE,
 } ble_result_t;
 
 const char *ble_result_name(ble_result_t result);
@@ -303,7 +304,10 @@ typedef enum {
     BLE_CONTROL_CMD_WAKE = 0x04,
     BLE_CONTROL_CMD_CLEAR_ALERT = 0x05,
     BLE_CONTROL_CMD_CHECK_OTA_UPDATE = 0x06,
+    BLE_CONTROL_CMD_SET_SCREEN_ORDER = 0x07,
 } ble_control_command_t;
+
+#define BLE_CONTROL_MAX_SCREEN_ORDER 13
 
 typedef struct {
     ble_control_command_t command;
@@ -311,6 +315,9 @@ typedef struct {
     uint8_t screen_id;
     /* Brightness percentage 0..100 for SET_BRIGHTNESS, otherwise 0. */
     uint8_t brightness;
+    /* Screen order for SET_SCREEN_ORDER. */
+    uint8_t screen_order_count;
+    uint8_t screen_order[BLE_CONTROL_MAX_SCREEN_ORDER];
 } ble_control_payload_t;
 
 /*
@@ -381,6 +388,34 @@ ble_result_t ble_decode_blitzer(const uint8_t *data, size_t length, uint8_t *out
 
 ble_result_t ble_encode_blitzer(const ble_blitzer_data_t *in, uint8_t flags, uint8_t *out_buf,
                                 size_t out_cap, size_t *out_written);
+
+/* ----- Status characteristic (Slice 21) --------------------------------- */
+
+#define BLE_STATUS_PAYLOAD_MIN_SIZE ((size_t)3)
+
+typedef enum {
+    BLE_STATUS_SCREEN_CHANGED = 0x01,
+} ble_status_type_t;
+
+typedef struct {
+    ble_status_type_t type;
+    uint8_t screen_id; /* For SCREEN_CHANGED. */
+} ble_status_payload_t;
+
+/*
+ * Encode a status message into out_buf. out_buf must be at least
+ * BLE_STATUS_PAYLOAD_MIN_SIZE bytes. On success, *out_written is set
+ * to the number of bytes written.
+ */
+ble_result_t ble_encode_status(const ble_status_payload_t *in, uint8_t *out_buf, size_t out_cap,
+                               size_t *out_written);
+
+/*
+ * Decode a status message. Returns BLE_OK and fills out_payload on
+ * success.
+ */
+ble_result_t ble_decode_status(const uint8_t *data, size_t length,
+                               ble_status_payload_t *out_payload);
 
 #ifdef __cplusplus
 }

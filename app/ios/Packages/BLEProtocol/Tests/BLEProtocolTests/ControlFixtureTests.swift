@@ -81,6 +81,17 @@ final class ControlFixtureTests: XCTestCase {
             return .clearAlertOverlay
         case "checkOTAUpdate":
             return .checkForOTAUpdate
+        case "setScreenOrder":
+            guard let screenNames = spec["screens"] as? [String] else {
+                throw FixtureError.missingField("screens")
+            }
+            let screens = try screenNames.map { name -> ScreenID in
+                guard let id = ScreenID.fromName(name) else {
+                    throw FixtureError.unsupportedScreen(name)
+                }
+                return id
+            }
+            return .setScreenOrder(screens)
         default:
             throw FixtureError.unsupportedScreen(command)
         }

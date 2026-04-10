@@ -594,6 +594,112 @@ static void test_control_set_active_unknown_screen_rejected(void)
     TEST_ASSERT_EQUAL(BLE_ERR_UNKNOWN_SCREEN_ID, result);
 }
 
+static void test_control_check_ota_update(void)
+{
+    assert_control_fixture_roundtrips("check_ota_update");
+}
+
+/* ---- setScreenOrder (Slice 21) ------------------------------------------ */
+
+static void assert_screen_order_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    char subdir[64];
+    snprintf(subdir, sizeof(subdir), "control/valid");
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture(subdir, name, &blob), name);
+
+    ble_control_payload_t payload;
+    const ble_result_t decoded = ble_decode_control(blob.bytes, blob.length, &payload);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+    TEST_ASSERT_EQUAL(BLE_CONTROL_CMD_SET_SCREEN_ORDER, payload.command);
+
+    uint8_t out[32] = { 0 };
+    size_t written = 0;
+    const ble_result_t encoded = ble_encode_control(&payload, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_control_set_screen_order_three(void)
+{
+    assert_screen_order_fixture_roundtrips("set_screen_order_three");
+}
+
+static void test_control_set_screen_order_all(void)
+{
+    assert_screen_order_fixture_roundtrips("set_screen_order_all");
+}
+
+static void test_control_set_screen_order_empty(void)
+{
+    assert_screen_order_fixture_roundtrips("set_screen_order_empty");
+}
+
+/* ---- status characteristic (Slice 21) ----------------------------------- */
+
+static void assert_status_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    char subdir[64];
+    snprintf(subdir, sizeof(subdir), "status/valid");
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture(subdir, name, &blob), name);
+
+    ble_status_payload_t payload;
+    const ble_result_t decoded = ble_decode_status(blob.bytes, blob.length, &payload);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[8] = { 0 };
+    size_t written = 0;
+    const ble_result_t encoded = ble_encode_status(&payload, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_status_screen_changed_navigation(void)
+{
+    assert_status_fixture_roundtrips("screen_changed_navigation");
+}
+
+static void test_status_screen_changed_clock(void)
+{
+    assert_status_fixture_roundtrips("screen_changed_clock");
+}
+
+static void test_status_unknown_type_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("status/invalid", "unknown_status_type", &blob));
+    ble_status_payload_t payload;
+    const ble_result_t result = ble_decode_status(blob.bytes, blob.length, &payload);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_UNKNOWN_STATUS_TYPE, result, ble_result_name(result));
+}
+
+static void test_status_truncated_rejected(void)
+{
+    const uint8_t bytes[2] = { 0x01, 0x01 };
+    ble_status_payload_t p;
+    const ble_result_t result = ble_decode_status(bytes, sizeof(bytes), &p);
+    TEST_ASSERT_EQUAL(BLE_ERR_TRUNCATED_HEADER, result);
+}
+
+static void test_status_unsupported_version_rejected(void)
+{
+    const uint8_t bytes[3] = { 0x02, 0x01, 0x01 };
+    ble_status_payload_t p;
+    const ble_result_t result = ble_decode_status(bytes, sizeof(bytes), &p);
+    TEST_ASSERT_EQUAL(BLE_ERR_UNSUPPORTED_VERSION, result);
+}
+
+static void test_status_unknown_screen_id_rejected(void)
+{
+    const uint8_t bytes[3] = { 0x01, 0x01, 0xEE };
+    ble_status_payload_t p;
+    const ble_result_t result = ble_decode_status(bytes, sizeof(bytes), &p);
+    TEST_ASSERT_EQUAL(BLE_ERR_UNKNOWN_SCREEN_ID, result);
+}
+
 /* ---- fuel (Slice 12) ---------------------------------------------------- */
 
 static void assert_fuel_fixture_roundtrips(const char *name)
@@ -850,6 +956,16 @@ int main(void)
     RUN_TEST(test_control_unsupported_version_rejected);
     RUN_TEST(test_control_sleep_with_nonzero_value_rejected);
     RUN_TEST(test_control_set_active_unknown_screen_rejected);
+    RUN_TEST(test_control_check_ota_update);
+    RUN_TEST(test_control_set_screen_order_three);
+    RUN_TEST(test_control_set_screen_order_all);
+    RUN_TEST(test_control_set_screen_order_empty);
+    RUN_TEST(test_status_screen_changed_navigation);
+    RUN_TEST(test_status_screen_changed_clock);
+    RUN_TEST(test_status_unknown_type_rejected);
+    RUN_TEST(test_status_truncated_rejected);
+    RUN_TEST(test_status_unsupported_version_rejected);
+    RUN_TEST(test_status_unknown_screen_id_rejected);
     RUN_TEST(test_trip_stats_fresh_roundtrip);
     RUN_TEST(test_trip_stats_city_loop_roundtrip);
     RUN_TEST(test_trip_stats_highway_roundtrip);

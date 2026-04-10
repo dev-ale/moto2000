@@ -253,6 +253,120 @@ static void test_invalid_fixtures_are_rejected(void)
 }
 
 /* ------------------------------------------------------------------------- */
+/*                          control characteristic                            */
+/* ------------------------------------------------------------------------- */
+
+static void assert_control_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    char           subdir[64];
+    snprintf(subdir, sizeof(subdir), "control/valid");
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture(subdir, name, &blob), name);
+    TEST_ASSERT_EQUAL_size_t(BLE_CONTROL_PAYLOAD_SIZE, blob.length);
+
+    ble_control_payload_t payload;
+    const ble_result_t    decoded =
+        ble_decode_control(blob.bytes, blob.length, &payload);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[BLE_CONTROL_PAYLOAD_SIZE] = {0};
+    size_t  written                       = 0;
+    const ble_result_t encoded =
+        ble_encode_control(&payload, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_control_set_active_clock(void)
+{
+    assert_control_fixture_roundtrips("set_active_clock");
+}
+
+static void test_control_set_active_nav(void)
+{
+    assert_control_fixture_roundtrips("set_active_nav");
+}
+
+static void test_control_set_brightness_50(void)
+{
+    assert_control_fixture_roundtrips("set_brightness_50");
+}
+
+static void test_control_set_brightness_100(void)
+{
+    assert_control_fixture_roundtrips("set_brightness_100");
+}
+
+static void test_control_sleep(void)
+{
+    assert_control_fixture_roundtrips("sleep");
+}
+
+static void test_control_wake(void)
+{
+    assert_control_fixture_roundtrips("wake");
+}
+
+static void test_control_clear_alert(void)
+{
+    assert_control_fixture_roundtrips("clear_alert");
+}
+
+static void test_control_unknown_command_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("control/invalid", "unknown_command", &blob));
+    ble_control_payload_t payload;
+    const ble_result_t    result =
+        ble_decode_control(blob.bytes, blob.length, &payload);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_UNKNOWN_COMMAND, result, ble_result_name(result));
+}
+
+static void test_control_brightness_over_100_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("control/invalid", "brightness_over_100", &blob));
+    ble_control_payload_t payload;
+    const ble_result_t    result =
+        ble_decode_control(blob.bytes, blob.length, &payload);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_INVALID_COMMAND_VALUE, result,
+                              ble_result_name(result));
+}
+
+static void test_control_truncated_rejected(void)
+{
+    const uint8_t bytes[3]   = {0x01, 0x01, 0x0D};
+    ble_control_payload_t p;
+    const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
+    TEST_ASSERT_EQUAL(BLE_ERR_TRUNCATED_HEADER, result);
+}
+
+static void test_control_unsupported_version_rejected(void)
+{
+    const uint8_t bytes[4]   = {0x02, 0x01, 0x0D, 0x00};
+    ble_control_payload_t p;
+    const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
+    TEST_ASSERT_EQUAL(BLE_ERR_UNSUPPORTED_VERSION, result);
+}
+
+static void test_control_sleep_with_nonzero_value_rejected(void)
+{
+    const uint8_t bytes[4]   = {0x01, 0x03, 0x05, 0x00};
+    ble_control_payload_t p;
+    const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
+    TEST_ASSERT_EQUAL(BLE_ERR_INVALID_RESERVED, result);
+}
+
+static void test_control_set_active_unknown_screen_rejected(void)
+{
+    const uint8_t bytes[4]   = {0x01, 0x01, 0xEE, 0x00};
+    ble_control_payload_t p;
+    const ble_result_t result = ble_decode_control(bytes, sizeof(bytes), &p);
+    TEST_ASSERT_EQUAL(BLE_ERR_UNKNOWN_SCREEN_ID, result);
+}
+
+/* ------------------------------------------------------------------------- */
 
 int main(void)
 {
@@ -271,5 +385,18 @@ int main(void)
     RUN_TEST(test_invalid_fixtures_are_rejected);
     RUN_TEST(test_speed_heading_out_of_range_fixture_rejected);
     RUN_TEST(test_compass_out_of_range_fixture_rejected);
+    RUN_TEST(test_control_set_active_clock);
+    RUN_TEST(test_control_set_active_nav);
+    RUN_TEST(test_control_set_brightness_50);
+    RUN_TEST(test_control_set_brightness_100);
+    RUN_TEST(test_control_sleep);
+    RUN_TEST(test_control_wake);
+    RUN_TEST(test_control_clear_alert);
+    RUN_TEST(test_control_unknown_command_rejected);
+    RUN_TEST(test_control_brightness_over_100_rejected);
+    RUN_TEST(test_control_truncated_rejected);
+    RUN_TEST(test_control_unsupported_version_rejected);
+    RUN_TEST(test_control_sleep_with_nonzero_value_rejected);
+    RUN_TEST(test_control_set_active_unknown_screen_rejected);
     return UNITY_END();
 }

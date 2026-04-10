@@ -85,6 +85,8 @@ typedef enum {
     BLE_ERR_VALUE_OUT_OF_RANGE,
     BLE_ERR_NON_ZERO_BODY_RESERVED,
     BLE_ERR_BUFFER_TOO_SMALL,
+    BLE_ERR_UNKNOWN_COMMAND,
+    BLE_ERR_INVALID_COMMAND_VALUE,
 } ble_result_t;
 
 const char *ble_result_name(ble_result_t result);
@@ -188,6 +190,44 @@ ble_result_t ble_encode_compass(const ble_compass_data_t *in,
                                 uint8_t                  *out_buf,
                                 size_t                    out_cap,
                                 size_t                   *out_written);
+
+/* ----- Control characteristic (Slice 5) -------------------------------- */
+
+#define BLE_CONTROL_PAYLOAD_SIZE ((size_t)4)
+
+typedef enum {
+    BLE_CONTROL_CMD_SET_ACTIVE_SCREEN = 0x01,
+    BLE_CONTROL_CMD_SET_BRIGHTNESS    = 0x02,
+    BLE_CONTROL_CMD_SLEEP             = 0x03,
+    BLE_CONTROL_CMD_WAKE              = 0x04,
+    BLE_CONTROL_CMD_CLEAR_ALERT       = 0x05,
+} ble_control_command_t;
+
+typedef struct {
+    ble_control_command_t command;
+    /* Active screen ID for SET_ACTIVE_SCREEN, otherwise 0. */
+    uint8_t screen_id;
+    /* Brightness percentage 0..100 for SET_BRIGHTNESS, otherwise 0. */
+    uint8_t brightness;
+} ble_control_payload_t;
+
+/*
+ * Encode a control command into out_buf. out_buf must be at least
+ * BLE_CONTROL_PAYLOAD_SIZE bytes. On success, *out_written is set to
+ * BLE_CONTROL_PAYLOAD_SIZE.
+ */
+ble_result_t ble_encode_control(const ble_control_payload_t *in,
+                                uint8_t                     *out_buf,
+                                size_t                       out_cap,
+                                size_t                      *out_written);
+
+/*
+ * Decode a 4-byte control command. Returns BLE_OK and fills out_payload on
+ * success.
+ */
+ble_result_t ble_decode_control(const uint8_t         *data,
+                                size_t                 length,
+                                ble_control_payload_t *out_payload);
 
 #ifdef __cplusplus
 }

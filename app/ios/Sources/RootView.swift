@@ -8,6 +8,7 @@ import SwiftUI
 struct RootView: View {
     #if DEBUG
     @State private var showSimulator = false
+    @State private var showScreenPicker = false
     #endif
 
     var body: some View {
@@ -27,6 +28,14 @@ struct RootView: View {
             .buttonStyle(.bordered)
             .sheet(isPresented: $showSimulator) {
                 ScenarioPickerView()
+            }
+
+            Button("Screen Picker") {
+                showScreenPicker = true
+            }
+            .buttonStyle(.bordered)
+            .sheet(isPresented: $showScreenPicker) {
+                ScreenPickerView()
             }
             #endif
         }

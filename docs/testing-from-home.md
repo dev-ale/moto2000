@@ -169,6 +169,39 @@ See `tools/scenario-to-video/README.md` for every flag, the list of
 derivable screens, and troubleshooting tips. This tool is **not** part of
 CI — it is a manual developer utility.
 
+## Workflow: switch screens from the iOS app
+
+Slice 5 ships a debug-only **Screen Picker** sheet next to the existing
+Ride Simulator panel on the iOS app's `RootView`. It's wrapped in
+`#if DEBUG` so it never lands in a Release build.
+
+To exercise it without an ESP32 attached:
+
+1. Run the ScramScreen iOS target on a simulator or device
+   (`tuist generate && open ScramScreen.xcworkspace`).
+2. Tap **Screen Picker** on the launch screen.
+3. Pick a row to send a `setActiveScreen` `ControlCommand` over the
+   `control` characteristic. The "Last command" footer echoes the action
+   for sanity.
+4. Drag the brightness slider and tap **Apply** for `setBrightness`.
+5. The **Power** section sends `sleep`, `wake`, and `clearAlertOverlay`.
+
+The picker drives a `ScreenPickerViewModel` from
+`Packages/ScramCore/Sources/ScramCore/Control/`. The view itself is a
+trivial wrapper — every behaviour (selection, reorder, enable/disable,
+persistence) is unit-tested in `ScramCorePackageTests` without bringing in
+SwiftUI.
+
+The 500 ms Slice 5 success criterion (write → render) decomposes into
+roughly:
+
+- iOS-side validate / encode / queue:   < 5 ms (`ScreenControllerLatencyTests`)
+- BLE round trip + ack on a typical link: ~150 ms
+- ESP32 parse / FSM / render:            ~200 ms
+
+The first region is the only piece this slice owns; the other two are
+covered by the firmware integration tests and the device bring-up report.
+
 ## What doesn't work yet
 
 - **Real data sources** — each real provider (wrapping `CLLocationManager`,

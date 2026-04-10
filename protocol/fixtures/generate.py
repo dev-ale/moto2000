@@ -209,6 +209,45 @@ def encode_invalid(spec: dict) -> bytes:
     return bytes.fromhex(hex_string)
 
 
+# --------------------------------------------------------------------------- #
+# Control characteristic (Slice 5)                                            #
+# --------------------------------------------------------------------------- #
+
+CONTROL_COMMANDS = {
+    "setActiveScreen":   0x01,
+    "setBrightness":     0x02,
+    "sleep":             0x03,
+    "wake":              0x04,
+    "clearAlertOverlay": 0x05,
+}
+
+CONTROL_PAYLOAD_SIZE = 4
+
+
+def encode_control_command(spec: dict) -> bytes:
+    """Encode a control command per docs/ble-protocol.md §control commands.
+
+    Layout (4 bytes): version, cmd, value0, value1. Commands without value
+    bytes leave both value bytes zero.
+    """
+    name = spec["command"]
+    if name not in CONTROL_COMMANDS:
+        raise ValueError(f"unknown control command: {name}")
+    cmd = CONTROL_COMMANDS[name]
+    value0 = 0
+    value1 = 0
+    if name == "setActiveScreen":
+        screen = spec["screen"]
+        if screen not in SCREEN_IDS:
+            raise ValueError(f"unknown screen for setActiveScreen: {screen}")
+        value0 = SCREEN_IDS[screen]
+    elif name == "setBrightness":
+        value0 = int(spec["brightness"])
+        if not (0 <= value0 <= 100):
+            raise ValueError(f"brightness {value0} out of range 0..100")
+    return bytes([PROTOCOL_VERSION, cmd, value0, value1])
+
+
 def process(directory: Path, encoder):
     count = 0
     for json_path in sorted(directory.glob("*.json")):
@@ -236,6 +275,18 @@ def main() -> int:
     if invalid_dir.exists():
         print(f"\n{invalid_dir.relative_to(root.parent)}:")
         total += process(invalid_dir, encode_invalid)
+
+    # Control characteristic fixtures live in their own subtree because the
+    # wire format is different from screen_data.
+    control_valid = root / "control" / "valid"
+    control_invalid = root / "control" / "invalid"
+    if control_valid.exists():
+        print(f"\n{control_valid.relative_to(root.parent)}:")
+        total += process(control_valid, encode_control_command)
+    if control_invalid.exists():
+        print(f"\n{control_invalid.relative_to(root.parent)}:")
+        total += process(control_invalid, encode_invalid)
+
     print(f"\nWrote {total} fixture(s).")
     return 0
 

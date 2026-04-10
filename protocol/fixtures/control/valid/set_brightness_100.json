@@ -1,0 +1,5 @@
+{
+  "description": "Set panel brightness to 100% (max)",
+  "command": "setBrightness",
+  "brightness": 100
+}

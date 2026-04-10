@@ -1,0 +1,4 @@
+{
+  "description": "Clear the active alert overlay and return to the previous screen",
+  "command": "clearAlertOverlay"
+}

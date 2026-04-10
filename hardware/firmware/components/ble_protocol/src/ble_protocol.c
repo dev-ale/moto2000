@@ -34,6 +34,10 @@ const char *ble_result_name(ble_result_t result)
             return "nonZeroBodyReserved";
         case BLE_ERR_BUFFER_TOO_SMALL:
             return "bufferTooSmall";
+        case BLE_ERR_UNKNOWN_COMMAND:
+            return "unknownCommand";
+        case BLE_ERR_INVALID_COMMAND_VALUE:
+            return "invalidCommandValue";
         default:
             return "unknown";
     }

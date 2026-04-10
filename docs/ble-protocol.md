@@ -171,7 +171,47 @@ same pattern: fixed offsets, fixed size, explicit reserved bytes.
 
 ## Control commands
 
-Defined in Slice 5 (#6). Placeholder.
+Defined in Slice 5 (#6). The `control` characteristic accepts fixed-size
+4-byte writes from the iOS app. Every command shares the same envelope:
+
+```
+ 0       1       2       3
++-------+-------+-------+-------+
+|version|  cmd  |   value...    |
++-------+-------+-------+-------+
+```
+
+| Field | Bytes | Notes |
+|---|---|---|
+| `version` | 1 | `0x01`, same as the screen-data version. |
+| `command` | 1 | See command table below. |
+| `value`   | 2 | Command-specific. Bytes not used by a given command must be `0x00` on encode and decoders must reject non-zero. |
+
+The total encoded size is **always 4 bytes**. Picking a fixed size keeps the
+codec boring and the wire-format diff between Swift and C trivially
+verifiable against the golden fixtures under `protocol/fixtures/control/`.
+
+### Command table
+
+| ID | Name | Value bytes | Body | Meaning |
+|---|---|---|---|---|
+| `0x01` | `setActiveScreen`   | 1 | byte 0: `screen_id` (see [Screen IDs](#screen-ids)); byte 1: `0x00` | Switch the active persistent screen. |
+| `0x02` | `setBrightness`     | 1 | byte 0: brightness `0..100`; byte 1: `0x00` | Set panel brightness as a percentage. |
+| `0x03` | `sleep`             | 0 | both bytes `0x00` | Dim and enter sleep state. |
+| `0x04` | `wake`              | 0 | both bytes `0x00` | Wake from sleep, return to the previously selected screen. |
+| `0x05` | `clearAlertOverlay` | 0 | both bytes `0x00` | Clear any active alert overlay and return to the previously selected screen. |
+
+### Decoder rules
+
+Decoders must fail with a clear error if any of the following hold:
+
+- Buffer is shorter than 4 bytes (`truncatedHeader`).
+- `version != 0x01` (`unsupportedVersion`).
+- `command` is not in the table above (`unknownCommand`).
+- The unused trailing value byte for a command is non-zero (`invalidReserved`).
+- `setActiveScreen.screen_id` is not in the [Screen IDs](#screen-ids) table
+  (`unknownScreenId`).
+- `setBrightness` value > 100 (`invalidCommandValue`).
 
 ## Status notifications
 

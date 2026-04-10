@@ -3,25 +3,76 @@ import Foundation
 #if canImport(CallKit)
 import CallKit
 
-/// iOS-only stub for ``CallKitClient`` backed by `CXCallObserver`.
+/// Production ``CallKitClient`` backed by `CXCallObserver`.
 ///
-/// # Why is this a stub?
+/// Uses `CXCallObserverDelegate` to track live call state changes and
+/// returns the current state when polled via ``fetchCallState()``.
 ///
-/// `CXCallObserver` provides only call state transitions (incoming,
-/// connected, ended, on hold) — it does NOT expose the caller's name
-/// or phone number to third-party apps. The `callerHandle` field of
-/// ``CallKitClientResponse`` is therefore always "unknown" when using
-/// the real system observer. See docs/platform-limits.md.
-///
-/// Slice 13 ships the ``CallKitClient`` protocol seam so the rest of
-/// the domain (``RealCallObserver``, ``CallAlertService``, the BLE
-/// pipeline) can be fully tested today. A follow-up slice may wire
-/// real `CXCallObserver` state transitions.
-public final class CXCallObserverClient: CallKitClient, @unchecked Sendable {
-    public init() {}
+/// **Apple restriction:** `CXCallObserver` does NOT expose the caller's
+/// name or phone number to third-party apps. The `callerHandle` field
+/// is always set to "Eingehender Anruf" for incoming/connected calls.
+public final class CXCallObserverClient: NSObject, CallKitClient, CXCallObserverDelegate, @unchecked Sendable {
+    private let observer: CXCallObserver
+    private let lock = NSLock()
+    private var latestCall: CXCall?
+
+    public override init() {
+        self.observer = CXCallObserver()
+        super.init()
+        observer.setDelegate(self, queue: nil)
+    }
+
+    // MARK: - CallKitClient
 
     public func fetchCallState() async throws -> CallKitClientResponse? {
-        throw CallKitClientError.notImplemented
+        lock.lock()
+        let call = latestCall
+        lock.unlock()
+
+        // Also check the observer's current calls in case the delegate
+        // hasn't fired yet (e.g. a call was already in progress at launch).
+        let activeCalls = observer.calls
+        let target = call ?? activeCalls.first
+
+        guard let target else { return nil }
+
+        // A call that has ended is no longer useful after we report it once.
+        if target.hasEnded {
+            lock.lock()
+            if latestCall?.uuid == target.uuid {
+                latestCall = nil
+            }
+            lock.unlock()
+            return CallKitClientResponse(
+                state: .ended,
+                callerHandle: ""
+            )
+        }
+
+        if target.hasConnected {
+            return CallKitClientResponse(
+                state: .connected,
+                callerHandle: "Eingehender Anruf"
+            )
+        }
+
+        if !target.isOutgoing {
+            return CallKitClientResponse(
+                state: .incoming,
+                callerHandle: "Eingehender Anruf"
+            )
+        }
+
+        // Outgoing call that hasn't connected yet — not relevant for alerts.
+        return nil
+    }
+
+    // MARK: - CXCallObserverDelegate
+
+    public func callObserver(_ callObserver: CXCallObserver, callChanged call: CXCall) {
+        lock.lock()
+        latestCall = call
+        lock.unlock()
     }
 }
 #else

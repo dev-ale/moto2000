@@ -33,6 +33,7 @@ public enum ScreenID: UInt8, Sendable, CaseIterable {
         case .appointment: return AppointmentData.encodedSize
         case .fuelEstimate: return FuelData.encodedSize
         case .altitude: return AltitudeProfileData.encodedSize
+        case .incomingCall: return IncomingCallData.encodedSize
         default: return nil
         }
     }

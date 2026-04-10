@@ -29,6 +29,7 @@ public enum ScreenID: UInt8, Sendable, CaseIterable {
         case .tripStats: return TripStatsData.encodedSize
         case .weather: return WeatherData.encodedSize
         case .leanAngle: return LeanAngleData.encodedSize
+        case .music: return MusicData.encodedSize
         default: return nil
         }
     }

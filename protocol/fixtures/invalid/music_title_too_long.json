@@ -1,0 +1,5 @@
+{
+  "description": "Music body with a 32-byte title field completely filled with 'A' (no room for the mandatory null terminator) — must be rejected",
+  "expected_error": "unterminatedString",
+  "raw_bytes_hex": "010600005600000001000000000041414141414141414141414141414141414141414141414141414141414141416f6b000000000000000000000000000000000000000000006f6b00000000000000000000000000000000000000000000"
+}

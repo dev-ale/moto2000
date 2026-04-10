@@ -1,0 +1,13 @@
+{
+  "description": "Music: playing, title/artist/album at max length (field_len - 1)",
+  "screen": "music",
+  "flags": [],
+  "body": {
+    "is_playing": true,
+    "position_seconds": 3600,
+    "duration_seconds": 5400,
+    "title": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "artist": "BBBBBBBBBBBBBBBBBBBBBBB",
+    "album": "CCCCCCCCCCCCCCCCCCCCCCC"
+  }
+}

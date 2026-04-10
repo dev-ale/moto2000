@@ -65,6 +65,8 @@ final class ValidFixtureTests: XCTestCase {
             return .weather(try WeatherData(parsing: body), flags: flags)
         case "leanAngle":
             return .leanAngle(try LeanAngleData(parsing: body), flags: flags)
+        case "music":
+            return .music(try MusicData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -291,6 +293,44 @@ extension LeanAngleData {
             maxLeftLeanDegX10: UInt16(Int((maxLeft * 10).rounded())),
             maxRightLeanDegX10: UInt16(Int((maxRight * 10).rounded())),
             confidencePercent: UInt8(confidence)
+        )
+    }
+}
+
+extension MusicData {
+    init(parsing body: [String: Any]) throws {
+        let title = (body["title"] as? String) ?? ""
+        let artist = (body["artist"] as? String) ?? ""
+        let album = (body["album"] as? String) ?? ""
+        let isPlaying = (body["is_playing"] as? Bool) ?? false
+        let position: UInt16
+        if let raw = body["position_seconds_raw"] as? Int {
+            position = UInt16(raw)
+        } else if let i = body["position_seconds"] as? Int {
+            position = UInt16(i)
+        } else if let d = body["position_seconds"] as? Double {
+            position = UInt16(Int(d))
+        } else {
+            throw FixtureError.missingField("position_seconds")
+        }
+        let duration: UInt16
+        if let raw = body["duration_seconds_raw"] as? Int {
+            duration = UInt16(raw)
+        } else if let i = body["duration_seconds"] as? Int {
+            duration = UInt16(i)
+        } else if let d = body["duration_seconds"] as? Double {
+            duration = UInt16(Int(d))
+        } else {
+            throw FixtureError.missingField("duration_seconds")
+        }
+        let flags: UInt8 = isPlaying ? MusicData.playingFlag : 0
+        self.init(
+            musicFlags: flags,
+            positionSeconds: position,
+            durationSeconds: duration,
+            title: title,
+            artist: artist,
+            album: album
         )
     }
 }

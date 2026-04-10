@@ -153,6 +153,26 @@ static void assert_weather_fixture_roundtrips(const char *name)
     TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
 }
 
+static void assert_music_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t            flags = 0xFF;
+    ble_music_data_t   decoded_body;
+    const ble_result_t decoded =
+        ble_decode_music(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_music(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
 static void assert_nav_fixture_roundtrips(const char *name)
 {
     fixture_blob_t blob;
@@ -284,6 +304,36 @@ static void test_weather_over_max_temp_fixture_rejected(void)
     const ble_result_t result =
         ble_decode_weather(blob.bytes, blob.length, NULL, &body);
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
+}
+
+static void test_music_playing_roundtrip(void)
+{
+    assert_music_fixture_roundtrips("music_playing");
+}
+
+static void test_music_paused_roundtrip(void)
+{
+    assert_music_fixture_roundtrips("music_paused");
+}
+
+static void test_music_long_titles_roundtrip(void)
+{
+    assert_music_fixture_roundtrips("music_long_titles");
+}
+
+static void test_music_unknown_duration_roundtrip(void)
+{
+    assert_music_fixture_roundtrips("music_unknown_duration");
+}
+
+static void test_music_title_too_long_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "music_title_too_long", &blob));
+    ble_music_data_t body;
+    const ble_result_t result =
+        ble_decode_music(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_UNTERMINATED_STRING, result, ble_result_name(result));
 }
 
 static void test_compass_out_of_range_fixture_rejected(void)
@@ -563,5 +613,10 @@ int main(void)
     RUN_TEST(test_lean_hard_left_roundtrip);
     RUN_TEST(test_lean_racetrack_roundtrip);
     RUN_TEST(test_lean_over_max_fixture_rejected);
+    RUN_TEST(test_music_playing_roundtrip);
+    RUN_TEST(test_music_paused_roundtrip);
+    RUN_TEST(test_music_long_titles_roundtrip);
+    RUN_TEST(test_music_unknown_duration_roundtrip);
+    RUN_TEST(test_music_title_too_long_rejected);
     return UNITY_END();
 }

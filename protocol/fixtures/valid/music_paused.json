@@ -1,0 +1,13 @@
+{
+  "description": "Music: paused, 'Midnight Sun' / 'Solo Project' / 'Demo', 2:00 of 3:00",
+  "screen": "music",
+  "flags": ["NIGHT_MODE"],
+  "body": {
+    "is_playing": false,
+    "position_seconds": 120,
+    "duration_seconds": 180,
+    "title": "Midnight Sun",
+    "artist": "Solo Project",
+    "album": "Demo"
+  }
+}

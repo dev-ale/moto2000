@@ -78,6 +78,10 @@ void host_sim_render_lean_angle(host_sim_canvas_t           *canvas,
                                 const ble_lean_angle_data_t *lean,
                                 uint8_t                      header_flags);
 
+void host_sim_render_music(host_sim_canvas_t      *canvas,
+                           const ble_music_data_t *music,
+                           uint8_t                 header_flags);
+
 /* Placeholder for screens that have not been implemented yet. Draws a
  * "screen 0xNN pending" message on a dark background. */
 void host_sim_render_placeholder(host_sim_canvas_t *canvas, uint8_t screen_id);

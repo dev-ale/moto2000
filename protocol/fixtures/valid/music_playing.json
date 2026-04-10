@@ -1,0 +1,13 @@
+{
+  "description": "Music: playing, title 'Moving On' / 'The Riders' / 'Asphalt', 45s of 240s",
+  "screen": "music",
+  "flags": [],
+  "body": {
+    "is_playing": true,
+    "position_seconds": 45,
+    "duration_seconds": 240,
+    "title": "Moving On",
+    "artist": "The Riders",
+    "album": "Asphalt"
+  }
+}

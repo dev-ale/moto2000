@@ -15,6 +15,7 @@
 #include "screens/screen_weather.h"
 #include "screens/screen_music.h"
 #include "screens/screen_trip_stats.h"
+#include "screens/screen_lean_angle.h"
 #include "screens/screen_placeholder.h"
 #include "theme/scram_theme.h"
 
@@ -142,9 +143,19 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
             screen_music_create(scr, &music, music_flags);
             break;
         }
-        case BLE_SCREEN_LEAN_ANGLE:
-            screen_placeholder_create(scr, "LEAN ANGLE");
+        case BLE_SCREEN_LEAN_ANGLE: {
+            ble_lean_angle_data_t lean;
+            uint8_t lean_flags = 0;
+            rc = ble_decode_lean_angle(data, len, &lean_flags, &lean);
+            if (rc != BLE_OK) {
+                fprintf(stderr, "lvgl-sim: lean_angle decode failed: %s\n",
+                        ble_result_name(rc));
+                screen_placeholder_create(scr, "LEAN ANGLE (decode error)");
+                break;
+            }
+            screen_lean_angle_create(scr, &lean, lean_flags);
             break;
+        }
         case BLE_SCREEN_BLITZER:
             screen_placeholder_create(scr, "BLITZER");
             break;

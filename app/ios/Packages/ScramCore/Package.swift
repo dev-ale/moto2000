@@ -26,6 +26,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../BLEProtocol"),
+        .package(path: "../BLECentralClient"),
         .package(path: "../RideSimulatorKit"),
     ],
     targets: [
@@ -33,6 +34,7 @@ let package = Package(
             name: "ScramCore",
             dependencies: [
                 "BLEProtocol",
+                "BLECentralClient",
                 "RideSimulatorKit",
             ],
             swiftSettings: [
@@ -45,6 +47,7 @@ let package = Package(
             dependencies: [
                 "ScramCore",
                 "BLEProtocol",
+                "BLECentralClient",
                 "RideSimulatorKit",
             ],
             resources: [

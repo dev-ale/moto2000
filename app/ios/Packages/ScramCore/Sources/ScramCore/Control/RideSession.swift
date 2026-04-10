@@ -1,0 +1,359 @@
+import Foundation
+import BLEProtocol
+import BLECentralClient
+import RideSimulatorKit
+
+/// Dependencies that a ``RideSession`` needs to create services.
+///
+/// Callers populate only the providers they have available; services for
+/// missing providers are skipped. This avoids requiring every provider
+/// at init time and lets the session adapt to what the app can supply.
+public struct RideSessionDependencies: Sendable {
+    public var locationProvider: (any LocationProvider)?
+    public var motionProvider: (any MotionProvider)?
+    public var weatherProvider: (any WeatherProvider)?
+    public var nowPlayingProvider: (any NowPlayingProvider)?
+    public var calendarProvider: (any CalendarProvider)?
+    public var callObserver: (any CallObserver)?
+    public var speedCameraDatabase: (any SpeedCameraDatabase)?
+    public var fuelLog: FuelLog?
+    public var fuelSettings: FuelSettings
+
+    public init(
+        locationProvider: (any LocationProvider)? = nil,
+        motionProvider: (any MotionProvider)? = nil,
+        weatherProvider: (any WeatherProvider)? = nil,
+        nowPlayingProvider: (any NowPlayingProvider)? = nil,
+        calendarProvider: (any CalendarProvider)? = nil,
+        callObserver: (any CallObserver)? = nil,
+        speedCameraDatabase: (any SpeedCameraDatabase)? = nil,
+        fuelLog: FuelLog? = nil,
+        fuelSettings: FuelSettings = FuelSettings()
+    ) {
+        self.locationProvider = locationProvider
+        self.motionProvider = motionProvider
+        self.weatherProvider = weatherProvider
+        self.nowPlayingProvider = nowPlayingProvider
+        self.calendarProvider = calendarProvider
+        self.callObserver = callObserver
+        self.speedCameraDatabase = speedCameraDatabase
+        self.fuelLog = fuelLog
+        self.fuelSettings = fuelSettings
+    }
+}
+
+/// Central orchestration layer for an active ride.
+///
+/// A ``RideSession`` ties together all data services, the
+/// ``PayloadScheduler``, and the BLE connection for the duration of a
+/// ride. It is the single place that:
+///
+///   1. Sends the ``ScreenOrderCommand`` on connect.
+///   2. Creates and starts every enabled service.
+///   3. Routes each service's output through the ``PayloadScheduler``.
+///   4. Listens for `SCREEN_CHANGED` status notifications.
+///   5. Saves trip data on stop.
+///
+/// Lifecycle: create one per BLE connection, call ``start()``, and call
+/// ``stop()`` when the ride ends (or the link drops).
+public actor RideSession {
+
+    // MARK: - Dependencies
+
+    private let bleClient: any BLECentralClient
+    private let preferences: ScreenPreferences
+    private let deps: RideSessionDependencies
+
+    // MARK: - Internal state
+
+    private var scheduler: PayloadScheduler?
+    private var serviceTasks: [Task<Void, Never>] = []
+    private var statusListenerTask: Task<Void, Never>?
+
+    // Services kept alive for the session duration.
+    private var speedHeadingService: SpeedHeadingService?
+    private var tripStatsService: TripStatsService?
+    private var weatherService: WeatherService?
+    private var leanAngleService: LeanAngleService?
+    private var musicService: MusicService?
+    private var calendarService: CalendarService?
+    private var fuelService: FuelService?
+    private var blitzerAlertService: BlitzerAlertService?
+    private var callAlertService: CallAlertService?
+    private var altitudeService: AltitudeService?
+
+    /// Whether the session is currently running.
+    public private(set) var isRunning = false
+
+    /// The enabled screen IDs sent to the firmware.
+    public private(set) var enabledScreenIDs: [ScreenID] = []
+
+    /// Creates a ride session.
+    ///
+    /// - Parameters:
+    ///   - bleClient: The BLE transport to write payloads to.
+    ///   - preferences: Screen ordering and enablement preferences.
+    ///   - dependencies: Provider dependencies for data services.
+    public init(
+        bleClient: any BLECentralClient,
+        preferences: ScreenPreferences,
+        dependencies: RideSessionDependencies
+    ) {
+        self.bleClient = bleClient
+        self.preferences = preferences
+        self.deps = dependencies
+    }
+
+    // MARK: - Public API
+
+    /// Start the ride session.
+    ///
+    /// This sends the screen order, creates all services with available
+    /// providers, and begins routing payloads to BLE.
+    public func start() async throws {
+        guard !isRunning else { return }
+        isRunning = true
+
+        // 1. Compute the enabled screen order from preferences.
+        let selections = preferences.apply(to: ScreenSelection.availableScreens)
+        enabledScreenIDs = selections
+            .filter(\.isEnabled)
+            .map(\.screenID)
+
+        // 2. Send screen order command to firmware.
+        let orderCmd = ScreenOrderCommand(screenIDs: enabledScreenIDs)
+        let orderData = try orderCmd.encode()
+        try await bleClient.send(orderData)
+
+        // 3. Create the scheduler.
+        let client = bleClient
+        let sched = PayloadScheduler(send: { data in
+            try await client.send(data)
+        })
+        self.scheduler = sched
+
+        // Set the first screen as active.
+        if let firstScreen = enabledScreenIDs.first {
+            await sched.setActiveScreen(firstScreen)
+        }
+
+        // 4. Create and start services, subscribing to their output.
+        await createAndStartServices(scheduler: sched)
+
+        // 5. Listen for SCREEN_CHANGED status notifications.
+        let statusStream = bleClient.statusStream
+        statusListenerTask = Task { [weak self] in
+            for await data in statusStream {
+                guard let self, !Task.isCancelled else { return }
+                await self.handleStatusNotification(data)
+            }
+        }
+    }
+
+    /// Stop the ride session and clean up.
+    ///
+    /// Cancels all service tasks and saves trip data.
+    public func stop() async {
+        guard isRunning else { return }
+        isRunning = false
+
+        // Cancel status listener.
+        statusListenerTask?.cancel()
+        statusListenerTask = nil
+
+        // Cancel all service forwarding tasks.
+        for task in serviceTasks {
+            task.cancel()
+        }
+        serviceTasks.removeAll()
+
+        // Stop services.
+        speedHeadingService?.stop()
+        tripStatsService?.stop()
+        weatherService?.stop()
+        leanAngleService?.stop()
+        musicService?.stop()
+        calendarService?.stop()
+        fuelService?.stop()
+        if let blitzer = blitzerAlertService {
+            await blitzer.stop()
+        }
+        callAlertService?.stop()
+        altitudeService?.stop()
+
+        // Save trip summary from TripStatsService accumulator.
+        // (TripHistoryStore integration deferred — the accumulator
+        // snapshot is available via tripStatsService.currentSnapshot
+        // for the caller to persist.)
+
+        // Nil out services.
+        speedHeadingService = nil
+        tripStatsService = nil
+        weatherService = nil
+        leanAngleService = nil
+        musicService = nil
+        calendarService = nil
+        fuelService = nil
+        blitzerAlertService = nil
+        callAlertService = nil
+        altitudeService = nil
+        scheduler = nil
+    }
+
+    /// The current trip stats snapshot, if the trip stats service is running.
+    public var tripSnapshot: TripStatsData? {
+        tripStatsService?.currentSnapshot
+    }
+
+    // MARK: - Private
+
+    private func createAndStartServices(scheduler: PayloadScheduler) async {
+        // Speed + Heading
+        if let loc = deps.locationProvider {
+            let svc = SpeedHeadingService(provider: loc)
+            speedHeadingService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.encodedPayloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .speedHeading, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Trip Stats
+        if let loc = deps.locationProvider {
+            let svc = TripStatsService(provider: loc)
+            tripStatsService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.payloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .tripStats, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Weather
+        if let weather = deps.weatherProvider {
+            let svc = WeatherService(provider: weather)
+            weatherService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.encodedPayloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .weather, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Lean Angle
+        if let motion = deps.motionProvider {
+            let svc = LeanAngleService(provider: motion)
+            leanAngleService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.encodedPayloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .leanAngle, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Music
+        if let nowPlaying = deps.nowPlayingProvider {
+            let svc = MusicService(provider: nowPlaying)
+            musicService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.encodedPayloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .music, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Calendar
+        if let calendar = deps.calendarProvider {
+            let svc = CalendarService(provider: calendar)
+            calendarService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.encodedPayloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .appointment, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Fuel
+        if let loc = deps.locationProvider, let fuelLog = deps.fuelLog {
+            let svc = FuelService(provider: loc, fuelLog: fuelLog, settings: deps.fuelSettings)
+            fuelService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.payloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .fuelEstimate, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Blitzer Alert
+        if let loc = deps.locationProvider, let db = deps.speedCameraDatabase {
+            let svc = BlitzerAlertService(locationProvider: loc, database: db)
+            blitzerAlertService = svc
+            await svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.payloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .blitzer, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Call Alert
+        if let observer = deps.callObserver {
+            let svc = CallAlertService(observer: observer)
+            callAlertService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.encodedPayloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .incomingCall, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+
+        // Altitude
+        if let loc = deps.locationProvider {
+            let svc = AltitudeService(provider: loc)
+            altitudeService = svc
+            svc.start()
+            let task = Task { [weak self] in
+                for await payload in svc.payloads {
+                    guard self != nil, !Task.isCancelled else { return }
+                    await scheduler.enqueue(screenID: .altitude, payload: payload)
+                }
+            }
+            serviceTasks.append(task)
+        }
+    }
+
+    private func handleStatusNotification(_ data: Data) async {
+        guard let message = try? StatusMessage.decode(data) else { return }
+        switch message {
+        case .screenChanged(let screenID):
+            await scheduler?.setActiveScreen(screenID)
+        }
+    }
+}

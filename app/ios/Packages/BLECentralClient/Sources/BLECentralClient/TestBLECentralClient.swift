@@ -28,6 +28,8 @@ public actor TestBLECentralClient: BLECentralClient {
     private var state: ConnectionState = .idle
     private let continuation: AsyncStream<ConnectionState>.Continuation
     private let stream: AsyncStream<ConnectionState>
+    private let statusContinuation: AsyncStream<Data>.Continuation
+    private let _statusStream: AsyncStream<Data>
 
     /// If non-nil, the next call to ``send(_:)`` throws this error and
     /// then clears the slot.
@@ -42,12 +44,16 @@ public actor TestBLECentralClient: BLECentralClient {
         var cont: AsyncStream<ConnectionState>.Continuation!
         self.stream = AsyncStream { cont = $0 }
         self.continuation = cont
+        var statusCont: AsyncStream<Data>.Continuation!
+        self._statusStream = AsyncStream { statusCont = $0 }
+        self.statusContinuation = statusCont
         // Seed the stream with the initial state so late subscribers
         // always see something.
         self.continuation.yield(.idle)
     }
 
     public nonisolated var stateStream: AsyncStream<ConnectionState> { stream }
+    public nonisolated var statusStream: AsyncStream<Data> { _statusStream }
 
     public func currentState() -> ConnectionState { state }
 
@@ -97,6 +103,11 @@ public actor TestBLECentralClient: BLECentralClient {
 
     /// Force a specific state — useful for edge-case tests.
     public func forceState(_ new: ConnectionState) { setState(new) }
+
+    /// Simulate a status notification arriving from the ESP32.
+    public func simulateStatusNotification(_ data: Data) {
+        statusContinuation.yield(data)
+    }
 
     private func setState(_ new: ConnectionState) {
         state = new

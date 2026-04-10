@@ -15,15 +15,21 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
     private var state: ConnectionState = .idle
     private let continuation: AsyncStream<ConnectionState>.Continuation
     private let stream: AsyncStream<ConnectionState>
+    private let _statusStream: AsyncStream<Data>
 
     public init() {
         var cont: AsyncStream<ConnectionState>.Continuation!
         self.stream = AsyncStream { cont = $0 }
         self.continuation = cont
+        // Status stream — populated by real CBPeripheral notify in a later slice.
+        var statusCont: AsyncStream<Data>.Continuation!
+        self._statusStream = AsyncStream { statusCont = $0 }
+        _ = statusCont  // Retain; wired in Slice 2.
         self.continuation.yield(.idle)
     }
 
     public nonisolated var stateStream: AsyncStream<ConnectionState> { stream }
+    public nonisolated var statusStream: AsyncStream<Data> { _statusStream }
 
     public func currentState() -> ConnectionState { state }
 

@@ -158,6 +158,7 @@ struct NavigationSearchView: View {
 ///
 /// Wraps `MKLocalSearchCompleter` for autocomplete and resolves the
 /// selected completion to a coordinate via `MKLocalSearch`.
+@MainActor
 final class NavigationSearchViewModel: NSObject, ObservableObject {
     @Published var searchText: String = "" {
         didSet { completer.queryFragment = searchText }
@@ -186,15 +187,14 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
 
         let request = MKLocalSearch.Request(completion: completion)
         let search = MKLocalSearch(request: request)
-        search.start { [weak self] response, _ in
+        Task { @MainActor [weak self] in
+            let response = try? await search.start()
             guard let item = response?.mapItems.first,
                   let self else { return }
-            DispatchQueue.main.async {
-                self.selectedDestination = SelectedDestination(
-                    name: completion.title,
-                    coordinate: item.placemark.coordinate
-                )
-            }
+            self.selectedDestination = SelectedDestination(
+                name: completion.title,
+                coordinate: item.placemark.coordinate
+            )
         }
     }
 
@@ -231,14 +231,19 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
     }
 }
 
-extension NavigationSearchViewModel: MKLocalSearchCompleterDelegate {
-    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-        DispatchQueue.main.async { [weak self] in
-            self?.completions = completer.results
+extension NavigationSearchViewModel: @preconcurrency MKLocalSearchCompleterDelegate {
+    nonisolated func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        // MKLocalSearchCompletion is not Sendable; wrap to cross isolation.
+        struct UnsafeResults: @unchecked Sendable {
+            let value: [MKLocalSearchCompletion]
+        }
+        let wrapped = UnsafeResults(value: completer.results)
+        Task { @MainActor [weak self] in
+            self?.completions = wrapped.value
         }
     }
 
-    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+    nonisolated func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
         // Silently ignore — the user can keep typing.
     }
 }

@@ -23,6 +23,18 @@ public enum FuelRangeCalculator {
         public var rangeKm: Double?
         /// Tank percentage (0..100), or nil if unknown.
         public var tankPercent: Double?
+
+        public init(
+            consumptionMlPerKm: Double? = nil,
+            remainingMl: Double? = nil,
+            rangeKm: Double? = nil,
+            tankPercent: Double? = nil
+        ) {
+            self.consumptionMlPerKm = consumptionMlPerKm
+            self.remainingMl = remainingMl
+            self.rangeKm = rangeKm
+            self.tankPercent = tankPercent
+        }
     }
 
     /// Compute the average consumption in mL/km from fill history.

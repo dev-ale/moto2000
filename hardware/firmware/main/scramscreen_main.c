@@ -24,4 +24,13 @@ void app_main(void)
     ESP_ERROR_CHECK(err);
 
     ESP_LOGI(TAG, "NVS initialized — ready for feature work in Slice 2");
+
+    // Screen-switching boot sequence (Slice 25, issue #82):
+    // 1. Show logo screen
+    // 2. Wait for BLE connect
+    // 3. Receive setScreenOrder -> screen_order_set()
+    // 4. Receive screen_data   -> payload_cache_store()
+    // 5. On button press        -> screen_order_next()
+    //                           -> render from payload_cache_get()
+    // 6. Send SCREEN_CHANGED notification via BLE status characteristic
 }

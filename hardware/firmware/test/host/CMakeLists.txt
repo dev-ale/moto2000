@@ -136,3 +136,29 @@ target_include_directories(ota_fsm
 add_executable(test_ota_fsm test_ota_fsm.c)
 target_link_libraries(test_ota_fsm PRIVATE unity ota_fsm)
 add_test(NAME ota_fsm COMMAND test_ota_fsm)
+
+# ------------------------------------------------------------------------- #
+# payload_cache — Slice 25 per-screen BLE payload cache                      #
+# ------------------------------------------------------------------------- #
+set(PAYLOAD_CACHE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/payload_cache")
+add_library(payload_cache STATIC
+    "${PAYLOAD_CACHE_ROOT}/src/payload_cache.c"
+)
+target_include_directories(payload_cache PUBLIC "${PAYLOAD_CACHE_ROOT}/include")
+
+add_executable(test_payload_cache test_payload_cache.c)
+target_link_libraries(test_payload_cache PRIVATE unity payload_cache)
+add_test(NAME payload_cache COMMAND test_payload_cache)
+
+# ------------------------------------------------------------------------- #
+# screen_order — Slice 25 screen order manager + button handler              #
+# ------------------------------------------------------------------------- #
+set(SCREEN_ORDER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/screen_order")
+add_library(screen_order STATIC
+    "${SCREEN_ORDER_ROOT}/src/screen_order.c"
+)
+target_include_directories(screen_order PUBLIC "${SCREEN_ORDER_ROOT}/include")
+
+add_executable(test_screen_order test_screen_order.c)
+target_link_libraries(test_screen_order PRIVATE unity screen_order)
+add_test(NAME screen_order COMMAND test_screen_order)

@@ -1,0 +1,10 @@
+{
+  "description": "Appointment starting now: Team standup",
+  "screen": "appointment",
+  "flags": [],
+  "body": {
+    "starts_in_minutes": 0,
+    "title": "Team standup",
+    "location": "Conference room"
+  }
+}

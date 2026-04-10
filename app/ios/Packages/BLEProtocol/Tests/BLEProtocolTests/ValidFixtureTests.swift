@@ -67,6 +67,8 @@ final class ValidFixtureTests: XCTestCase {
             return .leanAngle(try LeanAngleData(parsing: body), flags: flags)
         case "music":
             return .music(try MusicData(parsing: body), flags: flags)
+        case "appointment":
+            return .appointment(try AppointmentData(parsing: body), flags: flags)
         default:
             throw FixtureError.unsupportedScreen(screen)
         }
@@ -331,6 +333,24 @@ extension MusicData {
             title: title,
             artist: artist,
             album: album
+        )
+    }
+}
+
+extension AppointmentData {
+    init(parsing body: [String: Any]) throws {
+        func intValue(_ key: String) throws -> Int {
+            if let i = body[key] as? Int { return i }
+            if let d = body[key] as? Double { return Int(d) }
+            throw FixtureError.missingField(key)
+        }
+        let minutes = try intValue("starts_in_minutes")
+        let title = (body["title"] as? String) ?? ""
+        let location = (body["location"] as? String) ?? ""
+        self.init(
+            startsInMinutes: Int16(minutes),
+            title: title,
+            location: location
         )
     }
 }

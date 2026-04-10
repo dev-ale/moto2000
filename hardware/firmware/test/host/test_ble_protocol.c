@@ -396,6 +396,51 @@ static void test_lean_over_max_fixture_rejected(void)
     TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_VALUE_OUT_OF_RANGE, result, ble_result_name(result));
 }
 
+static void assert_appointment_fixture_roundtrips(const char *name)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE_MESSAGE(load_fixture("valid", name, &blob), name);
+
+    uint8_t                flags = 0xFF;
+    ble_appointment_data_t decoded_body;
+    const ble_result_t     decoded =
+        ble_decode_appointment(blob.bytes, blob.length, &flags, &decoded_body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, decoded, ble_result_name(decoded));
+
+    uint8_t out[256] = {0};
+    size_t  written  = 0;
+    const ble_result_t encoded =
+        ble_encode_appointment(&decoded_body, flags, out, sizeof(out), &written);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_OK, encoded, ble_result_name(encoded));
+    TEST_ASSERT_EQUAL_size_t(blob.length, written);
+    TEST_ASSERT_EQUAL_MEMORY(blob.bytes, out, blob.length);
+}
+
+static void test_appointment_soon_roundtrip(void)
+{
+    assert_appointment_fixture_roundtrips("appointment_soon");
+}
+
+static void test_appointment_now_roundtrip(void)
+{
+    assert_appointment_fixture_roundtrips("appointment_now");
+}
+
+static void test_appointment_past_roundtrip(void)
+{
+    assert_appointment_fixture_roundtrips("appointment_past");
+}
+
+static void test_appointment_title_too_long_rejected(void)
+{
+    fixture_blob_t blob;
+    TEST_ASSERT_TRUE(load_fixture("invalid", "appointment_title_too_long", &blob));
+    ble_appointment_data_t body;
+    const ble_result_t     result =
+        ble_decode_appointment(blob.bytes, blob.length, NULL, &body);
+    TEST_ASSERT_EQUAL_MESSAGE(BLE_ERR_UNTERMINATED_STRING, result, ble_result_name(result));
+}
+
 /* ------------------------------------------------------------------------- */
 /*                  invalid fixtures — each case fails cleanly               */
 /* ------------------------------------------------------------------------- */
@@ -618,5 +663,9 @@ int main(void)
     RUN_TEST(test_music_long_titles_roundtrip);
     RUN_TEST(test_music_unknown_duration_roundtrip);
     RUN_TEST(test_music_title_too_long_rejected);
+    RUN_TEST(test_appointment_soon_roundtrip);
+    RUN_TEST(test_appointment_now_roundtrip);
+    RUN_TEST(test_appointment_past_roundtrip);
+    RUN_TEST(test_appointment_title_too_long_rejected);
     return UNITY_END();
 }

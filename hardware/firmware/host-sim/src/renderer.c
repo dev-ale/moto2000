@@ -202,6 +202,22 @@ int host_sim_render_payload(host_sim_canvas_t *canvas,
             host_sim_render_music(canvas, &music, flags);
             return 0;
         }
+        case BLE_SCREEN_APPOINTMENT: {
+            ble_appointment_data_t appointment;
+            uint8_t                flags = 0;
+            const ble_result_t res =
+                ble_decode_appointment(payload, length, &flags, &appointment);
+            if (res != BLE_OK) {
+                fprintf(stderr,
+                        "host-sim: failed to decode appointment body: %s\n",
+                        ble_result_name(res));
+                host_sim_canvas_fill(canvas, 200, 0, 0);
+                host_sim_canvas_apply_round_mask(canvas);
+                return 3;
+            }
+            host_sim_render_appointment(canvas, &appointment, flags);
+            return 0;
+        }
         case BLE_SCREEN_NAVIGATION: {
             ble_nav_data_t nav;
             uint8_t        flags = 0;

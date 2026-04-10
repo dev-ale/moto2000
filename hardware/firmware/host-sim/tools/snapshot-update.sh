@@ -54,6 +54,9 @@ SNAPSHOTS=(
     "music_paused                    music_paused.bin"
     "music_long_titles               music_long_titles.bin"
     "music_unknown_duration          music_unknown_duration.bin"
+    "appointment_soon                appointment_soon.bin"
+    "appointment_now                 appointment_now.bin"
+    "appointment_past                appointment_past.bin"
 )
 
 mkdir -p "$SNAPSHOTS_DIR"

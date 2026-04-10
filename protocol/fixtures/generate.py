@@ -103,6 +103,10 @@ MUSIC_TITLE_LEN = 32
 MUSIC_ARTIST_LEN = 24
 MUSIC_ALBUM_LEN = 24
 
+APPOINTMENT_BODY_SIZE = 60
+APPOINTMENT_TITLE_LEN = 32
+APPOINTMENT_LOCATION_LEN = 24
+
 
 def encode_flags(flags: list[str]) -> int:
     value = 0
@@ -310,6 +314,17 @@ def encode_music_body(spec: dict) -> bytes:
     return body
 
 
+def encode_appointment_body(spec: dict) -> bytes:
+    starts_in_minutes = int(spec["starts_in_minutes"])
+    title = encode_fixed_string(spec.get("title", ""), APPOINTMENT_TITLE_LEN)
+    location = encode_fixed_string(spec.get("location", ""), APPOINTMENT_LOCATION_LEN)
+    body = struct.pack("<h", starts_in_minutes) + title + location + struct.pack("<H", 0)
+    assert len(body) == APPOINTMENT_BODY_SIZE, (
+        f"appointment body is {len(body)} bytes, expected {APPOINTMENT_BODY_SIZE}"
+    )
+    return body
+
+
 BODY_ENCODERS = {
     "clock": encode_clock_body,
     "navigation": encode_nav_body,
@@ -319,6 +334,7 @@ BODY_ENCODERS = {
     "weather": encode_weather_body,
     "leanAngle": encode_lean_angle_body,
     "music": encode_music_body,
+    "appointment": encode_appointment_body,
 }
 
 

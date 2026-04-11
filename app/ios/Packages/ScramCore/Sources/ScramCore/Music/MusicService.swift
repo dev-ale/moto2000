@@ -20,10 +20,11 @@ import RideSimulatorKit
 /// The service is a one-shot pipeline: call ``start()`` once, read
 /// ``encodedPayloads`` once. Calling ``stop()`` terminates both the
 /// forwarding task and the output stream.
-public final class MusicService: @unchecked Sendable {
+public final class MusicService: PayloadService, @unchecked Sendable {
     private let provider: any NowPlayingProvider
     private let channel = PayloadChannel()
     public let encodedPayloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
     private let lock = NSLock()
     private var forwardingTask: Task<Void, Never>?

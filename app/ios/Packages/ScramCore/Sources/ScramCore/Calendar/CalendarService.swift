@@ -18,13 +18,14 @@ import RideSimulatorKit
 /// The service is a one-shot pipeline: call ``start()`` once, read
 /// ``encodedPayloads`` once. Calling ``stop()`` terminates both the
 /// forwarding task and the output stream.
-public final class CalendarService: @unchecked Sendable {
+public final class CalendarService: PayloadService, @unchecked Sendable {
     public static let maxTitleUTF8Bytes: Int = 31
     public static let maxLocationUTF8Bytes: Int = 23
 
     private let provider: any CalendarProvider
     private let channel = PayloadChannel()
     public let encodedPayloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
     private let lock = NSLock()
     private var forwardingTask: Task<Void, Never>?

@@ -18,10 +18,8 @@
 /* screen_data writes                                                       */
 /* ----------------------------------------------------------------------- */
 
-void ble_server_handle_screen_data(const uint8_t *payload, size_t len,
-                                   screen_fsm_t *fsm,
-                                   ble_payload_cache_t *cache,
-                                   uint32_t now_ms)
+void ble_server_handle_screen_data(const uint8_t *payload, size_t len, screen_fsm_t *fsm,
+                                   ble_payload_cache_t *cache, uint32_t now_ms)
 {
     if (!payload || !fsm || !cache) {
         return;
@@ -48,16 +46,14 @@ void ble_server_handle_screen_data(const uint8_t *payload, size_t len,
     }
 
     /* Cache the body for the render loop / staleness detection. */
-    ble_payload_cache_store(cache, screen_id,
-                            hdr.body, (uint16_t)hdr.body_length, now_ms);
+    ble_payload_cache_store(cache, screen_id, hdr.body, (uint16_t)hdr.body_length, now_ms);
 }
 
 /* ----------------------------------------------------------------------- */
 /* control writes                                                           */
 /* ----------------------------------------------------------------------- */
 
-void ble_server_handle_control(const uint8_t *payload, size_t len,
-                               screen_fsm_t *fsm)
+void ble_server_handle_control(const uint8_t *payload, size_t len, screen_fsm_t *fsm)
 {
     if (!payload || !fsm) {
         return;
@@ -71,8 +67,7 @@ void ble_server_handle_control(const uint8_t *payload, size_t len,
 
     switch (ctrl.command) {
     case BLE_CONTROL_CMD_SET_ACTIVE_SCREEN:
-        screen_fsm_handle(fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE,
-                          ctrl.screen_id);
+        screen_fsm_handle(fsm, SCREEN_FSM_EVT_CONTROL_SET_ACTIVE, ctrl.screen_id);
         break;
     case BLE_CONTROL_CMD_SLEEP:
         screen_fsm_handle(fsm, SCREEN_FSM_EVT_CONTROL_SLEEP, 0);
@@ -90,6 +85,9 @@ void ble_server_handle_control(const uint8_t *payload, size_t len,
     case BLE_CONTROL_CMD_CHECK_OTA_UPDATE:
         /* OTA check is handled by the OTA FSM, not the screen FSM. */
         break;
+    case BLE_CONTROL_CMD_SET_SCREEN_ORDER:
+        /* Screen order is persisted by the app_main layer. */
+        break;
     }
 }
 
@@ -97,17 +95,14 @@ void ble_server_handle_control(const uint8_t *payload, size_t len,
 /* connection state changes                                                 */
 /* ----------------------------------------------------------------------- */
 
-void ble_server_handle_connection_change(bool connected,
-                                         ble_reconnect_fsm_t *reconnect_fsm,
+void ble_server_handle_connection_change(bool connected, ble_reconnect_fsm_t *reconnect_fsm,
                                          uint32_t now_ms)
 {
     if (!reconnect_fsm) {
         return;
     }
 
-    ble_reconnect_event_t evt = connected
-        ? BLE_RC_EVENT_CONNECT
-        : BLE_RC_EVENT_DISCONNECT;
+    ble_reconnect_event_t evt = connected ? BLE_RC_EVENT_CONNECT : BLE_RC_EVENT_DISCONNECT;
 
     ble_reconnect_handle(reconnect_fsm, evt, now_ms);
 }

@@ -95,9 +95,10 @@ ble_reconnect_action_t ble_reconnect_handle(ble_reconnect_fsm_t *fsm, ble_reconn
 /* Last-known-payload cache                                                 */
 /* ------------------------------------------------------------------------ */
 
-/* Max payload body stored per screen. 56B covers the NAV screen; 64 gives
- * a comfortable margin for future screens without inflating the table. */
-#define BLE_PAYLOAD_CACHE_BODY_MAX 64
+/* Max payload body stored per screen. Must be >= the largest screen body
+ * (altitude = 128B). Costs 128 × 14 slots = 1.75 KB total — negligible
+ * on ESP32-S3 with 512 KB SRAM + 8 MB PSRAM. */
+#define BLE_PAYLOAD_CACHE_BODY_MAX 128
 
 /* Slots are indexed by raw screen_id (0x00..MAX), so we need MAX+1 entries.
  * Slot 0 is unused but avoids a subtraction on every access. */

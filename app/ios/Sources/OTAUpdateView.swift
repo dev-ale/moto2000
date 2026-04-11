@@ -100,7 +100,7 @@ struct OTAUpdateView: View {
 
     private func releaseNotesSection(_ notes: String) -> some View {
         VStack(alignment: .leading, spacing: ScramSpacing.sm) {
-            Text("AENDERUNGEN")
+            Text("CHANGES")
                 .font(.scramOverline)
                 .foregroundStyle(Color.scramTextTertiary)
                 .tracking(0.5)
@@ -127,7 +127,7 @@ struct OTAUpdateView: View {
             Button {
                 startUpdate()
             } label: {
-                Text("Update starten")
+                Text("Start Update")
                     .font(.scramHeadline)
                     .foregroundStyle(Color.scramBackground)
                     .frame(maxWidth: .infinity)
@@ -137,13 +137,13 @@ struct OTAUpdateView: View {
             }
 
         case .downloading(let progress):
-            progressView(label: "Herunterladen...", progress: progress)
+            progressView(label: "Downloading...", progress: progress)
 
         case .verifying:
-            progressView(label: "Verifizieren...", progress: nil)
+            progressView(label: "Verifying...", progress: nil)
 
         case .applying:
-            progressView(label: "Installieren...", progress: nil)
+            progressView(label: "Installing...", progress: nil)
 
         case .success:
             VStack(spacing: ScramSpacing.md) {
@@ -151,18 +151,18 @@ struct OTAUpdateView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(Color.scramGreen)
 
-                Text("Update erfolgreich")
+                Text("Update successful")
                     .font(.scramHeadline)
                     .foregroundStyle(Color.scramTextPrimary)
 
-                Text("Das Geraet wird neu gestartet.")
+                Text("The device will restart.")
                     .font(.scramSubhead)
                     .foregroundStyle(Color.scramTextSecondary)
 
                 Button {
                     dismiss()
                 } label: {
-                    Text("Fertig")
+                    Text("Done")
                         .font(.scramBody)
                         .foregroundStyle(Color.scramGreen)
                         .padding(.top, ScramSpacing.sm)
@@ -175,7 +175,7 @@ struct OTAUpdateView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(Color.scramRed)
 
-                Text("Update fehlgeschlagen")
+                Text("Update failed")
                     .font(.scramHeadline)
                     .foregroundStyle(Color.scramTextPrimary)
 
@@ -187,7 +187,7 @@ struct OTAUpdateView: View {
                 Button {
                     updateState = .ready
                 } label: {
-                    Text("Erneut versuchen")
+                    Text("Try again")
                         .font(.scramBody)
                         .foregroundStyle(Color.scramGreen)
                         .padding(.top, ScramSpacing.sm)

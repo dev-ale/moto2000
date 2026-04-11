@@ -9,7 +9,7 @@ struct ConnectionPill: View {
                 .fill(connected ? Color.scramGreen : Color.scramRed)
                 .frame(width: 7, height: 7)
 
-            Text(connected ? "Verbunden" : "Getrennt")
+            Text(connected ? "Connected" : "Disconnected")
                 .font(.scramPill)
                 .foregroundStyle(connected ? Color.scramGreen : Color.scramRed)
         }
@@ -17,7 +17,7 @@ struct ConnectionPill: View {
         .padding(.horizontal, 12)
         .background(connected ? Color.scramGreenBg : Color.scramRedBg)
         .clipShape(Capsule())
-        .accessibilityLabel(connected ? "Verbunden" : "Getrennt")
+        .accessibilityLabel(connected ? "Connected" : "Disconnected")
     }
 }
 

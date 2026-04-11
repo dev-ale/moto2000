@@ -20,7 +20,7 @@ extension MehrView {
                         .foregroundStyle(Color.scramGreen)
                         .frame(width: 24)
 
-                    Text("Keine Kalender verfuegbar")
+                    Text("No calendars available")
                         .font(.scramBody)
                         .foregroundStyle(Color.scramTextSecondary)
 

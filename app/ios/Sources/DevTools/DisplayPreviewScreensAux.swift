@@ -14,12 +14,12 @@ struct WeatherScreenContent: View {
 
     private var conditionText: String {
         switch screenData.condition {
-        case .clear: "klar"
-        case .cloudy: "bewoelkt"
-        case .rain: "Regen"
-        case .snow: "Schnee"
-        case .fog: "Nebel"
-        case .thunderstorm: "Gewitter"
+        case .clear: "clear"
+        case .cloudy: "cloudy"
+        case .rain: "rain"
+        case .snow: "snow"
+        case .fog: "fog"
+        case .thunderstorm: "thunderstorm"
         @unknown default: ""
         }
     }
@@ -48,7 +48,7 @@ struct WeatherScreenContent: View {
                 .foregroundStyle(.white)
             Text(conditionText)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(blue)
+                .foregroundStyle(gold)
             Spacer().frame(height: 8)
             HStack(spacing: 30) {
                 Text("H: \(screenData.highCelsiusX10 / 10)\u{00B0}")
@@ -144,7 +144,7 @@ struct FuelScreenContent: View {
         let range = Int(screenData.estimatedRangeKm)
 
         VStack(spacing: 4) {
-            Text("KRAFTSTOFF")
+            Text("FUEL")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(dimGray)
                 .tracking(1.5)
@@ -176,7 +176,7 @@ struct FuelScreenContent: View {
             Text("\(range)km")
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
-            Text("Reichweite")
+            Text("Range")
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(dimGray)
 
@@ -193,8 +193,8 @@ struct FuelScreenContent: View {
                 VStack(spacing: 0) {
                     Text(String(format: "%.1fL", Double(screenData.fuelRemainingMl) / 1000.0))
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(blue)
-                    Text("im Tank")
+                        .foregroundStyle(gold)
+                    Text("in tank")
                         .font(.system(size: 9))
                         .foregroundStyle(dimGray)
                 }
@@ -266,14 +266,14 @@ struct NavScreenContent: View {
 
     private func maneuverText(_ type: ManeuverType) -> String {
         switch type {
-        case .left, .sharpLeft, .slightLeft: "Links abbiegen"
-        case .right, .sharpRight, .slightRight: "Rechts abbiegen"
-        case .uTurnLeft: "Wenden links"
-        case .uTurnRight: "Wenden rechts"
-        case .arrive: "Ziel erreicht"
-        case .roundaboutEnter: "Kreisverkehr"
-        case .merge: "Einfaedeln"
-        default: "Geradeaus"
+        case .left, .sharpLeft, .slightLeft: "Turn left"
+        case .right, .sharpRight, .slightRight: "Turn right"
+        case .uTurnLeft: "U-turn left"
+        case .uTurnRight: "U-turn right"
+        case .arrive: "Destination reached"
+        case .roundaboutEnter: "Roundabout"
+        case .merge: "Merge"
+        default: "Straight"
         }
     }
 }
@@ -285,7 +285,7 @@ struct AppointmentScreenContent: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("NAECHSTER TERMIN")
+            Text("NEXT APPOINTMENT")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(dimGray)
                 .tracking(1.5)
@@ -309,7 +309,7 @@ struct AppointmentScreenContent: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(blue, lineWidth: 2)
+                    .stroke(gold, lineWidth: 2)
             )
             .padding(.horizontal, 16)
 
@@ -333,10 +333,10 @@ struct IncomingCallScreenContent: View {
             Image(systemName: "phone.fill")
                 .font(.system(size: 40))
                 .foregroundStyle(green)
-            Text("Eingehender Anruf")
+            Text("Incoming call")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(dimGray)
-            Text(screenData.callerHandle.isEmpty ? "Unbekannt" : screenData.callerHandle)
+            Text(screenData.callerHandle.isEmpty ? "Unknown" : screenData.callerHandle)
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(.white)
                 .lineLimit(1)
@@ -356,7 +356,7 @@ struct BlitzerScreenContent: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 40))
                 .foregroundStyle(gold)
-            Text("BLITZER")
+            Text("SPEED CAM")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(gold)
                 .tracking(1.5)

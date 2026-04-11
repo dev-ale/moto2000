@@ -55,19 +55,22 @@ final class AccessoryManager {
         descriptor.bluetoothNameSubstring = "ScramScreen"
         descriptor.supportedOptions = .bluetoothPairingLE
 
-        // Create a simple placeholder image (system symbols crash on iOS 26)
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 120, height: 120))
-        let image = renderer.image { ctx in
-            UIColor(red: 0.07, green: 0.07, blue: 0.07, alpha: 1).setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 120, height: 120))
-            UIColor(red: 0.92, green: 0.67, blue: 0, alpha: 1).setStroke()
-            let circle = CGRect(x: 10, y: 10, width: 100, height: 100)
-            ctx.cgContext.setLineWidth(4)
-            ctx.cgContext.strokeEllipse(in: circle)
-        }
+        // AccessorySetupKit requires a real raster image — system symbols crash
+        // in _validateDiscoveryDescriptor. Use the AppIcon from the asset catalog,
+        // falling back to a 1x1 pixel placeholder if unavailable.
+        let productImage: UIImage = UIImage(named: "AppIcon") ?? {
+            let size = CGSize(width: 1, height: 1)
+            UIGraphicsBeginImageContext(size)
+            UIColor.black.setFill()
+            UIRectFill(CGRect(origin: .zero, size: size))
+            let img = UIGraphicsGetImageFromCurrentImageContext()!   // swiftlint:disable:this force_unwrapping
+            UIGraphicsEndImageContext()
+            return img
+        }()
+
         let item = ASPickerDisplayItem(
             name: "ScramScreen",
-            productImage: image,
+            productImage: productImage,
             descriptor: descriptor
         )
 

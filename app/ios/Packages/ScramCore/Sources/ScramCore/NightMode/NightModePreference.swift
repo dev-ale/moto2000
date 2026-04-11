@@ -18,8 +18,8 @@ public enum NightModePreference: String, Sendable, CaseIterable {
     public var label: String {
         switch self {
         case .automatisch: return "Auto"
-        case .tag: return "Tag"
-        case .nacht: return "Nacht"
+        case .tag: return "Day"
+        case .nacht: return "Night"
         }
     }
 }

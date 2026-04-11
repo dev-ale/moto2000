@@ -31,7 +31,7 @@ struct NavigationSearchView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(Color.scramTextTertiary)
 
-                TextField("Ziel suchen", text: $vm.searchText)
+                TextField("Search destination", text: $vm.searchText)
                     .font(.scramBody)
                     .foregroundStyle(Color.scramTextPrimary)
                     .autocorrectionDisabled()
@@ -100,7 +100,7 @@ struct NavigationSearchView: View {
                     Button {
                         vm.startNavigation()
                     } label: {
-                        Text("Los")
+                        Text("Go")
                             .font(.scramHeadline)
                             .foregroundStyle(Color.scramBackground)
                             .frame(maxWidth: .infinity)
@@ -124,7 +124,7 @@ struct NavigationSearchView: View {
                 Image(systemName: "location.fill")
                     .foregroundStyle(Color.scramGreen)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Navigation aktiv")
+                    Text("Navigation active")
                         .font(.scramCaption)
                         .foregroundStyle(Color.scramTextSecondary)
                     Text(vm.destinationName)
@@ -137,7 +137,7 @@ struct NavigationSearchView: View {
             Button {
                 vm.stopNavigation()
             } label: {
-                Text("Navigation beenden")
+                Text("Stop Navigation")
                     .font(.scramHeadline)
                     .foregroundStyle(Color.scramRed)
                     .frame(maxWidth: .infinity)

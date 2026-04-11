@@ -147,7 +147,7 @@ struct TripStatsScreenContent: View {
         let maxSpd = Double(screenData.maxSpeedKmhX10) / 10.0
 
         VStack(spacing: 4) {
-            Text("AKTIVE FAHRT")
+            Text("ACTIVE RIDE")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(green)
                 .tracking(1.5)
@@ -156,7 +156,7 @@ struct TripStatsScreenContent: View {
                 .font(.system(size: 40, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
 
-            Text("Fahrzeit")
+            Text("Ride Time")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(dimGray)
 
@@ -191,7 +191,7 @@ struct TripStatsScreenContent: View {
                     Text("\(screenData.ascentMeters)m")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(green)
-                    Text("Hoehenmeter")
+                    Text("Elevation")
                         .font(.system(size: 9, weight: .medium))
                         .foregroundStyle(dimGray)
                 }
@@ -222,7 +222,7 @@ struct LeanAngleScreenContent: View {
         let current = Double(screenData.currentLeanDegX10) / 10.0
         let maxL = Double(screenData.maxLeftLeanDegX10) / 10.0
         let maxR = Double(screenData.maxRightLeanDegX10) / 10.0
-        let direction = current < 0 ? "links" : current > 0 ? "rechts" : "--"
+        let direction = current < 0 ? "left" : current > 0 ? "right" : "--"
 
         ZStack {
             // Arc gauge background
@@ -262,7 +262,7 @@ struct LeanAngleScreenContent: View {
                 .frame(width: 6, height: 6)
 
             VStack(spacing: 2) {
-                Text("NEIGUNG")
+                Text("LEAN")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(dimGray)
                     .tracking(1.5)
@@ -321,8 +321,8 @@ struct ClockScreenContent: View {
 
         let dateFmt = DateFormatter()
         dateFmt.timeZone = tz
-        dateFmt.locale = Locale(identifier: "de_CH")
-        dateFmt.dateFormat = "EEE, d. MMMM"
+        dateFmt.locale = Locale(identifier: "en_US")
+        dateFmt.dateFormat = "EEE, MMMM d"
 
         return VStack(spacing: 6) {
             Spacer()
@@ -369,7 +369,7 @@ struct AltitudeScreenContent: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            Text("HOEHENPROFIL")
+            Text("ELEVATION")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(dimGray)
                 .tracking(1.5)
@@ -394,7 +394,7 @@ struct AltitudeScreenContent: View {
                     Text("\u{2191} \(formatAltitude(Int32(screenData.totalAscentM)))m")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(green)
-                    Text("Aufstieg")
+                    Text("Ascent")
                         .font(.system(size: 9))
                         .foregroundStyle(dimGray)
                 }
@@ -403,7 +403,7 @@ struct AltitudeScreenContent: View {
                     Text("\u{2193} \(formatAltitude(Int32(screenData.totalDescentM)))m")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(gold)
-                    Text("Abstieg")
+                    Text("Descent")
                         .font(.system(size: 9))
                         .foregroundStyle(dimGray)
                 }

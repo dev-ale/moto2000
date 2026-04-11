@@ -19,6 +19,10 @@ struct FahrtenView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, ScramSpacing.xxl)
 
+                    if !trips.isEmpty {
+                        statisticsHeader
+                    }
+
                     if trips.isEmpty {
                         emptyState
                     } else {
@@ -34,6 +38,42 @@ struct FahrtenView: View {
                 trips = store.loadAll()
             }
         }
+    }
+
+    // MARK: - Statistics header
+
+    private var statisticsHeader: some View {
+        let stats = RideStatistics.compute(from: trips)
+        return VStack(spacing: ScramSpacing.sm) {
+            HStack(spacing: ScramSpacing.sm) {
+                StatCard(
+                    value: "\(stats.totalRides)",
+                    label: "Total Rides"
+                )
+                StatCard(
+                    value: Self.formatStatDistance(stats.totalDistanceKm),
+                    label: "Total km"
+                )
+            }
+            HStack(spacing: ScramSpacing.sm) {
+                StatCard(
+                    value: String(format: "%.1f", stats.totalDurationHours),
+                    label: "Total Hours"
+                )
+                StatCard(
+                    value: Self.formatStatDistance(stats.thisMonthDistanceKm),
+                    label: "This Month km",
+                    valueColor: .scramGreen
+                )
+            }
+        }
+    }
+
+    private static func formatStatDistance(_ km: Double) -> String {
+        if km >= 100 {
+            return "\(Int(km))"
+        }
+        return String(format: "%.1f", km)
     }
 
     // MARK: - Empty state

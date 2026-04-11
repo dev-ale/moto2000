@@ -4,10 +4,29 @@ import Foundation
 public struct RoutePoint: Codable, Equatable, Sendable {
     public let latitude: Double
     public let longitude: Double
+    public let altitude: Double?  // meters
+    public let speed: Double?     // m/s
 
-    public init(latitude: Double, longitude: Double) {
+    public init(
+        latitude: Double,
+        longitude: Double,
+        altitude: Double? = nil,
+        speed: Double? = nil
+    ) {
         self.latitude = latitude
         self.longitude = longitude
+        self.altitude = altitude
+        self.speed = speed
+    }
+
+    // Custom decoder for backward compatibility with saved routes that lack
+    // altitude/speed fields.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        latitude = try container.decode(Double.self, forKey: .latitude)
+        longitude = try container.decode(Double.self, forKey: .longitude)
+        altitude = try container.decodeIfPresent(Double.self, forKey: .altitude)
+        speed = try container.decodeIfPresent(Double.self, forKey: .speed)
     }
 }
 

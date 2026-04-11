@@ -42,7 +42,12 @@ public final class RouteCollector: Sendable {
     private func ingest(_ sample: LocationSample) {
         guard sample.speedMps > Self.minSpeedMps else { return }
 
-        let newPoint = RoutePoint(latitude: sample.latitude, longitude: sample.longitude)
+        let newPoint = RoutePoint(
+            latitude: sample.latitude,
+            longitude: sample.longitude,
+            altitude: sample.altitudeMeters,
+            speed: sample.speedMps
+        )
 
         let shouldAdd: Bool = lastPoint.read { last in
             guard let last else { return true }

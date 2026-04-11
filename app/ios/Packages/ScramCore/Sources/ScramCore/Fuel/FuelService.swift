@@ -9,12 +9,13 @@ import RideSimulatorKit
 /// ``resetDistance()`` call (which the app should invoke when a fill is logged).
 /// It emits one fuel payload per location sample, matching the cadence of
 /// ``TripStatsService``.
-public final class FuelService: @unchecked Sendable {
+public final class FuelService: PayloadService, @unchecked Sendable {
     private let provider: any LocationProvider
     private let fuelLog: FuelLog
     private let settings: FuelSettings
-    private let channel = FuelPayloadChannel()
+    private let channel = PayloadChannel()
     public let payloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { payloads }
 
     private let lock = NSLock()
     private var distanceKm: Double = 0
@@ -124,34 +125,5 @@ public final class FuelService: @unchecked Sendable {
         }
         lastSample = sample
         return distanceKm
-    }
-}
-
-/// Single-producer broadcaster for encoded fuel payloads.
-final class FuelPayloadChannel: @unchecked Sendable {
-    private var continuation: AsyncStream<Data>.Continuation?
-    private let lock = NSLock()
-
-    func makeStream() -> AsyncStream<Data> {
-        AsyncStream<Data>(bufferingPolicy: .unbounded) { continuation in
-            self.lock.lock()
-            self.continuation = continuation
-            self.lock.unlock()
-        }
-    }
-
-    func emit(_ element: Data) {
-        lock.lock()
-        let cont = continuation
-        lock.unlock()
-        cont?.yield(element)
-    }
-
-    func finish() {
-        lock.lock()
-        let cont = continuation
-        continuation = nil
-        lock.unlock()
-        cont?.finish()
     }
 }

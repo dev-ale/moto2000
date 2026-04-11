@@ -16,10 +16,11 @@ import RideSimulatorKit
 /// One-shot lifecycle: call ``start()`` once, drain ``payloads`` once,
 /// optionally call ``reset()`` to zero the running totals (used by the
 /// future "new trip" button) and ``stop()`` to terminate the stream.
-public final class TripStatsService: @unchecked Sendable {
+public final class TripStatsService: PayloadService, @unchecked Sendable {
     private let provider: any LocationProvider
-    private let channel = TripStatsPayloadChannel()
+    private let channel = PayloadChannel()
     public let payloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { payloads }
 
     private let lock = NSLock()
     private var accumulator = TripStatsAccumulator()
@@ -94,37 +95,5 @@ public final class TripStatsService: @unchecked Sendable {
             // snapshot clamping guarantees encode never throws — drop
             // on the impossible path so a release build keeps moving.
         }
-    }
-}
-
-/// Single-producer broadcaster for encoded trip-stats payloads. Mirrors
-/// `PayloadChannel` from `SpeedHeadingService` so the two services stay
-/// independent — sharing one channel between services would couple
-/// their lifecycles.
-final class TripStatsPayloadChannel: @unchecked Sendable {
-    private var continuation: AsyncStream<Data>.Continuation?
-    private let lock = NSLock()
-
-    func makeStream() -> AsyncStream<Data> {
-        AsyncStream<Data>(bufferingPolicy: .unbounded) { continuation in
-            self.lock.lock()
-            self.continuation = continuation
-            self.lock.unlock()
-        }
-    }
-
-    func emit(_ element: Data) {
-        lock.lock()
-        let cont = continuation
-        lock.unlock()
-        cont?.yield(element)
-    }
-
-    func finish() {
-        lock.lock()
-        let cont = continuation
-        continuation = nil
-        lock.unlock()
-        cont?.finish()
     }
 }

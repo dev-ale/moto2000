@@ -179,3 +179,33 @@ target_include_directories(test_integration
 )
 target_link_libraries(test_integration PRIVATE unity ble_server_handlers)
 add_test(NAME integration COMMAND test_integration)
+
+# ------------------------------------------------------------------------- #
+# fixture_e2e — fixture-driven E2E tests for the BLE-to-screen pipeline    #
+# ------------------------------------------------------------------------- #
+add_library(fixture_e2e STATIC fixture_e2e.c)
+target_include_directories(fixture_e2e
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(fixture_e2e PUBLIC unity ble_server_handlers)
+target_compile_definitions(fixture_e2e
+    PRIVATE "SCRAMSCREEN_FIXTURES_DIR=\"${FIXTURES_DIR}\""
+)
+
+add_executable(test_fixture_e2e test_fixture_e2e.c)
+target_include_directories(test_fixture_e2e
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(test_fixture_e2e PRIVATE fixture_e2e)
+add_test(NAME fixture_e2e COMMAND test_fixture_e2e)
+
+add_executable(test_capacity test_capacity.c)
+target_include_directories(test_capacity
+    PRIVATE "${BLE_SERVER_ROOT}/src"
+)
+target_link_libraries(test_capacity PRIVATE fixture_e2e)
+target_compile_definitions(test_capacity
+    PRIVATE "SCRAMSCREEN_FIXTURES_DIR=\"${FIXTURES_DIR}\""
+)
+add_test(NAME capacity COMMAND test_capacity)

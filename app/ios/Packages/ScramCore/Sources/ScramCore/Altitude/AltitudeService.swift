@@ -7,10 +7,11 @@ import RideSimulatorKit
 ///
 /// Similar lifecycle to ``TripStatsService``: emits one payload per
 /// incoming sample, one-shot start/stop.
-public final class AltitudeService: @unchecked Sendable {
+public final class AltitudeService: PayloadService, @unchecked Sendable {
     private let provider: any LocationProvider
-    private let channel = AltitudePayloadChannel()
+    private let channel = PayloadChannel()
     public let payloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { payloads }
 
     private let lock = NSLock()
     private var buffer = ElevationHistoryBuffer()
@@ -77,34 +78,5 @@ public final class AltitudeService: @unchecked Sendable {
         } catch {
             // snapshot clamping guarantees encode never throws
         }
-    }
-}
-
-/// Single-producer broadcaster for encoded altitude payloads.
-final class AltitudePayloadChannel: @unchecked Sendable {
-    private var continuation: AsyncStream<Data>.Continuation?
-    private let lock = NSLock()
-
-    func makeStream() -> AsyncStream<Data> {
-        AsyncStream<Data>(bufferingPolicy: .unbounded) { continuation in
-            self.lock.lock()
-            self.continuation = continuation
-            self.lock.unlock()
-        }
-    }
-
-    func emit(_ element: Data) {
-        lock.lock()
-        let cont = continuation
-        lock.unlock()
-        cont?.yield(element)
-    }
-
-    func finish() {
-        lock.lock()
-        let cont = continuation
-        continuation = nil
-        lock.unlock()
-        cont?.finish()
     }
 }

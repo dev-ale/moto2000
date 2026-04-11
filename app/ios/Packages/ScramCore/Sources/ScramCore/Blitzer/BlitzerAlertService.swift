@@ -14,14 +14,15 @@ import RideSimulatorKit
 ///   emits one final payload with `ALERT` cleared (to tell the ESP32 to
 ///   dismiss the overlay).
 /// - Configurable via ``BlitzerSettings``.
-public actor BlitzerAlertService {
+public actor BlitzerAlertService: PayloadService {
     private let locationProvider: any LocationProvider
     private let database: any SpeedCameraDatabase
     private let settings: BlitzerSettings
-    private let channel = PayloadChannelHelper()
+    private let channel = PayloadChannel()
 
     /// Encoded BLE payloads ready to write to the peripheral.
     public nonisolated let payloads: AsyncStream<Data>
+    public nonisolated var payloadStream: AsyncStream<Data> { payloads }
 
     private var monitorTask: Task<Void, Never>?
     private var lastEmittedAlert = false
@@ -131,35 +132,5 @@ public actor BlitzerAlertService {
     private nonisolated func encodePayload(_ blitzer: BlitzerData, alert: Bool) -> Data? {
         let flags: ScreenFlags = alert ? [.alert] : []
         return try? ScreenPayloadCodec.encode(.blitzer(blitzer, flags: flags))
-    }
-}
-
-/// A simple AsyncStream-backed channel for emitting Data payloads.
-/// Same pattern as the one in SpeedHeadingService.
-private final class PayloadChannelHelper: @unchecked Sendable {
-    private var continuation: AsyncStream<Data>.Continuation?
-    private let lock = NSLock()
-
-    func makeStream() -> AsyncStream<Data> {
-        AsyncStream<Data>(bufferingPolicy: .unbounded) { continuation in
-            self.lock.lock()
-            self.continuation = continuation
-            self.lock.unlock()
-        }
-    }
-
-    func emit(_ element: Data) {
-        lock.lock()
-        let cont = continuation
-        lock.unlock()
-        cont?.yield(element)
-    }
-
-    func finish() {
-        lock.lock()
-        let cont = continuation
-        continuation = nil
-        lock.unlock()
-        cont?.finish()
     }
 }

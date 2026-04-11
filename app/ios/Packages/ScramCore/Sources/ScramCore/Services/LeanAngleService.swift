@@ -8,13 +8,14 @@ import RideSimulatorKit
 ///
 /// One-shot pipeline: call ``start()`` once, read ``encodedPayloads`` once,
 /// then call ``stop()``. Same shape as ``SpeedHeadingService``.
-public final class LeanAngleService: @unchecked Sendable {
+public final class LeanAngleService: PayloadService, @unchecked Sendable {
     private let provider: any MotionProvider
     private let channel = PayloadChannel()
     private let lock = NSLock()
     private var calculator: LeanAngleCalculator
     private var forwardingTask: Task<Void, Never>?
     public let encodedPayloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
     public init(
         provider: any MotionProvider,

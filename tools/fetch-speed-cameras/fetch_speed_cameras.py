@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Fetch Swiss speed camera data from OpenStreetMap and write to SQLite.
+"""Fetch speed camera data from OpenStreetMap and write to SQLite.
 
-Queries the Overpass API for highway=speed_camera nodes within Switzerland,
-then writes a SQLite database with a `cameras` table suitable for bundling
-into the ScramScreen iOS app.
+Queries the Overpass API for highway=speed_camera nodes within
+Switzerland and neighboring border areas (DE, AT, IT, FR within ~50km),
+then writes a SQLite database with a `cameras` table suitable for
+bundling into the ScramScreen iOS app.
 
 Usage:
     python3 fetch_speed_cameras.py [output_path]
@@ -19,8 +20,8 @@ import urllib.request
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
 OVERPASS_QUERY = """\
-[out:json][timeout:60];
-node["highway"="speed_camera"](45.8,5.9,47.9,10.5);
+[out:json][timeout:120];
+node["highway"="speed_camera"](45.5,5.5,48.2,10.8);
 out body;
 """
 

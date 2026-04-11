@@ -44,6 +44,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(unity)
 
 # ------------------------------------------------------------------------- #
+# screen_ids — single source of truth for screen IDs and count              #
+# ------------------------------------------------------------------------- #
+set(SCREEN_IDS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/screen_ids")
+add_library(screen_ids INTERFACE)
+target_include_directories(screen_ids INTERFACE "${SCREEN_IDS_ROOT}/include")
+
+# ------------------------------------------------------------------------- #
 # ble_protocol as a host-buildable static library                            #
 # ------------------------------------------------------------------------- #
 #
@@ -72,6 +79,7 @@ target_include_directories(ble_protocol
     PUBLIC "${BLE_PROTOCOL_ROOT}/include"
     PRIVATE "${BLE_PROTOCOL_ROOT}/src"
 )
+target_link_libraries(ble_protocol PUBLIC screen_ids)
 
 # Shared fixture directory is at the repo root.
 get_filename_component(REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../.." ABSOLUTE)
@@ -100,6 +108,7 @@ add_library(ble_reconnect STATIC
     "${BLE_RECONNECT_ROOT}/src/ble_reconnect.c"
 )
 target_include_directories(ble_reconnect PUBLIC "${BLE_RECONNECT_ROOT}/include")
+target_link_libraries(ble_reconnect PUBLIC screen_ids)
 
 add_executable(test_ble_reconnect test_ble_reconnect.c)
 target_link_libraries(test_ble_reconnect PRIVATE unity ble_reconnect)

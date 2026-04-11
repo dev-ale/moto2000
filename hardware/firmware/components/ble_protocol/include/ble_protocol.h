@@ -13,6 +13,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "screen_ids.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -68,21 +70,7 @@ extern "C" {
 #define BLE_FLAG_STALE         (1U << 2)
 #define BLE_FLAG_RESERVED_MASK 0xF8U
 
-typedef enum {
-    BLE_SCREEN_NAVIGATION = 0x01,
-    BLE_SCREEN_SPEED_HEADING = 0x02,
-    BLE_SCREEN_COMPASS = 0x03,
-    BLE_SCREEN_WEATHER = 0x04,
-    BLE_SCREEN_TRIP_STATS = 0x05,
-    BLE_SCREEN_MUSIC = 0x06,
-    BLE_SCREEN_LEAN_ANGLE = 0x07,
-    BLE_SCREEN_BLITZER = 0x08,
-    BLE_SCREEN_INCOMING_CALL = 0x09,
-    BLE_SCREEN_FUEL_ESTIMATE = 0x0A,
-    BLE_SCREEN_ALTITUDE = 0x0B,
-    BLE_SCREEN_APPOINTMENT = 0x0C,
-    BLE_SCREEN_CLOCK = 0x0D,
-} ble_screen_id_t;
+/* Screen IDs and count are defined in screen_ids.h (single source of truth). */
 
 typedef enum {
     BLE_MANEUVER_NONE = 0x00,

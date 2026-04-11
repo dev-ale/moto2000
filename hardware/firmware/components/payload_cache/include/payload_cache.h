@@ -14,15 +14,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "screen_ids.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Screen IDs range from 0x01 to 0x0D (13 screens). */
-#define PAYLOAD_CACHE_MIN_SCREEN_ID ((uint8_t)0x01u)
-#define PAYLOAD_CACHE_MAX_SCREEN_ID ((uint8_t)0x0Du)
-#define PAYLOAD_CACHE_NUM_SLOTS \
-    ((size_t)(PAYLOAD_CACHE_MAX_SCREEN_ID - PAYLOAD_CACHE_MIN_SCREEN_ID + 1u))
+/* Screen ID range and slot count derived from screen_ids.h. */
+#define PAYLOAD_CACHE_MIN_SCREEN_ID BLE_SCREEN_ID_MIN
+#define PAYLOAD_CACHE_MAX_SCREEN_ID BLE_SCREEN_ID_MAX
+#define PAYLOAD_CACHE_NUM_SLOTS     ((size_t)BLE_SCREEN_COUNT)
 
 /* Largest screen payload is ~128 bytes (altitude), rounded up. */
 #define PAYLOAD_CACHE_MAX_PAYLOAD_SIZE ((size_t)256u)

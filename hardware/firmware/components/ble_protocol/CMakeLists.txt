@@ -27,4 +27,5 @@ idf_component_register(
     PRIV_INCLUDE_DIRS
         "src"
     REQUIRES
+        screen_ids
 )

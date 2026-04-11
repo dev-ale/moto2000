@@ -28,6 +28,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "screen_ids.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -97,8 +99,9 @@ ble_reconnect_action_t ble_reconnect_handle(ble_reconnect_fsm_t *fsm, ble_reconn
  * a comfortable margin for future screens without inflating the table. */
 #define BLE_PAYLOAD_CACHE_BODY_MAX 64
 
-/* Screen IDs range from 0x00..0x0D per docs/ble-protocol.md §Screens. */
-#define BLE_PAYLOAD_CACHE_SCREEN_COUNT 14
+/* Slots are indexed by raw screen_id (0x00..MAX), so we need MAX+1 entries.
+ * Slot 0 is unused but avoids a subtraction on every access. */
+#define BLE_PAYLOAD_CACHE_SCREEN_COUNT ((size_t)(BLE_SCREEN_ID_MAX + 1u))
 
 typedef struct {
     uint8_t body[BLE_PAYLOAD_CACHE_BODY_MAX];

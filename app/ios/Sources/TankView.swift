@@ -12,6 +12,8 @@ struct TankView: View {
     @State private var litersInput: String = ""
     @State private var isFull: Bool = false
     @State private var isSaving: Bool = false
+    @State var nearbyStations: [GasStation] = []
+    @State var loadingStations: Bool = false
 
     private let odometer: GPSOdometer
 
@@ -33,6 +35,9 @@ struct TankView: View {
                 // MARK: - Current estimates
                 estimatesSection
 
+                // MARK: - Nearby gas stations
+                nearbyStationsSection
+
                 // MARK: - Fill entry
                 fillEntrySection
 
@@ -44,7 +49,10 @@ struct TankView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.scramBackground)
-        .task { await loadData() }
+        .task {
+            await loadData()
+            await searchNearbyStations()
+        }
     }
 
     // MARK: - Estimates

@@ -9,6 +9,7 @@ import SwiftUI
 /// the card shows the destination name and a stop button.
 struct NavigationSearchView: View {
     @StateObject private var vm = NavigationSearchViewModel()
+    @FocusState private var isSearchFocused: Bool
 
     var body: some View {
         VStack(spacing: ScramSpacing.lg) {
@@ -35,6 +36,7 @@ struct NavigationSearchView: View {
                     .font(.scramBody)
                     .foregroundStyle(Color.scramTextPrimary)
                     .autocorrectionDisabled()
+                    .focused($isSearchFocused)
 
                 if !vm.searchText.isEmpty {
                     Button { vm.searchText = "" } label: {
@@ -53,6 +55,7 @@ struct NavigationSearchView: View {
                 VStack(spacing: 0) {
                     ForEach(vm.completions.prefix(5), id: \.self) { completion in
                         Button {
+                            isSearchFocused = false
                             vm.select(completion)
                         } label: {
                             HStack {
@@ -178,12 +181,19 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
     override init() {
         super.init()
         completer.delegate = self
-        completer.resultTypes = .pointOfInterest
+        completer.resultTypes = [.pointOfInterest, .address]
+        // Bias results toward Basel area
+        completer.region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 47.56, longitude: 7.59),
+            latitudinalMeters: 50_000,
+            longitudinalMeters: 50_000
+        )
     }
 
     func select(_ completion: MKLocalSearchCompletion) {
         searchText = completion.title
         completions = []
+        completer.queryFragment = ""
 
         let request = MKLocalSearch.Request(completion: completion)
         let search = MKLocalSearch(request: request)

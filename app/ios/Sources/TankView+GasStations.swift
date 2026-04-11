@@ -97,13 +97,16 @@ extension TankView {
         loadingStations = true
         defer { loadingStations = false }
 
-        guard let location = CLLocationManager().location else { return }
+        // Use existing location or fall back to Basel
+        let coordinate = CLLocationManager().location?.coordinate
+            ?? CLLocationCoordinate2D(latitude: 47.56, longitude: 7.59)
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
 
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = "gas station"
         request.resultTypes = .pointOfInterest
         request.region = MKCoordinateRegion(
-            center: location.coordinate,
+            center: coordinate,
             latitudinalMeters: 10_000,
             longitudinalMeters: 10_000
         )

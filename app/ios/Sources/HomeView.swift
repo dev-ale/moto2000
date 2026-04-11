@@ -16,15 +16,9 @@ struct HomeView: View {
             VStack(spacing: ScramSpacing.xxl) {
                 // MARK: - Connection pill + title
 
-                VStack(spacing: ScramSpacing.lg) {
-                    ConnectionPill(connected: connection.isConnected)
-                        .animation(.easeInOut(duration: 0.3), value: connection.isConnected)
-
-                    Text("ScramScreen")
-                        .font(.scramLargeTitle)
-                        .foregroundStyle(Color.scramTextPrimary)
-                }
-                .padding(.top, ScramSpacing.xxl)
+                ConnectionPill(connected: connection.isConnected)
+                    .animation(.easeInOut(duration: 0.3), value: connection.isConnected)
+                    .padding(.top, ScramSpacing.xxl)
 
                 // MARK: - Main card
 

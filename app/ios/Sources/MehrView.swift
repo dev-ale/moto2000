@@ -77,6 +77,14 @@ struct MehrView: View {
                     }
                 }
 
+                // MARK: - Maintenance
+
+                settingsSection("Maintenance") {
+                    NavigationLink(destination: MaintenanceView()) {
+                        settingsRow(icon: "wrench", title: "Service Log", chevron: true)
+                    }
+                }
+
                 // MARK: - Tank
 
                 settingsSection("Tank") {

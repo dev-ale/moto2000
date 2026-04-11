@@ -188,6 +188,19 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
             latitudinalMeters: 50_000,
             longitudinalMeters: 50_000
         )
+
+        // Listen for external navigation starts (e.g. from Tank gas stations)
+        NotificationCenter.default.addObserver(
+            forName: .scramNavigationStartRequested,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let name = notification.userInfo?["name"] as? String else { return }
+            self?.destinationName = name
+            self?.isNavigating = true
+            self?.searchText = ""
+            self?.completions = []
+        }
     }
 
     func select(_ completion: MKLocalSearchCompletion) {
@@ -269,5 +282,6 @@ extension NavigationSearchViewModel: @preconcurrency MKLocalSearchCompleterDeleg
 extension Notification.Name {
     static let scramNavigationStartRequested = Notification.Name("scramNavigationStartRequested")
     static let scramNavigationStopRequested = Notification.Name("scramNavigationStopRequested")
+    static let scramSwitchToHomeTab = Notification.Name("scramSwitchToHomeTab")
 }
 #endif

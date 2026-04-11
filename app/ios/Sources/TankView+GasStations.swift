@@ -151,5 +151,11 @@ extension TankView {
                 "name": station.name,
             ]
         )
+
+        // Switch to Home tab
+        NotificationCenter.default.post(
+            name: .scramSwitchToHomeTab,
+            object: nil
+        )
     }
 }

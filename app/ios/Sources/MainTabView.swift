@@ -24,6 +24,10 @@ struct MainTabView: View {
     @State var connection: ConnectionViewModel
     @State private var selectedTab: ScramTab = .home
 
+    private let switchToHome = NotificationCenter.default.publisher(
+        for: .scramSwitchToHomeTab
+    )
+
     var body: some View {
         TabView(selection: $selectedTab) {
             ForEach(ScramTab.allCases, id: \.self) { tab in
@@ -53,6 +57,9 @@ struct MainTabView: View {
             UITabBar.appearance().scrollEdgeAppearance = appearance
         }
         .preferredColorScheme(.dark)
+        .onReceive(switchToHome) { _ in
+            selectedTab = .home
+        }
     }
 
     @ViewBuilder

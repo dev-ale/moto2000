@@ -22,10 +22,11 @@ import RideSimulatorKit
 /// The service is a one-shot pipeline: call ``start()`` once, read
 /// ``encodedPayloads`` once. It does not retain the provider's stream
 /// iterator across starts.
-public final class SpeedHeadingService: @unchecked Sendable {
+public final class SpeedHeadingService: PayloadService, @unchecked Sendable {
     private let provider: any LocationProvider
     private let channel = PayloadChannel()
     public let encodedPayloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
     private var forwardingTask: Task<Void, Never>?
     private var lastHeadingDegX10: UInt16 = 0
@@ -98,35 +99,5 @@ public final class SpeedHeadingService: @unchecked Sendable {
             // Encoding should not fail after clamping; treat as drop.
             return nil
         }
-    }
-}
-
-/// Single-producer broadcaster for encoded BLE payloads, mirroring
-/// ``LocationChannel`` but typed to `Data`.
-final class PayloadChannel: @unchecked Sendable {
-    private var continuation: AsyncStream<Data>.Continuation?
-    private let lock = NSLock()
-
-    func makeStream() -> AsyncStream<Data> {
-        AsyncStream<Data>(bufferingPolicy: .unbounded) { continuation in
-            self.lock.lock()
-            self.continuation = continuation
-            self.lock.unlock()
-        }
-    }
-
-    func emit(_ element: Data) {
-        lock.lock()
-        let cont = continuation
-        lock.unlock()
-        cont?.yield(element)
-    }
-
-    func finish() {
-        lock.lock()
-        let cont = continuation
-        continuation = nil
-        lock.unlock()
-        cont?.finish()
     }
 }

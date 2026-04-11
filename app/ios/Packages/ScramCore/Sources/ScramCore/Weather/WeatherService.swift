@@ -21,12 +21,13 @@ import RideSimulatorKit
 /// The service is a one-shot pipeline: call ``start()`` once, read
 /// ``encodedPayloads`` once. It does not retain the provider's stream
 /// iterator across starts.
-public final class WeatherService: @unchecked Sendable {
+public final class WeatherService: PayloadService, @unchecked Sendable {
     public static let maxLocationNameUTF8Bytes: Int = 19
 
     private let provider: any WeatherProvider
     private let channel = PayloadChannel()
     public let encodedPayloads: AsyncStream<Data>
+    public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
     private var forwardingTask: Task<Void, Never>?
 

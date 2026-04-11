@@ -70,17 +70,11 @@ public actor RideSession {
     private var serviceTasks: [Task<Void, Never>] = []
     private var statusListenerTask: Task<Void, Never>?
 
-    // Services kept alive for the session duration.
-    private var speedHeadingService: SpeedHeadingService?
+    // Active services for the session duration.
+    private var activeServices: [any PayloadService] = []
+
+    // Typed reference for queryable state (TripStatsService.currentSnapshot).
     private var tripStatsService: TripStatsService?
-    private var weatherService: WeatherService?
-    private var leanAngleService: LeanAngleService?
-    private var musicService: MusicService?
-    private var calendarService: CalendarService?
-    private var fuelService: FuelService?
-    private var blitzerAlertService: BlitzerAlertService?
-    private var callAlertService: CallAlertService?
-    private var altitudeService: AltitudeService?
 
     /// Whether the session is currently running.
     public private(set) var isRunning = false
@@ -164,36 +158,12 @@ public actor RideSession {
         }
         serviceTasks.removeAll()
 
-        // Stop services.
-        speedHeadingService?.stop()
-        tripStatsService?.stop()
-        weatherService?.stop()
-        leanAngleService?.stop()
-        musicService?.stop()
-        calendarService?.stop()
-        fuelService?.stop()
-        if let blitzer = blitzerAlertService {
-            await blitzer.stop()
+        // Stop all services.
+        for service in activeServices {
+            await service.stop()
         }
-        callAlertService?.stop()
-        altitudeService?.stop()
-
-        // Save trip summary from TripStatsService accumulator.
-        // (TripHistoryStore integration deferred — the accumulator
-        // snapshot is available via tripStatsService.currentSnapshot
-        // for the caller to persist.)
-
-        // Nil out services.
-        speedHeadingService = nil
+        activeServices.removeAll()
         tripStatsService = nil
-        weatherService = nil
-        leanAngleService = nil
-        musicService = nil
-        calendarService = nil
-        fuelService = nil
-        blitzerAlertService = nil
-        callAlertService = nil
-        altitudeService = nil
         scheduler = nil
     }
 
@@ -205,139 +175,20 @@ public actor RideSession {
     // MARK: - Private
 
     private func createAndStartServices(scheduler: PayloadScheduler) async {
-        // Speed + Heading
-        if let loc = deps.locationProvider {
-            let svc = SpeedHeadingService(provider: loc)
-            speedHeadingService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.encodedPayloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
+        for registration in ServiceRegistry.all {
+            guard let service = registration.factory(deps) else { continue }
 
-        // Trip Stats
-        if let loc = deps.locationProvider {
-            let svc = TripStatsService(provider: loc)
-            tripStatsService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.payloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
+            // Capture typed references for queryable services.
+            if let trip = service as? TripStatsService {
+                tripStatsService = trip
             }
-            serviceTasks.append(task)
-        }
 
-        // Weather
-        if let weather = deps.weatherProvider {
-            let svc = WeatherService(provider: weather)
-            weatherService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.encodedPayloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
+            await service.start()
+            activeServices.append(service)
 
-        // Lean Angle
-        if let motion = deps.motionProvider {
-            let svc = LeanAngleService(provider: motion)
-            leanAngleService = svc
-            svc.start()
+            let stream = service.payloadStream
             let task = Task { [weak self] in
-                for await payload in svc.encodedPayloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
-
-        // Music
-        if let nowPlaying = deps.nowPlayingProvider {
-            let svc = MusicService(provider: nowPlaying)
-            musicService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.encodedPayloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
-
-        // Calendar
-        if let calendar = deps.calendarProvider {
-            let svc = CalendarService(provider: calendar)
-            calendarService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.encodedPayloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
-
-        // Fuel
-        if let loc = deps.locationProvider, let fuelLog = deps.fuelLog {
-            let svc = FuelService(provider: loc, fuelLog: fuelLog, settings: deps.fuelSettings)
-            fuelService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.payloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
-
-        // Blitzer Alert
-        if let loc = deps.locationProvider, let db = deps.speedCameraDatabase {
-            let svc = BlitzerAlertService(locationProvider: loc, database: db)
-            blitzerAlertService = svc
-            await svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.payloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
-
-        // Call Alert
-        if let observer = deps.callObserver {
-            let svc = CallAlertService(observer: observer)
-            callAlertService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.encodedPayloads {
-                    guard self != nil, !Task.isCancelled else { return }
-                    await self?.scheduleAndSend(payload)
-                }
-            }
-            serviceTasks.append(task)
-        }
-
-        // Altitude
-        if let loc = deps.locationProvider {
-            let svc = AltitudeService(provider: loc)
-            altitudeService = svc
-            svc.start()
-            let task = Task { [weak self] in
-                for await payload in svc.payloads {
+                for await payload in stream {
                     guard self != nil, !Task.isCancelled else { return }
                     await self?.scheduleAndSend(payload)
                 }

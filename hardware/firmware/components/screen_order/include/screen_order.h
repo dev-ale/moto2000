@@ -12,12 +12,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "screen_ids.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Maximum number of screens in an order list (one per screen ID). */
-#define SCREEN_ORDER_MAX_COUNT ((uint8_t)13u)
+#define SCREEN_ORDER_MAX_COUNT BLE_SCREEN_COUNT
 
 typedef struct {
     uint8_t ids[SCREEN_ORDER_MAX_COUNT];

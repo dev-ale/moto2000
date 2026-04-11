@@ -13,7 +13,8 @@
  * References:
  *   - Waveshare wiki: https://www.waveshare.com/wiki/ESP32-S3-LCD-1.75
  *   - Waveshare example: https://github.com/waveshare/Waveshare-ESP32-S3-LCD-1.75
- *   - ESP-IDF SPI Master: https://docs.espressif.com/projects/esp-idf/en/v5.3/esp32s3/api-reference/peripherals/spi_master.html
+ *   - ESP-IDF SPI Master:
+ * https://docs.espressif.com/projects/esp-idf/en/v5.3/esp32s3/api-reference/peripherals/spi_master.html
  *
  * VERIFY: This entire file is written from documentation and example code
  * without access to the physical board.  Every hardware-specific constant
@@ -43,7 +44,7 @@ static const char *TAG = "display_ws";
 /* ------------------------------------------------------------------ */
 
 static spi_device_handle_t s_spi_dev;
-static lv_display_t       *s_display;
+static lv_display_t *s_display;
 
 /* ------------------------------------------------------------------ */
 /* Low-level QSPI helpers                                             */
@@ -76,12 +77,12 @@ static esp_err_t ws_send_cmd(uint8_t cmd, const uint8_t *params, size_t len)
      * authoritative reference.
      */
     txn.flags = SPI_TRANS_MULTILINE_ADDR;
-    txn.cmd = 0x02;                      /* VERIFY: write command prefix */
-    txn.addr = ((uint32_t)cmd) << 8;     /* VERIFY: address framing */
+    txn.cmd = 0x02;                  /* VERIFY: write command prefix */
+    txn.addr = ((uint32_t)cmd) << 8; /* VERIFY: address framing */
 
     if (params && len > 0) {
         txn.tx_buffer = params;
-        txn.length = len * 8;  /* bits */
+        txn.length = len * 8; /* bits */
     }
 
     return spi_device_transmit(s_spi_dev, &txn);
@@ -103,11 +104,11 @@ static esp_err_t ws_send_pixels(const uint8_t *data, size_t len)
      * allocated in display_common.c satisfy this requirement.
      */
     txn.flags = SPI_TRANS_MULTILINE_ADDR;
-    txn.cmd = 0x32;                         /* VERIFY: quad write prefix */
+    txn.cmd = 0x32; /* VERIFY: quad write prefix */
     txn.addr = ((uint32_t)CMD_MEM_WRITE) << 8;
 
     txn.tx_buffer = data;
-    txn.length = len * 8;  /* bits */
+    txn.length = len * 8; /* bits */
 
     return spi_device_transmit(s_spi_dev, &txn);
 }
@@ -132,8 +133,7 @@ static esp_err_t ws_panel_init(void)
         const ws_init_cmd_t *c = &ws_init_cmds[i];
         esp_err_t err = ws_send_cmd(c->cmd, c->params, c->num_params);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Init cmd 0x%02X failed: %s", c->cmd,
-                     esp_err_to_name(err));
+            ESP_LOGE(TAG, "Init cmd 0x%02X failed: %s", c->cmd, esp_err_to_name(err));
             return err;
         }
         if (c->delay_ms > 0) {
@@ -150,28 +150,30 @@ static esp_err_t ws_panel_init(void)
 /* ------------------------------------------------------------------ */
 
 /*
- * VERIFY: Column and row offsets.  Some AMOLED panels have a non-zero
- * offset if the visible area does not start at pixel (0,0) in the
- * controller's memory.  For the 466x466 panel this is likely 0, but
- * check the datasheet.
+ * Column offset = 6, verified from official Waveshare BSP:
+ * esp_lcd_panel_set_gap(panel_handle, 0x06, 0)
  */
-#define COL_OFFSET 0
+#define COL_OFFSET 6
 #define ROW_OFFSET 0
 
-static esp_err_t ws_set_window(uint16_t x0, uint16_t y0,
-                                uint16_t x1, uint16_t y1)
+static esp_err_t ws_set_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
     uint8_t col_params[4] = {
-        (uint8_t)((x0 + COL_OFFSET) >> 8), (uint8_t)(x0 + COL_OFFSET),
-        (uint8_t)((x1 + COL_OFFSET) >> 8), (uint8_t)(x1 + COL_OFFSET),
+        (uint8_t)((x0 + COL_OFFSET) >> 8),
+        (uint8_t)(x0 + COL_OFFSET),
+        (uint8_t)((x1 + COL_OFFSET) >> 8),
+        (uint8_t)(x1 + COL_OFFSET),
     };
     uint8_t row_params[4] = {
-        (uint8_t)((y0 + ROW_OFFSET) >> 8), (uint8_t)(y0 + ROW_OFFSET),
-        (uint8_t)((y1 + ROW_OFFSET) >> 8), (uint8_t)(y1 + ROW_OFFSET),
+        (uint8_t)((y0 + ROW_OFFSET) >> 8),
+        (uint8_t)(y0 + ROW_OFFSET),
+        (uint8_t)((y1 + ROW_OFFSET) >> 8),
+        (uint8_t)(y1 + ROW_OFFSET),
     };
 
     esp_err_t err = ws_send_cmd(CMD_COL_ADDR_SET, col_params, sizeof(col_params));
-    if (err != ESP_OK) return err;
+    if (err != ESP_OK)
+        return err;
 
     return ws_send_cmd(CMD_ROW_ADDR_SET, row_params, sizeof(row_params));
 }
@@ -180,9 +182,7 @@ static esp_err_t ws_set_window(uint16_t x0, uint16_t y0,
 /* LVGL flush callback                                                */
 /* ------------------------------------------------------------------ */
 
-static void display_flush_cb(lv_display_t *disp,
-                              const lv_area_t *area,
-                              uint8_t *px_map)
+static void display_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
 {
     uint16_t x0 = (uint16_t)area->x1;
     uint16_t y0 = (uint16_t)area->y1;
@@ -266,7 +266,7 @@ static esp_err_t ws_spi_init(void)
     spi_device_interface_config_t dev_cfg = {
         .command_bits = 8,
         .address_bits = 24,
-        .mode = 0,                          /* VERIFY: SPI mode 0 (CPOL=0 CPHA=0) */
+        .mode = 0, /* VERIFY: SPI mode 0 (CPOL=0 CPHA=0) */
         .clock_speed_hz = WS_SPI_CLOCK_HZ,
         .spics_io_num = WS_PIN_CS,
         .queue_size = 7,
@@ -303,8 +303,7 @@ int display_init(void)
         return -1;
     }
 
-    s_display = display_create_lvgl(DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                                     display_flush_cb, NULL);
+    s_display = display_create_lvgl(DISPLAY_WIDTH, DISPLAY_HEIGHT, display_flush_cb, NULL);
     if (!s_display) {
         ESP_LOGE(TAG, "LVGL display creation failed");
         return -1;

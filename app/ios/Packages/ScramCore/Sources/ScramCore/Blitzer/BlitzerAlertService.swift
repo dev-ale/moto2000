@@ -72,11 +72,16 @@ public actor BlitzerAlertService {
             return
         }
 
+        // Pass rider heading for direction-aware filtering.
+        // courseDegrees < 0 means invalid (stationary) — pass nil to skip filter.
+        let heading: Double? = sample.courseDegrees >= 0 ? sample.courseDegrees : nil
+
         let result = ProximityCalculator.findNearest(
             cameras: cameras,
             latitude: sample.latitude,
             longitude: sample.longitude,
-            alertRadiusMeters: settings.alertRadiusMeters
+            alertRadiusMeters: settings.alertRadiusMeters,
+            riderHeadingDegrees: heading
         )
 
         if let result, result.isInAlertRange, let camera = result.nearestCamera {

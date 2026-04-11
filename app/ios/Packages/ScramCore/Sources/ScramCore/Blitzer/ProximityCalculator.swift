@@ -21,6 +21,10 @@ public struct ProximityResult: Sendable, Equatable {
 /// Pure-function proximity calculator. Finds the nearest camera and
 /// determines whether the alert should fire.
 public enum ProximityCalculator {
+    /// Maximum angle between rider heading and camera bearing for alert.
+    /// ±60° cone — alerts when roughly heading toward the camera.
+    public static let maxApproachAngle: Double = 60.0
+
     /// Finds the nearest camera to the given GPS position.
     ///
     /// - Parameters:
@@ -28,13 +32,16 @@ public enum ProximityCalculator {
     ///   - latitude: Current WGS-84 latitude.
     ///   - longitude: Current WGS-84 longitude.
     ///   - alertRadiusMeters: Radius within which the alert fires.
+    ///   - riderHeadingDegrees: Current GPS course (0-360). Pass nil to
+    ///     skip direction filtering (alerts on all cameras in radius).
     /// - Returns: `nil` if `cameras` is empty; otherwise, a result with the
     ///   nearest camera and whether it's within range.
     public static func findNearest(
         cameras: [SpeedCamera],
         latitude: Double,
         longitude: Double,
-        alertRadiusMeters: Double
+        alertRadiusMeters: Double,
+        riderHeadingDegrees: Double? = nil
     ) -> ProximityResult? {
         guard !cameras.isEmpty else { return nil }
 
@@ -46,10 +53,27 @@ public enum ProximityCalculator {
                 lat1: latitude, lon1: longitude,
                 lat2: camera.latitude, lon2: camera.longitude
             )
+
+            // Direction filter: skip cameras we're not heading toward
+            if let heading = riderHeadingDegrees, heading >= 0, d > 10 {
+                let bearingToCamera = GeoMath.bearing(
+                    lat1: latitude, lon1: longitude,
+                    lat2: camera.latitude, lon2: camera.longitude
+                )
+                let angleDiff = GeoMath.angleDifference(heading, bearingToCamera)
+                if angleDiff > maxApproachAngle {
+                    continue // heading away or perpendicular — skip
+                }
+            }
+
             if d < bestDistance {
                 bestDistance = d
                 nearest = camera
             }
+        }
+
+        guard let nearest else {
+            return ProximityResult(isInAlertRange: false)
         }
 
         return ProximityResult(

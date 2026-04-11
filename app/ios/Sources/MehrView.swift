@@ -31,7 +31,7 @@ struct MehrView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: ScramSpacing.xxl) {
-                Text("Mehr")
+                Text("More")
                     .font(.scramTitle)
                     .foregroundStyle(Color.scramTextPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,39 +39,39 @@ struct MehrView: View {
 
                 // MARK: - Device
 
-                settingsSection("Geraet") {
+                settingsSection("Device") {
                     deviceSection
                 }
 
                 // MARK: - Weather
 
-                settingsSection("Wetter") {
+                settingsSection("Weather") {
                     weatherSection
                 }
 
                 // MARK: - Display
 
-                settingsSection("Anzeige") {
+                settingsSection("Display") {
                     displaySection
                 }
 
                 // MARK: - Units
 
-                settingsSection("Einheiten") {
+                settingsSection("Units") {
                     unitsSection
                 }
 
                 // MARK: - Calendar
 
-                settingsSection("Kalender") {
+                settingsSection("Calendar") {
                     Button { showCalendarSheet = true } label: {
                         let activeCount = ekCalendars.filter {
                             Self.calendarPreferences.isSelected($0.calendarIdentifier)
                         }.count
                         settingsRow(
                             icon: "calendar",
-                            title: "Kalender auswaehlen",
-                            detail: "\(activeCount) aktiv",
+                            title: "Select Calendars",
+                            detail: "\(activeCount) active",
                             chevron: true
                         )
                     }
@@ -85,7 +85,7 @@ struct MehrView: View {
 
                 // MARK: - Alerts
 
-                settingsSection("Benachrichtigungen") {
+                settingsSection("Notifications") {
                     alertsSection
                 }
 
@@ -155,24 +155,24 @@ struct MehrView: View {
                 Button { showUnpairConfirm = true } label: {
                     settingsRow(
                         icon: "xmark.circle",
-                        title: "Geraet entkoppeln",
+                        title: "Unpair Device",
                         titleColor: .scramRed
                     )
                 }
-                .alert("Geraet entkoppeln?", isPresented: $showUnpairConfirm) {
-                    Button("Abbrechen", role: .cancel) {}
-                    Button("Entkoppeln", role: .destructive) {
+                .alert("Unpair device?", isPresented: $showUnpairConfirm) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Unpair", role: .destructive) {
                         connection.unpair()
                     }
                 } message: {
-                    Text("Das Display wird entkoppelt und muss erneut hinzugefuegt werden.")
+                    Text("The display will be unpaired and must be added again.")
                 }
             } else {
                 Button { connection.showPicker() } label: {
                     settingsRow(
                         icon: "plus.circle",
-                        title: "Geraet hinzufuegen",
-                        titleColor: .scramBlue
+                        title: "Add Device",
+                        titleColor: .scramGreen
                     )
                 }
             }
@@ -209,7 +209,7 @@ struct MehrView: View {
         Group {
             settingsToggleRow(
                 icon: "speedometer",
-                title: "Geschwindigkeit",
+                title: "Speed",
                 onLabel: "km/h",
                 offLabel: "mph",
                 isOn: $useKmh
@@ -217,7 +217,7 @@ struct MehrView: View {
 
             settingsToggleRow(
                 icon: "thermometer.medium",
-                title: "Temperatur",
+                title: "Temperature",
                 onLabel: "°C",
                 offLabel: "°F",
                 isOn: $useCelsius
@@ -231,7 +231,7 @@ struct MehrView: View {
         Group {
             settingsPickerRow(
                 icon: "fuelpump",
-                title: "Tankvolumen",
+                title: "Tank Capacity",
                 options: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
                 labels: ["9 L", "10 L", "11 L", "12 L", "13 L", "14 L", "15 L", "16 L", "17 L", "18 L", "19 L", "20 L"],
                 selection: Binding(
@@ -279,13 +279,13 @@ struct MehrView: View {
 
             settingsRow(
                 icon: "number",
-                title: "Protokoll",
+                title: "Protocol",
                 detail: "v\(AppInfo.protocolVersion)"
             )
 
             settingsRow(
                 icon: "doc.text",
-                title: "Lizenzen",
+                title: "Licenses",
                 chevron: true
             )
 
@@ -306,7 +306,7 @@ struct MehrView: View {
                 .foregroundStyle(Color.scramGreen)
                 .frame(width: 24)
 
-            Text("Nachtmodus")
+            Text("Night Mode")
                 .font(.scramBody)
                 .foregroundStyle(Color.scramTextPrimary)
 
@@ -346,7 +346,7 @@ struct MehrView: View {
 
                         Spacer()
 
-                        Text("v\(update.version.versionString) verfuegbar")
+                        Text("v\(update.version.versionString) available")
                             .font(.scramCaption)
                             .foregroundStyle(Color.scramGreen)
 

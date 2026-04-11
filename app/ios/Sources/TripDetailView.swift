@@ -37,20 +37,20 @@ struct TripDetailView: View {
     private var tripSummaryCard: some View {
         VStack(spacing: ScramSpacing.md) {
             HStack(spacing: ScramSpacing.lg) {
-                statItem(icon: "clock", value: FahrtenView.formatDuration(trip.duration), label: "Dauer")
+                statItem(icon: "clock", value: FahrtenView.formatDuration(trip.duration), label: "Duration")
                 Spacer()
                 statItem(
                     icon: "arrow.triangle.swap",
                     value: FahrtenView.formatDistance(trip.distanceKm),
-                    label: "Distanz"
+                    label: "Distance"
                 )
                 Spacer()
-                statItem(icon: "speedometer", value: "\(Int(trip.avgSpeedKmh)) km/h", label: "\u{2300} Tempo")
+                statItem(icon: "speedometer", value: "\(Int(trip.avgSpeedKmh)) km/h", label: "Avg Speed")
             }
 
             HStack(spacing: ScramSpacing.lg) {
                 secondaryStat(label: "Max", value: "\(Int(trip.maxSpeedKmh)) km/h")
-                secondaryStat(label: "Anstieg", value: "\(Int(trip.elevationGainM)) m")
+                secondaryStat(label: "Ascent", value: "\(Int(trip.elevationGainM)) m")
                 Spacer()
             }
         }
@@ -135,8 +135,8 @@ struct TripDetailView: View {
 
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "de_DE")
-        formatter.dateFormat = "d. MMMM yyyy"
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.dateFormat = "MMMM d, yyyy"
         return formatter
     }()
 }

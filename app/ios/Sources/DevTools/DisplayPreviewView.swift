@@ -116,7 +116,7 @@ struct DisplayPreviewView: View {
                     Image(systemName: "iphone.gen3.radiowaves.left.and.right")
                         .font(.system(size: 36))
                         .foregroundStyle(gold)
-                    Text("Tippen zum\nKalibrieren")
+                    Text("Tap to\ncalibrate")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
@@ -208,18 +208,18 @@ struct DisplayPreviewView: View {
         case .altitude:
             sensorScreen(session.latestAltitude, AltitudeScreenContent.init)
         case .weather:
-            optionalScreen(session.latestWeather, "Wetter laden...", WeatherScreenContent.init)
+            optionalScreen(session.latestWeather, "Loading weather...", WeatherScreenContent.init)
         case .music:
-            optionalScreen(session.latestMusic, "Keine Musik", MusicScreenContent.init)
+            optionalScreen(session.latestMusic, "No music playing", MusicScreenContent.init)
         case .fuelEstimate:
-            optionalScreen(session.latestFuel, "Keine Tankdaten", FuelScreenContent.init)
+            optionalScreen(session.latestFuel, "No fuel data", FuelScreenContent.init)
         case .appointment:
             optionalScreen(
-                session.latestAppointment, "Keine Termine", AppointmentScreenContent.init
+                session.latestAppointment, "No appointments", AppointmentScreenContent.init
             )
         case .navigation:
             optionalScreen(
-                session.latestNav, "Navigation starten\nauf dem Home Tab", NavScreenContent.init
+                session.latestNav, "Start navigation on\nthe Home tab", NavScreenContent.init
             )
         default: PreviewPlaceholder(text: "—")
         }

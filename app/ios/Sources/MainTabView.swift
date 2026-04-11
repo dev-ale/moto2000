@@ -5,9 +5,9 @@ import SwiftUI
 enum ScramTab: String, CaseIterable {
     case home = "Home"
     case screens = "Screens"
-    case fahrten = "Fahrten"
+    case fahrten = "Rides"
     case tank = "Tank"
-    case mehr = "Mehr"
+    case mehr = "More"
 
     var icon: String {
         switch self {

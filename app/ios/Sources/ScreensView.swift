@@ -60,7 +60,7 @@ struct ScreensView: View {
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Sortieren") { showSortSheet = true }
+                    Button("Sort") { showSortSheet = true }
                         .font(.scramCaption)
                         .foregroundStyle(Color.scramGreen)
                 }
@@ -171,13 +171,13 @@ struct ScreensView: View {
                 checkCircle(enabled: enabled)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(enabled ? "Aktiviert" : "Deaktiviert")
+                    Text(enabled ? "Enabled" : "Disabled")
                         .font(.scramBody)
                         .foregroundStyle(Color.scramTextPrimary)
 
                     Text(enabled
-                         ? "Screen wird beim Fahren angezeigt"
-                         : "Screen wird uebersprungen")
+                         ? "Screen will be shown while riding"
+                         : "Screen will be skipped")
                         .font(.scramCaption)
                         .foregroundStyle(Color.scramTextTertiary)
                 }

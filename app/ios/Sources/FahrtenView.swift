@@ -13,7 +13,7 @@ struct FahrtenView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: ScramSpacing.xxl) {
-                    Text("Fahrten")
+                    Text("Rides")
                         .font(.scramTitle)
                         .foregroundStyle(Color.scramTextPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -45,10 +45,10 @@ struct FahrtenView: View {
             Image(systemName: "road.lanes")
                 .font(.system(size: 48, weight: .light))
                 .foregroundStyle(Color.scramTextTertiary)
-            Text("Noch keine Fahrten")
+            Text("No rides yet")
                 .font(.scramTitle)
                 .foregroundStyle(Color.scramTextPrimary)
-            Text("Deine Fahrten werden hier angezeigt")
+            Text("Your rides will appear here")
                 .font(.scramSubhead)
                 .foregroundStyle(Color.scramTextSecondary)
         }
@@ -59,7 +59,7 @@ struct FahrtenView: View {
 
     private var tripList: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Letzte Fahrten")
+            SectionHeader(title: "Recent Rides")
             VStack(spacing: ScramSpacing.md) {
                 ForEach(trips) { trip in
                     NavigationLink(destination: TripDetailView(trip: trip)) {
@@ -93,19 +93,19 @@ struct FahrtenView: View {
                 statItem(
                     icon: "clock",
                     value: Self.formatDuration(trip.duration),
-                    label: "Dauer"
+                    label: "Duration"
                 )
                 Spacer()
                 statItem(
                     icon: "arrow.triangle.swap",
                     value: Self.formatDistance(trip.distanceKm),
-                    label: "Distanz"
+                    label: "Distance"
                 )
                 Spacer()
                 statItem(
                     icon: "speedometer",
                     value: "\(Int(trip.avgSpeedKmh)) km/h",
-                    label: "⌀ Tempo"
+                    label: "Avg Speed"
                 )
             }
 
@@ -116,7 +116,7 @@ struct FahrtenView: View {
                     value: "\(Int(trip.maxSpeedKmh)) km/h"
                 )
                 secondaryStat(
-                    label: "Anstieg",
+                    label: "Ascent",
                     value: "\(Int(trip.elevationGainM)) m"
                 )
                 Spacer()
@@ -160,8 +160,8 @@ struct FahrtenView: View {
 
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "de_DE")
-        formatter.dateFormat = "d. MMMM yyyy"
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.dateFormat = "MMMM d, yyyy"
         return formatter
     }()
 

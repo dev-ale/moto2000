@@ -24,8 +24,8 @@ struct StatCard: View {
 
 #Preview {
     HStack(spacing: ScramSpacing.sm) {
-        StatCard(value: "80%", label: "Helligkeit")
-        StatCard(value: "Tag", label: "Modus")
+        StatCard(value: "80%", label: "Brightness")
+        StatCard(value: "Day", label: "Mode")
         StatCard(value: "v1.2", label: "Firmware")
     }
     .padding()

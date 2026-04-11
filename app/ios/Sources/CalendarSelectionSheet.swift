@@ -44,11 +44,11 @@ struct CalendarSelectionSheet: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.scramBackground)
-            .navigationTitle("Kalender")
+            .navigationTitle("Calendar")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Fertig") { dismiss() }
+                    Button("Done") { dismiss() }
                         .foregroundStyle(Color.scramGreen)
                 }
             }

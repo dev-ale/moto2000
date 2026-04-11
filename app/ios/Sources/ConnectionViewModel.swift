@@ -75,27 +75,27 @@ final class ConnectionViewModel {
 
     var statusText: String {
         if !isPaired {
-            return "Nicht gekoppelt"
+            return "Not paired"
         }
         switch state {
         case .idle:
-            return "Nicht verbunden"
+            return "Not connected"
         case .scanning:
-            return "Suche..."
+            return "Scanning..."
         case .connecting:
-            return "Verbinde..."
+            return "Connecting..."
         case .connected:
-            return "Verbunden"
+            return "Connected"
         case .disconnected(let reason):
             switch reason {
-            case .linkLost: return "Verbindung verloren"
-            case .userInitiated: return "Getrennt"
-            case .bluetoothOff: return "Bluetooth aus"
-            case .unauthorized: return "Nicht autorisiert"
-            case .unknown: return "Getrennt"
+            case .linkLost: return "Connection lost"
+            case .userInitiated: return "Disconnected"
+            case .bluetoothOff: return "Bluetooth off"
+            case .unauthorized: return "Not authorized"
+            case .unknown: return "Disconnected"
             }
         case .reconnecting(let attempt):
-            return "Wiederverbinden (\(attempt))..."
+            return "Reconnecting (\(attempt))..."
         }
     }
 

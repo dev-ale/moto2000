@@ -55,9 +55,22 @@ final class AccessoryManager {
         descriptor.bluetoothNameSubstring = "ScramScreen"
         descriptor.supportedOptions = .bluetoothPairingLE
 
+        // AccessorySetupKit requires a real raster image — system symbols crash
+        // in _validateDiscoveryDescriptor. Use the AppIcon from the asset catalog,
+        // falling back to a 1x1 pixel placeholder if unavailable.
+        let productImage: UIImage = UIImage(named: "AppIcon") ?? {
+            let size = CGSize(width: 1, height: 1)
+            UIGraphicsBeginImageContext(size)
+            UIColor.black.setFill()
+            UIRectFill(CGRect(origin: .zero, size: size))
+            let img = UIGraphicsGetImageFromCurrentImageContext()!   // swiftlint:disable:this force_unwrapping
+            UIGraphicsEndImageContext()
+            return img
+        }()
+
         let item = ASPickerDisplayItem(
             name: "ScramScreen",
-            productImage: UIImage(systemName: "circle.circle") ?? UIImage(),
+            productImage: productImage,
             descriptor: descriptor
         )
 

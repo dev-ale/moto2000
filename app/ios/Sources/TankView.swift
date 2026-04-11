@@ -51,11 +51,11 @@ struct TankView: View {
 
     private var estimatesSection: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Aktuell")
+            SectionHeader(title: "Current")
             HStack(spacing: ScramSpacing.sm) {
                 StatCard(
                     value: estimate.rangeKm.map { "\(Int($0))" } ?? "--",
-                    label: "Reichweite km"
+                    label: "Range km"
                 )
                 StatCard(
                     value: estimate.consumptionMlPerKm.map {
@@ -65,7 +65,7 @@ struct TankView: View {
                 )
                 StatCard(
                     value: distanceSinceLastFullFillFormatted,
-                    label: "Seit Tanken km"
+                    label: "Since fill km"
                 )
             }
         }
@@ -85,7 +85,7 @@ struct TankView: View {
 
     private var fillEntrySection: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Tankstopp")
+            SectionHeader(title: "Fuel Stop")
             VStack(spacing: ScramSpacing.lg) {
                 // Liters input
                 HStack(spacing: ScramSpacing.md) {
@@ -114,7 +114,7 @@ struct TankView: View {
                         .foregroundStyle(Color.scramGreen)
                         .frame(width: 24)
 
-                    Text("Tank voll")
+                    Text("Tank full")
                         .font(.scramBody)
                         .foregroundStyle(Color.scramTextPrimary)
 
@@ -132,7 +132,7 @@ struct TankView: View {
                 Button {
                     Task { await saveFill() }
                 } label: {
-                    Text("Speichern")
+                    Text("Save")
                         .font(.scramHeadline)
                         .foregroundStyle(Color.scramBackground)
                         .frame(maxWidth: .infinity)
@@ -153,7 +153,7 @@ struct TankView: View {
 
     private var fillHistorySection: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Tankstopps")
+            SectionHeader(title: "Fuel Stops")
 
             if fills.isEmpty {
                 emptyState
@@ -174,7 +174,7 @@ struct TankView: View {
             Image(systemName: "fuelpump")
                 .font(.system(size: 32, weight: .light))
                 .foregroundStyle(Color.scramTextTertiary)
-            Text("Noch keine Tankstopps")
+            Text("No fuel stops yet")
                 .font(.scramBody)
                 .foregroundStyle(Color.scramTextSecondary)
         }

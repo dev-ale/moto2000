@@ -82,12 +82,12 @@ struct ScreenSortView: View {
             .environment(\.editMode, .constant(.active))
             .scrollContentBackground(.hidden)
             .background(Color.scramBackground)
-            .navigationTitle("Sortieren")
+            .navigationTitle("Sort")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Fertig") {
+                    Button("Done") {
                         dismiss()
                     }
                     .foregroundStyle(Color.scramGreen)

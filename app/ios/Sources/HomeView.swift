@@ -44,9 +44,9 @@ struct HomeView: View {
                     HStack(spacing: ScramSpacing.sm) {
                         StatCard(
                             value: connection.isConnected ? "80%" : "--",
-                            label: "Helligkeit"
+                            label: "Brightness"
                         )
-                        StatCard(value: "Tag", label: "Modus")
+                        StatCard(value: "Day", label: "Mode")
                         StatCard(value: "--", label: "Firmware")
                     }
                 }
@@ -74,33 +74,33 @@ struct HomeView: View {
         VStack(spacing: ScramSpacing.xl) {
             ZStack {
                 Circle()
-                    .fill(Color.scramBlue.opacity(0.12))
+                    .fill(Color.scramGreen.opacity(0.12))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "plus.circle")
                     .font(.system(size: 40, weight: .light))
-                    .foregroundStyle(Color.scramBlue)
+                    .foregroundStyle(Color.scramGreen)
             }
 
             VStack(spacing: ScramSpacing.sm) {
-                Text("Display koppeln")
+                Text("Pair Display")
                     .font(.scramHeadline)
                     .foregroundStyle(Color.scramTextPrimary)
 
-                Text("Koppele dein ScramScreen Display mit einem Tippen")
+                Text("Tap to pair your ScramScreen display")
                     .font(.scramSubhead)
                     .foregroundStyle(Color.scramTextSecondary)
                     .multilineTextAlignment(.center)
             }
 
             Button { connection.showPicker() } label: {
-                Text("Geraet hinzufuegen")
+                Text("Add Device")
                     .font(.scramHeadline)
                     .foregroundStyle(Color.scramBackground)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, ScramSpacing.md)
             }
-            .background(Color.scramBlue)
+            .background(Color.scramGreen)
             .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
         }
         .padding(ScramSpacing.xxl)
@@ -139,7 +139,7 @@ struct HomeView: View {
             case .idle, .disconnected:
                 HStack(spacing: ScramSpacing.sm) {
                     Button { connection.connect() } label: {
-                        Text("Verbinden")
+                        Text("Connect")
                             .font(.scramHeadline)
                             .foregroundStyle(Color.scramBackground)
                             .frame(maxWidth: .infinity)
@@ -149,7 +149,7 @@ struct HomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
 
                     Button { connection.unpair() } label: {
-                        Text("Entkoppeln")
+                        Text("Unpair")
                             .font(.scramBody)
                             .foregroundStyle(Color.scramTextTertiary)
                             .padding(.vertical, ScramSpacing.md)
@@ -161,7 +161,7 @@ struct HomeView: View {
 
             case .connected:
                 Button { connection.disconnect() } label: {
-                    Text("Trennen")
+                    Text("Disconnect")
                         .font(.scramHeadline)
                         .foregroundStyle(Color.scramRed)
                         .frame(maxWidth: .infinity)
@@ -175,7 +175,7 @@ struct HomeView: View {
                     HStack(spacing: ScramSpacing.sm) {
                         ProgressView()
                             .tint(Color.scramTextSecondary)
-                        Text("Abbrechen")
+                        Text("Cancel")
                             .font(.scramHeadline)
                             .foregroundStyle(Color.scramTextSecondary)
                     }
@@ -196,7 +196,7 @@ struct HomeView: View {
 
     private var livePreviewSection: some View {
         VStack(spacing: ScramSpacing.sm) {
-            SectionHeader(title: "Display Vorschau")
+            SectionHeader(title: "Display Preview")
 
             Button {
                 showLivePreview = true
@@ -205,7 +205,7 @@ struct HomeView: View {
                     Image(systemName: "circle.circle")
                         .font(.system(size: 16))
                         .foregroundStyle(Color.scramGreen)
-                    Text("Live Preview starten")
+                    Text("Start Live Preview")
                         .font(.scramBody)
                         .foregroundStyle(Color.scramTextPrimary)
                     Spacer()

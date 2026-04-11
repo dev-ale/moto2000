@@ -1,5 +1,6 @@
 import BLECentralClient
 import RideSimulatorKit
+import ScramCore
 import SwiftUI
 
 @main
@@ -22,6 +23,10 @@ struct ScramScreenApp: App {
                 .onAppear {
                     rideCoordinator.startObserving()
                     SampleTripSeeder.seedIfNeeded()
+                }
+                .task {
+                    // Update speed camera database monthly in background
+                    await SpeedCameraUpdater().updateIfNeeded()
                 }
         }
     }

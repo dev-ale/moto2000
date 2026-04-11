@@ -27,6 +27,8 @@ struct MehrView: View {
     @State private var showCalendarSheet = false
     @State var weatherText: String?
     @State var weatherIcon: String = "cloud"
+    @State var cameraUpdateStatus: String?
+    @State var isUpdatingCameras = false
 
     var body: some View {
         ScrollView {
@@ -89,6 +91,12 @@ struct MehrView: View {
 
                 settingsSection("Tank") {
                     tankSection
+                }
+
+                // MARK: - Speed Cameras
+
+                settingsSection("Speed Cameras") {
+                    speedCameraSection
                 }
 
                 // MARK: - Alerts
@@ -386,9 +394,6 @@ struct MehrView: View {
         let currentVersion = connection.firmwareVersion ?? FirmwareVersion(major: 0, minor: 0, patch: 0)
         do {
             availableUpdate = try await checker.checkForUpdate(currentVersion: currentVersion)
-        } catch {
-            // Silently ignore — update badge simply won't appear
-        }
+        } catch {}
     }
-
 }

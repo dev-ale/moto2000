@@ -489,9 +489,12 @@ final class LivePreviewSession {
 
     private func startFuelService(locationProvider: RealLocationProvider) {
         let fuelLog = FuelLog(store: DocumentsFuelLogStore())
+        let tankLiters = UserDefaults.standard.double(forKey: "scramscreen.fuel.tankCapacityLiters")
+        let capacityMl = (tankLiters > 0 ? tankLiters : 15.0) * 1000.0
         let fuelService = FuelService(
             provider: locationProvider,
-            fuelLog: fuelLog
+            fuelLog: fuelLog,
+            settings: FuelSettings(tankCapacityMl: capacityMl)
         )
         fuelService.start()
         services.append(fuelService)

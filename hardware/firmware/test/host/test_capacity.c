@@ -148,12 +148,12 @@ static void test_fixture_body_sizes_match_protocol(void)
 /* ======================================================================= */
 
 /*
- * Fill the cache with a known pattern in every slot, then store an
- * oversize payload (altitude = 128B). Verify:
- *   a) The altitude slot is truncated to 64B.
+ * Fill adjacent cache slots with a known pattern, then store an altitude
+ * payload (128B — the largest body). Verify:
+ *   a) The altitude slot stores the full body.
  *   b) Adjacent slots are undamaged.
  */
-static void test_altitude_truncation_no_adjacent_corruption(void)
+static void test_altitude_full_body_no_adjacent_corruption(void)
 {
     ble_payload_cache_t cache;
     ble_payload_cache_init(&cache);
@@ -176,11 +176,11 @@ static void test_altitude_truncation_no_adjacent_corruption(void)
     screen_fsm_init(&fsm, BLE_SCREEN_ALTITUDE);
     ble_server_handle_screen_data(buf, len, &fsm, &cache, 200);
 
-    /* Altitude slot should be truncated. */
+    /* Altitude slot should store the full 128B body. */
     const ble_payload_cache_entry_t *alt = ble_payload_cache_get(&cache, BLE_SCREEN_ALTITUDE);
     TEST_ASSERT_NOT_NULL(alt);
     TEST_ASSERT_TRUE(alt->present);
-    TEST_ASSERT_EQUAL_UINT16(BLE_PAYLOAD_CACHE_BODY_MAX, alt->length);
+    TEST_ASSERT_EQUAL_UINT16(BLE_PROTOCOL_ALTITUDE_BODY_SIZE, alt->length);
 
     /* Neighbors must be untouched. */
     const ble_payload_cache_entry_t *fuel = ble_payload_cache_get(&cache, BLE_SCREEN_FUEL_ESTIMATE);
@@ -196,8 +196,8 @@ static void test_altitude_truncation_no_adjacent_corruption(void)
     TEST_ASSERT_EQUAL_UINT8_ARRAY(sentinel, appt->body, BLE_PAYLOAD_CACHE_BODY_MAX);
 }
 
-/* Same test for music (86B body). */
-static void test_music_truncation_no_adjacent_corruption(void)
+/* Same test for music (86B body — fits within 128B cache). */
+static void test_music_full_body_no_adjacent_corruption(void)
 {
     ble_payload_cache_t cache;
     ble_payload_cache_init(&cache);
@@ -218,11 +218,11 @@ static void test_music_truncation_no_adjacent_corruption(void)
     screen_fsm_init(&fsm, BLE_SCREEN_MUSIC);
     ble_server_handle_screen_data(buf, len, &fsm, &cache, 200);
 
-    /* Music slot truncated to 64B. */
+    /* Music slot stores full 86B body. */
     const ble_payload_cache_entry_t *music = ble_payload_cache_get(&cache, BLE_SCREEN_MUSIC);
     TEST_ASSERT_NOT_NULL(music);
     TEST_ASSERT_TRUE(music->present);
-    TEST_ASSERT_EQUAL_UINT16(BLE_PAYLOAD_CACHE_BODY_MAX, music->length);
+    TEST_ASSERT_EQUAL_UINT16(BLE_PROTOCOL_MUSIC_BODY_SIZE, music->length);
 
     /* Neighbors untouched. */
     const ble_payload_cache_entry_t *trip = ble_payload_cache_get(&cache, BLE_SCREEN_TRIP_STATS);
@@ -339,8 +339,8 @@ static void test_staleness_with_real_payload(void)
  */
 static void test_cache_struct_size_bounded(void)
 {
-    TEST_ASSERT_LESS_OR_EQUAL_MESSAGE((size_t)2048, sizeof(ble_payload_cache_t),
-                                      "payload cache exceeds 2KB — review slot count or body max");
+    TEST_ASSERT_LESS_OR_EQUAL_MESSAGE((size_t)4096, sizeof(ble_payload_cache_t),
+                                      "payload cache exceeds 4KB — review slot count or body max");
 }
 
 /* ======================================================================= */
@@ -369,8 +369,8 @@ int main(void)
 
     RUN_TEST(test_all_fixtures_fit_ble_write_buffer);
     RUN_TEST(test_fixture_body_sizes_match_protocol);
-    RUN_TEST(test_altitude_truncation_no_adjacent_corruption);
-    RUN_TEST(test_music_truncation_no_adjacent_corruption);
+    RUN_TEST(test_altitude_full_body_no_adjacent_corruption);
+    RUN_TEST(test_music_full_body_no_adjacent_corruption);
     RUN_TEST(test_all_13_screens_coexist_in_cache);
     RUN_TEST(test_staleness_with_real_payload);
     RUN_TEST(test_cache_struct_size_bounded);

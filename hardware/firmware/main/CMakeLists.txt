@@ -32,5 +32,7 @@ idf_component_register(
         screen_fsm
         ble_reconnect
         display
-        lvgl
+        lvgl__lvgl
+        payload_cache
+        screen_order
 )

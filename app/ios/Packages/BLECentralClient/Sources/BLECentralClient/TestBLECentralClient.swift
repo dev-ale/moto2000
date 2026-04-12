@@ -57,6 +57,10 @@ public actor TestBLECentralClient: BLECentralClient {
 
     public func currentState() -> ConnectionState { state }
 
+    public func setPeripheralIdentifier(_ id: UUID?) {
+        // No-op in test client.
+    }
+
     public func connect() {
         connectCallCount += 1
         switch state {

@@ -30,13 +30,16 @@ public struct SystemClockProvider: ClockProvider, Sendable {
 /// The service is a one-shot pipeline: call ``start()`` once, read
 /// ``encodedPayloads`` once. Calling ``stop()`` terminates both the
 /// ticking task and the output stream.
-public final class ClockService: @unchecked Sendable {
+public final class ClockService: PayloadService, @unchecked Sendable {
     /// Tick interval in seconds.
     public static let tickInterval: TimeInterval = 30
 
     private let provider: any ClockProvider
     private let channel = PayloadChannel()
     public let encodedPayloads: AsyncStream<Data>
+
+    /// PayloadService conformance — alias for encodedPayloads.
+    public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
     private let lock = NSLock()
     private var tickTask: Task<Void, Never>?

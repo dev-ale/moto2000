@@ -66,6 +66,208 @@ void screen_manager_init(void)
     s_night_mode = false;
 }
 
+/* ---- placeholder seeding -------------------------------------------- */
+
+static void seed_one(ble_screen_id_t id, const uint8_t *body_buf, size_t body_len)
+{
+    /* Build the full BLE packet (header + body) so the cache stores
+     * exactly what would arrive over the wire. */
+    if (id >= MAX_SCREENS) {
+        return;
+    }
+    if (body_len + 8 > MAX_CACHED_PAYLOAD) {
+        return;
+    }
+    uint8_t *dst = s_cache[id].data;
+    /* Header: version | screen | flags | reserved | body_len_lo | body_len_hi | reserved | reserved
+     */
+    dst[0] = 0x01;        /* version */
+    dst[1] = (uint8_t)id; /* screen id */
+    dst[2] = 0;           /* flags */
+    dst[3] = 0;           /* reserved */
+    dst[4] = (uint8_t)(body_len & 0xFF);
+    dst[5] = (uint8_t)((body_len >> 8) & 0xFF);
+    dst[6] = 0;
+    dst[7] = 0;
+    memcpy(dst + 8, body_buf, body_len);
+    s_cache[id].len = body_len + 8;
+    s_cache[id].valid = true;
+}
+
+void screen_manager_seed_placeholders(void)
+{
+    uint8_t buf[256];
+    size_t written = 0;
+
+    /* Clock — zero unix time, displays "00:00" until iOS sends real time. */
+    {
+        ble_clock_data_t d = { .unix_time = 0, .tz_offset_minutes = 0, .is_24h = true };
+        if (ble_encode_clock(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_CLOCK, buf + 8, written - 8);
+        }
+    }
+
+    /* Speed + heading — zeros until GPS fix. */
+    {
+        ble_speed_heading_data_t d = {
+            .speed_kmh_x10 = 0,
+            .heading_deg_x10 = 0,
+            .altitude_m = 0,
+            .temperature_celsius_x10 = 0,
+        };
+        if (ble_encode_speed_heading(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_SPEED_HEADING, buf + 8, written - 8);
+        }
+    }
+
+    /* Compass — north. */
+    {
+        ble_compass_data_t d = {
+            .magnetic_heading_deg_x10 = 0,
+            .true_heading_deg_x10 = BLE_COMPASS_TRUE_HEADING_UNKNOWN,
+            .heading_accuracy_deg_x10 = 0,
+            .compass_flags = 0,
+        };
+        if (ble_encode_compass(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_COMPASS, buf + 8, written - 8);
+        }
+    }
+
+    /* Weather — placeholder. */
+    {
+        ble_weather_data_t d = {
+            .condition = BLE_WEATHER_CLEAR,
+            .temperature_celsius_x10 = 0,
+            .high_celsius_x10 = 0,
+            .low_celsius_x10 = 0,
+        };
+        snprintf(d.location_name, sizeof(d.location_name), "%s", "—");
+        if (ble_encode_weather(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_WEATHER, buf + 8, written - 8);
+        }
+    }
+
+    /* Trip stats — zeros. */
+    {
+        ble_trip_stats_data_t d = { 0 };
+        if (ble_encode_trip_stats(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_TRIP_STATS, buf + 8, written - 8);
+        }
+    }
+
+    /* Music — empty placeholder. */
+    {
+        ble_music_data_t d = {
+            .music_flags = 0,
+            .position_seconds = BLE_MUSIC_UNKNOWN_DURATION_OR_POSITION,
+            .duration_seconds = BLE_MUSIC_UNKNOWN_DURATION_OR_POSITION,
+        };
+        snprintf(d.title, sizeof(d.title), "%s", "Not playing");
+        snprintf(d.artist, sizeof(d.artist), "%s", "");
+        snprintf(d.album, sizeof(d.album), "%s", "");
+        if (ble_encode_music(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_MUSIC, buf + 8, written - 8);
+        }
+    }
+
+    /* Lean angle — level. */
+    {
+        ble_lean_angle_data_t d = {
+            .current_lean_deg_x10 = 0,
+            .max_left_lean_deg_x10 = 0,
+            .max_right_lean_deg_x10 = 0,
+            .confidence_percent = 0,
+        };
+        if (ble_encode_lean_angle(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_LEAN_ANGLE, buf + 8, written - 8);
+        }
+    }
+
+    /* Altitude — flat profile. */
+    {
+        ble_altitude_profile_data_t d = { 0 };
+        d.sample_count = 0;
+        if (ble_encode_altitude(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_ALTITUDE, buf + 8, written - 8);
+        }
+    }
+
+    /* Calendar — no upcoming. */
+    {
+        ble_appointment_data_t d = { .starts_in_minutes = 0 };
+        snprintf(d.title, sizeof(d.title), "%s", "No appointments");
+        snprintf(d.location, sizeof(d.location), "%s", "");
+        if (ble_encode_appointment(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_APPOINTMENT, buf + 8, written - 8);
+        }
+    }
+
+    /* Fuel — unknown. */
+    {
+        ble_fuel_data_t d = {
+            .tank_percent = 0,
+            .estimated_range_km = BLE_FUEL_UNKNOWN,
+            .consumption_ml_per_km = BLE_FUEL_UNKNOWN,
+            .fuel_remaining_ml = BLE_FUEL_UNKNOWN,
+        };
+        if (ble_encode_fuel(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_FUEL_ESTIMATE, buf + 8, written - 8);
+        }
+    }
+
+    /* Incoming call — none. */
+    {
+        ble_incoming_call_data_t d = { .call_state = BLE_CALL_ENDED };
+        snprintf(d.caller_handle, sizeof(d.caller_handle), "%s", "");
+        if (ble_encode_incoming_call(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_INCOMING_CALL, buf + 8, written - 8);
+        }
+    }
+
+    /* Blitzer — none in range. */
+    {
+        ble_blitzer_data_t d = {
+            .distance_meters = 0,
+            .speed_limit_kmh = BLE_BLITZER_UNKNOWN_SPEED_LIMIT,
+            .current_speed_kmh_x10 = 0,
+            .camera_type = BLE_CAMERA_TYPE_UNKNOWN,
+        };
+        if (ble_encode_blitzer(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_BLITZER, buf + 8, written - 8);
+        }
+    }
+
+    /* Navigation — placeholder. iOS does not currently send this. */
+    {
+        ble_nav_data_t d = {
+            .latitude_e7 = 0,
+            .longitude_e7 = 0,
+            .speed_kmh_x10 = 0,
+            .heading_deg_x10 = 0,
+            .distance_to_maneuver_m = 0,
+            .maneuver = BLE_MANEUVER_NONE,
+            .eta_minutes = 0,
+            .remaining_km_x10 = 0,
+        };
+        snprintf(d.street_name, sizeof(d.street_name), "%s", "—");
+        if (ble_encode_nav(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
+            seed_one(BLE_SCREEN_NAVIGATION, buf + 8, written - 8);
+        }
+    }
+
+    rebuild_active_list();
+
+    /* Default the cursor to the Clock screen instead of Navigation
+     * (which has the lowest enum value but no real data source). */
+    s_current_idx = 0;
+    for (int i = 0; i < s_active_count; i++) {
+        if (s_active_ids[i] == BLE_SCREEN_CLOCK) {
+            s_current_idx = i;
+            break;
+        }
+    }
+}
+
 void screen_manager_handle_payload(const uint8_t *data, size_t len)
 {
     if (data == NULL || len == 0) {
@@ -83,8 +285,13 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
     bool night = (header.flags & BLE_FLAG_NIGHT_MODE) != 0;
     scram_theme_set_night_mode(night);
 
-    /* Create a fresh screen. */
-    lv_obj_t *scr = lv_obj_create(NULL);
+    /* Reuse the LVGL active screen instead of creating a new one every
+     * call. Creating-and-loading on every iOS payload tick races with
+     * the LVGL render task and crashes the renderer. By cleaning the
+     * existing screen and re-populating its children we avoid all
+     * lifetime races and never need to call lv_screen_load(). */
+    lv_obj_t *scr = lv_screen_active();
+    lv_obj_clean(scr);
 
     switch (header.screen_id) {
     case BLE_SCREEN_CLOCK: {
@@ -252,7 +459,8 @@ void screen_manager_handle_payload(const uint8_t *data, size_t len)
     }
     }
 
-    lv_screen_load(scr);
+    /* No lv_screen_load() needed — we mutated the existing active screen
+     * in place. The LVGL task will pick up the changes on its next render. */
 }
 
 void screen_manager_cache_payload(const uint8_t *data, size_t len)
@@ -321,17 +529,18 @@ static void render_current(void)
 
     uint8_t id = s_active_ids[s_current_idx];
 
-    /* Patch night-mode flag into the cached payload. */
-    uint8_t patched[MAX_CACHED_PAYLOAD];
-    memcpy(patched, s_cache[id].data, s_cache[id].len);
+    /* Patch the night-mode flag directly in the cached buffer instead of
+     * copying it to a 4 KB stack buffer. The NimBLE host task that calls
+     * us has a small stack and would overflow with the previous approach,
+     * causing memory corruption that crashed NimBLE on the next event. */
     if (s_cache[id].len >= 3) {
         if (s_night_mode)
-            patched[2] |= BLE_FLAG_NIGHT_MODE;
+            s_cache[id].data[2] |= BLE_FLAG_NIGHT_MODE;
         else
-            patched[2] &= (uint8_t)~BLE_FLAG_NIGHT_MODE;
+            s_cache[id].data[2] &= (uint8_t)~BLE_FLAG_NIGHT_MODE;
     }
 
-    screen_manager_handle_payload(patched, s_cache[id].len);
+    screen_manager_handle_payload(s_cache[id].data, s_cache[id].len);
 
     /* Print which screen is active. */
     const char *names[] = {
@@ -346,6 +555,11 @@ static void render_current(void)
     const char *name = (id < sizeof(names) / sizeof(names[0]) && names[id]) ? names[id] : "Unknown";
     fprintf(stderr, "[%d/%d] %s%s\n", s_current_idx + 1, s_active_count, name,
             s_night_mode ? " (night)" : "");
+}
+
+void screen_manager_show_current(void)
+{
+    render_current();
 }
 
 void screen_manager_next_screen(void)

@@ -28,6 +28,7 @@ final class ConnectionViewModel {
             guard let self else { return }
             for await newState in await self.coordinator.client.stateStream {
                 guard !Task.isCancelled else { break }
+                print("[VM] state: \(newState)")
                 self.state = newState
                 self.healthLevel = self.level(for: newState)
 
@@ -50,7 +51,16 @@ final class ConnectionViewModel {
 
     func connect() {
         if accessoryManager.isPaired {
-            Task { await coordinator.handle(.startRequested) }
+            // Pass the AccessorySetupKit Bluetooth identifier to the client
+            // so it can reconnect by UUID instead of scanning.
+            if let bleID = accessoryManager.bluetoothIdentifier {
+                Task {
+                    await coordinator.client.setPeripheralIdentifier(bleID)
+                    await coordinator.handle(.startRequested)
+                }
+            } else {
+                Task { await coordinator.handle(.startRequested) }
+            }
         } else {
             showPicker()
         }

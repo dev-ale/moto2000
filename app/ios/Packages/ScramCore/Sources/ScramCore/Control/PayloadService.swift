@@ -42,9 +42,17 @@ public struct ServiceRegistration: Sendable {
 /// Adding a new service is one entry here — no RideSession changes needed.
 public enum ServiceRegistry {
     public static let all: [ServiceRegistration] = [
+        // Clock — no provider needed, always runs from system time.
+        ServiceRegistration(name: "clock") { _ in
+            ClockService(provider: SystemClockProvider(), tickInterval: 5)
+        },
+
         // Single-provider services
         ServiceRegistration(name: "speedHeading") { deps in
             deps.locationProvider.map { SpeedHeadingService(provider: $0) }
+        },
+        ServiceRegistration(name: "compass") { deps in
+            deps.locationProvider.map { CompassService(provider: $0) }
         },
         ServiceRegistration(name: "tripStats") { deps in
             deps.locationProvider.map { TripStatsService(provider: $0) }

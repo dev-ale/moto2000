@@ -19,10 +19,13 @@ import RideSimulatorKit
 ///
 /// The service is a one-shot pipeline: call ``start()`` once, read
 /// ``encodedPayloads`` once.
-public final class CompassService: @unchecked Sendable {
+public final class CompassService: PayloadService, @unchecked Sendable {
     private let provider: any LocationProvider
     private let channel = PayloadChannel()
     public let encodedPayloads: AsyncStream<Data>
+
+    /// PayloadService conformance — alias for encodedPayloads.
+    public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
     private var forwardingTask: Task<Void, Never>?
     private var lastHeadingDegX10: UInt16 = 0

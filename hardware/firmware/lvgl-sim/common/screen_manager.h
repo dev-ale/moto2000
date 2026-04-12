@@ -33,10 +33,25 @@ void screen_manager_cache_payload(const uint8_t *data, size_t len);
 void screen_manager_update_live(const uint8_t *data, size_t len);
 
 /*
+ * Seed the cache with one default-encoded payload for every known
+ * screen ID. After this call, the user can interactively cycle through
+ * every screen even before iOS streams real data, and any subsequent
+ * `screen_manager_update_live()` call will overwrite the placeholder
+ * with live data.
+ */
+void screen_manager_seed_placeholders(void);
+
+/*
  * Switch to the next/previous cached screen (arrow-key navigation).
  */
 void screen_manager_next_screen(void);
 void screen_manager_prev_screen(void);
+
+/*
+ * Re-render the currently selected screen from the cache.
+ * No-op if the cache is empty.
+ */
+void screen_manager_show_current(void);
 
 /*
  * Toggle night mode and re-render the current screen.

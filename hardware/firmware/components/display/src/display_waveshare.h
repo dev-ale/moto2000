@@ -52,7 +52,7 @@
 #define WS_SPI_HOST SPI2_HOST
 
 /* Maximum transfer size in bytes.  Must accommodate the largest flush. */
-#define WS_SPI_MAX_TRANSFER_SZ (466 * 48 * 2) /* ~44 KB, 1/10th screen */
+#define WS_SPI_MAX_TRANSFER_SZ (466 * 466 * 2) /* Full framebuffer — matches Waveshare BSP */
 
 /* ------------------------------------------------------------------ */
 /* Panel commands                                                     */

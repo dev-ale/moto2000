@@ -22,6 +22,10 @@ idf_component_register(
         "src/ble_protocol_music.c"
         "src/ble_protocol_call.c"
         "src/ble_protocol_status.c"
+        "src/ble_protocol_fuel.c"
+        "src/ble_protocol_blitzer.c"
+        "src/ble_protocol_altitude.c"
+        "src/ble_protocol_appointment.c"
     INCLUDE_DIRS
         "include"
     PRIV_INCLUDE_DIRS

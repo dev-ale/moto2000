@@ -52,20 +52,32 @@ final class AccessoryManager {
         descriptor.bluetoothServiceUUID = CBUUID(
             string: "b6ca8101-b172-4d33-8518-8b1700235ed2"
         )
-        descriptor.bluetoothNameSubstring = "ScramScreen"
+        descriptor.bluetoothNameSubstring = "Scram"
         descriptor.supportedOptions = .bluetoothPairingLE
 
         // AccessorySetupKit requires a real raster image — system symbols crash
-        // in _validateDiscoveryDescriptor. Use the AppIcon from the asset catalog,
-        // falling back to a 1x1 pixel placeholder if unavailable.
-        let productImage: UIImage = UIImage(named: "AppIcon") ?? {
-            let size = CGSize(width: 1, height: 1)
-            UIGraphicsBeginImageContext(size)
-            UIColor.black.setFill()
-            UIRectFill(CGRect(origin: .zero, size: size))
-            let img = UIGraphicsGetImageFromCurrentImageContext()!   // swiftlint:disable:this force_unwrapping
-            UIGraphicsEndImageContext()
-            return img
+        // in _validateDiscoveryDescriptor. Render a simple branded icon.
+        let productImage: UIImage = {
+            let size = CGSize(width: 120, height: 120)
+            let renderer = UIGraphicsImageRenderer(size: size)
+            return renderer.image { ctx in
+                // Dark circle background
+                UIColor(red: 0.04, green: 0.04, blue: 0.04, alpha: 1).setFill()
+                ctx.cgContext.fillEllipse(in: CGRect(origin: .zero, size: size))
+                // Amber "S" letter
+                let font = UIFont.systemFont(ofSize: 56, weight: .bold)
+                let text = "S" as NSString
+                let attrs: [NSAttributedString.Key: Any] = [
+                    .font: font,
+                    .foregroundColor: UIColor(red: 0.96, green: 0.65, blue: 0.14, alpha: 1),
+                ]
+                let textSize = text.size(withAttributes: attrs)
+                let point = CGPoint(
+                    x: (size.width - textSize.width) / 2,
+                    y: (size.height - textSize.height) / 2
+                )
+                text.draw(at: point, withAttributes: attrs)
+            }
         }()
 
         let item = ASPickerDisplayItem(
@@ -74,9 +86,13 @@ final class AccessoryManager {
             descriptor: descriptor
         )
 
+        print("[ASK] showPicker called, sessionState=\(sessionState)")
         session.showPicker(for: [item]) { [weak self] error in
             if let error {
+                print("[ASK] showPicker error: \(error)")
                 self?.sessionState = .error(error.localizedDescription)
+            } else {
+                print("[ASK] showPicker completed without error")
             }
         }
     }
@@ -92,6 +108,7 @@ final class AccessoryManager {
     // MARK: - Event handling
 
     private func handleEvent(_ event: ASAccessoryEvent) { // swiftlint:disable:this cyclomatic_complexity
+        print("[ASK] event: \(event.eventType.rawValue)")
         switch event.eventType {
         case .activated:
             sessionState = .activated

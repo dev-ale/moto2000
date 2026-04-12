@@ -38,6 +38,10 @@ public protocol BLECentralClient: Sendable {
     /// paths where awaiting the stream is awkward.
     func currentState() async -> ConnectionState
 
+    /// Set the Bluetooth peripheral identifier (from AccessorySetupKit)
+    /// so reconnection uses direct retrieval instead of scanning.
+    func setPeripheralIdentifier(_ id: UUID?) async
+
     /// Begin scanning and connect to the first matching peripheral.
     ///
     /// Idempotent: calling ``connect()`` while already connected or

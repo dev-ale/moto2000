@@ -66,6 +66,13 @@ let project = Project(
                 "NSAccessorySetupKitSupports": [
                     "Bluetooth",
                 ],
+                "NSAccessorySetupBluetoothServices": [
+                    "B6CA8101-B172-4D33-8518-8B1700235ED2",
+                ],
+                "NSAccessorySetupBluetoothNames": [
+                    "Scram",
+                    "ScramScreen",
+                ],
                 "NSCalendarsFullAccessUsageDescription":
                     "ScramScreen reads your calendar to show upcoming appointments on your motorcycle display.",
                 "ITSAppUsesNonExemptEncryption": .boolean(false),

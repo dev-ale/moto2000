@@ -10,6 +10,10 @@
 
 #include <stdlib.h>
 
+#ifdef CONFIG_IDF_TARGET_ESP32S3
+#include "esp_log.h"
+#endif
+
 /* ------------------------------------------------------------------ */
 /* Platform-specific allocation                                       */
 /* ------------------------------------------------------------------ */
@@ -20,14 +24,12 @@
 static void *platform_alloc(size_t size)
 {
     /*
-     * Prefer DMA-capable internal SRAM for the flush buffer so the SPI
-     * peripheral can read it directly.  Fall back to PSRAM if internal
-     * memory is exhausted (the buffer is ~43 KB at 1/10th screen).
+     * MUST be DMA-capable internal SRAM — SPI DMA cannot read from PSRAM.
+     * If internal alloc fails, do NOT fall back to PSRAM.
      */
     void *p = heap_caps_malloc(size, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
-    if (!p) {
-        p = heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
-    }
+    ESP_LOGI("display", "alloc %u bytes => %p (internal=%s)", (unsigned)size, p,
+             p ? "yes" : "FAILED");
     return p;
 }
 
@@ -49,11 +51,10 @@ static void *platform_alloc(size_t size)
  * and 466x466 resolution that is ~43 KB per buffer.  Two buffers enable
  * double-buffered partial rendering.
  */
-#define BUF_LINES  (DISPLAY_HEIGHT / 10)
+#define BUF_LINES (DISPLAY_HEIGHT / 30) /* ~15 lines, ~14KB — fits SPI DMA limit */
 
-lv_display_t *display_create_lvgl(uint32_t width, uint32_t height,
-                                   lv_display_flush_cb_t flush_cb,
-                                   void *user_data)
+lv_display_t *display_create_lvgl(uint32_t width, uint32_t height, lv_display_flush_cb_t flush_cb,
+                                  void *user_data)
 {
     lv_display_t *disp = lv_display_create((int32_t)width, (int32_t)height);
     if (!disp) {
@@ -78,8 +79,8 @@ lv_display_t *display_create_lvgl(uint32_t width, uint32_t height,
         return NULL;
     }
 
-    lv_display_set_buffers(disp, buf1, buf2, buf_size,
-                           LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_color_format(disp, LV_COLOR_FORMAT_NATIVE);
+    lv_display_set_buffers(disp, buf1, buf2, buf_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
     lv_display_set_flush_cb(disp, flush_cb);
     lv_display_set_user_data(disp, user_data);
 

@@ -21,8 +21,8 @@
 /* Inactive arcs, bars, dividers */
 #define SCRAM_COLOR_INACTIVE lv_color_hex(0x222222)
 
-/* Accent: green — active ride data, progress bars, SOC, accept */
-#define SCRAM_COLOR_GREEN lv_color_hex(0x4DD88A)
+/* Accent: primary — active ride data, progress bars, SOC, accept */
+#define SCRAM_COLOR_GREEN lv_color_hex(0xF5A623)
 
 /* Accent: blue — heading, time-related, info, weather */
 #define SCRAM_COLOR_BLUE lv_color_hex(0x5BACF5)

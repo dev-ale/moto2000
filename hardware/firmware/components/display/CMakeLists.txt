@@ -15,5 +15,7 @@ idf_component_register(
     PRIV_INCLUDE_DIRS
         "src"
     REQUIRES
-        esp_lcd lvgl driver
+        lvgl__lvgl esp_timer esp_lcd
+    PRIV_REQUIRES
+        waveshare__esp32_s3_touch_amoled_1_75
 )

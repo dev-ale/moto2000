@@ -63,8 +63,10 @@ final class RideSessionCoordinator {
                 guard !Task.isCancelled else { break }
                 switch state {
                 case .connected:
+                    NSLog("[RSC] state: connected, starting session")
                     await self.handleConnect()
                 case .disconnected:
+                    NSLog("[RSC] state: disconnected")
                     await self.handleDisconnect()
                 default:
                     break
@@ -97,8 +99,9 @@ final class RideSessionCoordinator {
         do {
             try await session.start()
             isSessionActive = true
+            NSLog("[RSC] session started successfully")
         } catch {
-            NSLog("RideSessionCoordinator: failed to start session: \(error)")
+            NSLog("[RSC] failed to start session: \(error)")
             rideSession = nil
             isSessionActive = false
         }

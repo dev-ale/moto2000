@@ -8,6 +8,7 @@ import SwiftUI
 /// file so it cannot leak into Release. Presented as a sheet from
 /// ``RootView``.
 struct ScenarioPickerView: View {
+    let coordinator: RideSessionCoordinator?
     @State private var scenarios: [ScenarioDescriptor] = ScenarioCatalog.bundled()
     @State private var selection: ScenarioDescriptor.ID?
     @State private var speed: PlaybackSpeed = .realtime
@@ -74,12 +75,24 @@ struct ScenarioPickerView: View {
         runner = Task {
             do {
                 let scenario = try ScenarioLoader.load(from: descriptor.url)
-                status = "Playing \(scenario.name) at \(speed.label)"
-                let env = SimulatorEnvironment()
-                let clock = try WallClock(speedMultiplier: speed.rawValue)
-                let player = ScenarioPlayer(environment: env, clock: clock)
-                await player.play(scenario)
-                status = "Finished \(scenario.name)"
+                if let coordinator {
+                    status = "Playing \(scenario.name) on display at \(speed.label)"
+                    await coordinator.runSimulatedScenario(
+                        scenario,
+                        speedMultiplier: speed.rawValue
+                    )
+                    status = "Finished \(scenario.name)"
+                } else {
+                    // No coordinator (e.g. preview build) — fall back to
+                    // running the player against an isolated environment
+                    // so the picker still works in #Preview.
+                    status = "Playing \(scenario.name) (offline) at \(speed.label)"
+                    let env = SimulatorEnvironment()
+                    let clock = try WallClock(speedMultiplier: speed.rawValue)
+                    let player = ScenarioPlayer(environment: env, clock: clock)
+                    await player.play(scenario)
+                    status = "Finished \(scenario.name)"
+                }
             } catch {
                 status = "Error: \(error)"
             }
@@ -138,6 +151,6 @@ enum ScenarioCatalog {
 }
 
 #Preview {
-    ScenarioPickerView()
+    ScenarioPickerView(coordinator: nil)
 }
 #endif

@@ -292,10 +292,12 @@ static int prv_gap_event(struct ble_gap_event *event, void *arg)
         ESP_LOGI(TAG, "enc change; status=%d handle=%d", event->enc_change.status,
                  event->enc_change.conn_handle);
         if (event->enc_change.status == 0) {
-            /* Encryption is up — discover Apple Media Service and
-             * Apple Notification Center Service exposed by iOS. */
+            /* Encryption is up — discover Apple Media Service. We do
+             * NOT subscribe to ANCS: iOS dumps hundreds of historical
+             * notification records on connect, which floods the
+             * NimBLE FROM_LL pool and breaks OTA writes. The iOS app
+             * surfaces incoming calls via CXCallObserver instead. */
             ams_client_start_for_connection(event->enc_change.conn_handle);
-            ancs_client_start_for_connection(event->enc_change.conn_handle);
         }
         /* On failure we just log. The connection may get disconnected
          * by iOS but we do NOT clear the bond store — any stale-bond

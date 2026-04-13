@@ -22,9 +22,16 @@ public final class LeanAngleService: PayloadService, @unchecked Sendable {
     /// "upright" matches the phone's mounting angle. 0 = not yet
     /// calibrated, in which case the service emits confidence = 0
     /// and the firmware shows "Hold BOOT to calibrate".
+    ///
+    /// Persisted in UserDefaults so the rider only calibrates once —
+    /// firmware reboots tear down the BLE session (and therefore this
+    /// service instance), but the zero reference stays on the phone.
     private var calibrationOffsetX10: Int16 = 0
     private var isCalibrated: Bool = false
     private var lastSnapshotX10: Int16 = 0
+
+    private static let offsetKey = "scramscreen.leanAngle.calibrationOffsetX10"
+    private static let calibratedKey = "scramscreen.leanAngle.isCalibrated"
 
     public init(
         provider: any MotionProvider,
@@ -33,6 +40,11 @@ public final class LeanAngleService: PayloadService, @unchecked Sendable {
         self.provider = provider
         self.calculator = LeanAngleCalculator(smoothingAlpha: smoothingAlpha)
         self.encodedPayloads = channel.makeStream()
+        let defaults = UserDefaults.standard
+        if defaults.bool(forKey: Self.calibratedKey) {
+            self.isCalibrated = true
+            self.calibrationOffsetX10 = Int16(defaults.integer(forKey: Self.offsetKey))
+        }
     }
 
     /// Capture the current lean angle as the new upright reference.
@@ -43,7 +55,11 @@ public final class LeanAngleService: PayloadService, @unchecked Sendable {
         lock.lock()
         calibrationOffsetX10 = lastSnapshotX10
         isCalibrated = true
+        let offset = calibrationOffsetX10
         lock.unlock()
+        let defaults = UserDefaults.standard
+        defaults.set(true, forKey: Self.calibratedKey)
+        defaults.set(Int(offset), forKey: Self.offsetKey)
     }
 
     /// Start consuming samples from the provider. Idempotent: calling

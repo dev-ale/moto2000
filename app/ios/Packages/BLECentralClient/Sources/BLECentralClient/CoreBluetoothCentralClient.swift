@@ -132,11 +132,20 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         // previous app session. Reuse it — no scan, no pairing.
         let connected = cm.retrieveConnectedPeripherals(withServices: [Self.serviceUUID])
         if let existing = connected.first {
-            print("[BLE] reusing already-connected peripheral \(existing.identifier)")
+            print("[BLE] reusing already-connected peripheral \(existing.identifier) state=\(existing.state.rawValue)")
             self.peripheral = existing
             existing.delegate = delegate
             setState(.connecting)
-            cm.connect(existing, options: nil)
+            // CoreBluetooth will NOT re-fire didConnect for a peripheral
+            // that is already at .connected — if we just call connect()
+            // on it, handleConnected → discoverServices →
+            // setNotifyValue(status) never runs and notifies silently
+            // drop on the floor. Kick off service discovery directly.
+            if existing.state == .connected {
+                existing.discoverServices([Self.serviceUUID])
+            } else {
+                cm.connect(existing, options: nil)
+            }
             return
         }
 
@@ -250,11 +259,19 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
             let connected = central.retrieveConnectedPeripherals(
                 withServices: [Self.serviceUUID])
             if let existing = connected.first {
-                print("[BLE] poweredOn: reusing system-connected peripheral \(existing.identifier)")
+                print("[BLE] poweredOn: reusing system-connected peripheral \(existing.identifier) state=\(existing.state.rawValue)")
                 self.peripheral = existing
                 existing.delegate = delegate
                 setState(.connecting)
-                central.connect(existing, options: nil)
+                // An already-connected peripheral will NOT re-fire
+                // `didConnect`, so service discovery (and therefore
+                // setNotifyValue on the status char) never runs unless
+                // we kick it off directly here.
+                if existing.state == .connected {
+                    existing.discoverServices([Self.serviceUUID])
+                } else {
+                    central.connect(existing, options: nil)
+                }
                 return
             }
             if let peripheralIdentifier,

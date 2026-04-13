@@ -131,6 +131,7 @@ final class RideSessionCoordinator {
         let clock = try? WallClock(speedMultiplier: 1)
 
         Task { await locationProvider.start() }
+        Task { await motionProvider.start() }
 
         let weatherProvider = makeWeatherProvider(clock: clock, locationProvider: locationProvider)
         let nowPlayingProvider = makeNowPlayingProvider(clock: clock)

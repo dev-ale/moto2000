@@ -12,7 +12,12 @@ public final class PayloadChannel: @unchecked Sendable {
     public init() {}
 
     public func makeStream() -> AsyncStream<Data> {
-        AsyncStream<Data>(bufferingPolicy: .unbounded) { continuation in
+        // bufferingNewest(1): if the consumer (BLE forwarder) drains
+        // slower than the producer (e.g. 50 Hz motion samples), only the
+        // MOST RECENT payload is kept. Older queued samples are dropped
+        // on the floor so the firmware always sees live data instead of
+        // catching up on an ever-growing backlog.
+        AsyncStream<Data>(bufferingPolicy: .bufferingNewest(1)) { continuation in
             self.lock.lock()
             self.continuation = continuation
             self.lock.unlock()

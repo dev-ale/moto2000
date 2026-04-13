@@ -1,5 +1,14 @@
 import Foundation
 
+extension BLECentralClient {
+    public func sendControl(_ bytes: Data) async throws {
+        throw BLECentralClientError.notConnected
+    }
+    public func sendOTA(_ bytes: Data) async throws {
+        throw BLECentralClientError.notConnected
+    }
+}
+
 /// Errors surfaced by a ``BLECentralClient``.
 public enum BLECentralClientError: Error, Equatable, Sendable {
     /// Caller tried to ``BLECentralClient/send(_:)`` while not connected.
@@ -52,6 +61,19 @@ public protocol BLECentralClient: Sendable {
     /// if the link is down — callers should buffer in the
     /// ``LastKnownPayloadCache`` rather than treat this as fatal.
     func send(_ bytes: Data) async throws
+
+    /// Write a 4-byte control command to the dedicated `control`
+    /// characteristic (e.g. `SET_BRIGHTNESS`, `SET_ACTIVE_SCREEN`).
+    /// Default implementation throws notConnected so existing test
+    /// doubles don't have to implement it.
+    func sendControl(_ bytes: Data) async throws
+
+    /// Write one OTA frame to the `ota_data` characteristic. Frames
+    /// are interpreted by the firmware-side `ota_receiver`. The first
+    /// byte of `bytes` must be a frame type (BEGIN/CHUNK/COMMIT/ABORT).
+    /// Default implementation throws notConnected so existing test
+    /// doubles don't have to implement it.
+    func sendOTA(_ bytes: Data) async throws
 
     /// Tear the link down deliberately. The resulting state is
     /// ``ConnectionState/disconnected(reason:)`` with

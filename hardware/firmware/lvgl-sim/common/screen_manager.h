@@ -6,6 +6,7 @@
 #ifndef SCREEN_MANAGER_H
 #define SCREEN_MANAGER_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -57,5 +58,15 @@ void screen_manager_show_current(void);
  * Toggle night mode and re-render the current screen.
  */
 void screen_manager_toggle_night(void);
+
+/*
+ * Copy the cached BLE payload (header + body) for a screen into out_buf.
+ * Returns true if a cached payload exists and fits in out_buf.
+ *
+ * Used by screens that want to overlay data from another screen — e.g.
+ * the clock screen rendering current weather underneath the time.
+ */
+bool screen_manager_get_cached(uint8_t screen_id, uint8_t *out_buf, size_t out_cap,
+                               size_t *out_len);
 
 #endif /* SCREEN_MANAGER_H */

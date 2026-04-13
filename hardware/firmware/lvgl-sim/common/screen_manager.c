@@ -133,7 +133,8 @@ void screen_manager_seed_placeholders(void)
         }
     }
 
-    /* Weather — placeholder. */
+    /* Weather — placeholder with empty location so the clock screen
+     * suppresses its weather row until iOS sends real data. */
     {
         ble_weather_data_t d = {
             .condition = BLE_WEATHER_CLEAR,
@@ -141,7 +142,7 @@ void screen_manager_seed_placeholders(void)
             .high_celsius_x10 = 0,
             .low_celsius_x10 = 0,
         };
-        snprintf(d.location_name, sizeof(d.location_name), "%s", "—");
+        d.location_name[0] = '\0';
         if (ble_encode_weather(&d, 0, buf, sizeof(buf), &written) == BLE_OK) {
             seed_one(BLE_SCREEN_WEATHER, buf + 8, written - 8);
         }
@@ -517,6 +518,13 @@ void screen_manager_update_live(const uint8_t *data, size_t len)
     } else if (s_current_idx < s_active_count && s_active_ids[s_current_idx] == id) {
         /* Update the currently displayed screen with fresh data. */
         render_current();
+    } else if (s_current_idx < s_active_count && s_active_ids[s_current_idx] == BLE_SCREEN_CLOCK &&
+               id == BLE_SCREEN_WEATHER) {
+        /* Special case: the clock screen overlays the latest cached
+         * weather. When weather updates, re-render clock so the
+         * location/temp row picks up the new value without waiting
+         * for the next clock tick. */
+        render_current();
     }
 }
 
@@ -582,4 +590,20 @@ void screen_manager_toggle_night(void)
 {
     s_night_mode = !s_night_mode;
     render_current();
+}
+
+bool screen_manager_get_cached(uint8_t screen_id, uint8_t *out_buf, size_t out_cap, size_t *out_len)
+{
+    if (!out_buf || !out_len || screen_id >= MAX_SCREENS) {
+        return false;
+    }
+    if (!s_cache[screen_id].valid) {
+        return false;
+    }
+    if (s_cache[screen_id].len > out_cap) {
+        return false;
+    }
+    memcpy(out_buf, s_cache[screen_id].data, s_cache[screen_id].len);
+    *out_len = s_cache[screen_id].len;
+    return true;
 }

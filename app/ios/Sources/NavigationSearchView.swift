@@ -121,6 +121,18 @@ struct NavigationSearchView: View {
 
     // MARK: - Active navigation state
 
+    private func routeStat(_ label: String, _ value: String) -> some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.scramHeadline)
+                .foregroundStyle(Color.scramTextPrimary)
+            Text(label)
+                .font(.scramCaption)
+                .foregroundStyle(Color.scramTextSecondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     private var activeNavigationCard: some View {
         VStack(spacing: ScramSpacing.md) {
             HStack {
@@ -135,6 +147,34 @@ struct NavigationSearchView: View {
                         .foregroundStyle(Color.scramTextPrimary)
                 }
                 Spacer()
+            }
+
+            if !vm.routeDistanceText.isEmpty {
+                HStack(spacing: ScramSpacing.lg) {
+                    routeStat("Distance", vm.routeDistanceText)
+                    routeStat("Time", vm.routeDurationText)
+                    routeStat("ETA", vm.routeETAText)
+                }
+            } else if !vm.diagnosticStatus.isEmpty {
+                Text(vm.diagnosticStatus)
+                    .font(.scramCaption)
+                    .foregroundStyle(Color.scramTextSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            if let coord = vm.activeDestinationCoordinate {
+                Map(initialPosition: .region(MKCoordinateRegion(
+                    center: coord,
+                    latitudinalMeters: 4000,
+                    longitudinalMeters: 4000
+                ))) {
+                    Marker(vm.destinationName, coordinate: coord)
+                        .tint(Color.scramGreen)
+                    UserAnnotation()
+                }
+                .mapStyle(.standard(elevation: .flat))
+                .frame(height: 220)
+                .clipShape(RoundedRectangle(cornerRadius: ScramRadius.cardSmall))
             }
 
             Button {
@@ -170,6 +210,11 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
     @Published var selectedDestination: SelectedDestination?
     @Published var isNavigating: Bool = false
     @Published var destinationName: String = ""
+    @Published var activeDestinationCoordinate: CLLocationCoordinate2D?
+    @Published var diagnosticStatus: String = ""
+    @Published var routeDistanceText: String = ""
+    @Published var routeDurationText: String = ""
+    @Published var routeETAText: String = ""
 
     struct SelectedDestination {
         let name: String
@@ -200,7 +245,61 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
             self?.isNavigating = true
             self?.searchText = ""
             self?.completions = []
+            if let lat = notification.userInfo?["latitude"] as? Double,
+               let lon = notification.userInfo?["longitude"] as? Double {
+                self?.activeDestinationCoordinate = CLLocationCoordinate2D(
+                    latitude: lat, longitude: lon
+                )
+            }
         }
+
+        // Live status updates from NavigationService for in-app debugging.
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("scramNavigationStatusUpdate"),
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            if let msg = note.userInfo?["message"] as? String {
+                self?.diagnosticStatus = msg
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("scramNavigationRouteReady"),
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let info = note.userInfo,
+                  let meters = info["distanceMeters"] as? Double,
+                  let seconds = info["durationSeconds"] as? Double else { return }
+            self?.routeDistanceText = Self.formatDistance(meters)
+            self?.routeDurationText = Self.formatDuration(seconds)
+            self?.routeETAText = Self.formatETA(in: seconds)
+        }
+    }
+
+    private static func formatDistance(_ meters: Double) -> String {
+        if meters >= 1000 {
+            return String(format: "%.1f km", meters / 1000)
+        }
+        return String(format: "%.0f m", meters)
+    }
+
+    private static func formatDuration(_ seconds: Double) -> String {
+        let totalMinutes = Int(seconds / 60)
+        if totalMinutes >= 60 {
+            let hours = totalMinutes / 60
+            let remMinutes = totalMinutes % 60
+            return "\(hours) h \(remMinutes) min"
+        }
+        return "\(totalMinutes) min"
+    }
+
+    private static func formatETA(in seconds: Double) -> String {
+        let arrival = Date().addingTimeInterval(seconds)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: arrival)
     }
 
     func select(_ completion: MKLocalSearchCompletion) {
@@ -224,6 +323,7 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
     func startNavigation() {
         guard let dest = selectedDestination else { return }
         destinationName = dest.name
+        activeDestinationCoordinate = dest.coordinate
         isNavigating = true
         searchText = ""
         completions = []
@@ -251,6 +351,11 @@ final class NavigationSearchViewModel: NSObject, ObservableObject {
 
     func stopNavigation() {
         isNavigating = false
+        activeDestinationCoordinate = nil
+        routeDistanceText = ""
+        routeDurationText = ""
+        routeETAText = ""
+        diagnosticStatus = ""
         destinationName = ""
         UserDefaults.standard.set(false, forKey: "scramNav.active")
         NotificationCenter.default.post(

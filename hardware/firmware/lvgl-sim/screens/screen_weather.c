@@ -237,13 +237,23 @@ void screen_weather_create(lv_obj_t *parent, const ble_weather_data_t *data, uin
     lv_obj_set_style_pad_all(parent, 0, 0);
     lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
 
+    /* If iOS hasn't sent real weather yet (placeholder seed has empty
+     * location), show a "loading" hero instead of a fake 0°. */
+    bool loaded = data->location_name[0] != '\0';
+
     /* --- Condition icon (upper region) --- */
-    draw_condition_icon(parent, 233, 130, data->condition, night);
+    if (loaded) {
+        draw_condition_icon(parent, 233, 130, data->condition, night);
+    }
 
     /* --- Hero temperature --- */
     int16_t temp_whole = data->temperature_celsius_x10 / 10;
     char temp_buf[16];
-    snprintf(temp_buf, sizeof(temp_buf), "%d\xC2\xB0", (int)temp_whole);
+    if (loaded) {
+        snprintf(temp_buf, sizeof(temp_buf), "%d C", (int)temp_whole);
+    } else {
+        snprintf(temp_buf, sizeof(temp_buf), "%s", "--");
+    }
 
     lv_obj_t *lbl_temp = lv_label_create(parent);
     lv_label_set_text(lbl_temp, temp_buf);
@@ -264,19 +274,20 @@ void screen_weather_create(lv_obj_t *parent, const ble_weather_data_t *data, uin
     int16_t high_whole = data->high_celsius_x10 / 10;
     int16_t low_whole = data->low_celsius_x10 / 10;
     char hilo_buf[32];
-    snprintf(hilo_buf, sizeof(hilo_buf), "H: %d\xC2\xB0  L: %d\xC2\xB0", (int)high_whole,
-             (int)low_whole);
+    snprintf(hilo_buf, sizeof(hilo_buf), "H: %d C  L: %d C", (int)high_whole, (int)low_whole);
 
-    lv_obj_t *lbl_hilo = lv_label_create(parent);
-    lv_label_set_text(lbl_hilo, hilo_buf);
-    lv_obj_set_style_text_font(lbl_hilo, SCRAM_FONT_SMALL, 0);
-    lv_obj_set_style_text_color(lbl_hilo, col_muted, 0);
-    lv_obj_set_style_text_align(lbl_hilo, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_hilo, LV_ALIGN_CENTER, 0, 100);
+    if (loaded) {
+        lv_obj_t *lbl_hilo = lv_label_create(parent);
+        lv_label_set_text(lbl_hilo, hilo_buf);
+        lv_obj_set_style_text_font(lbl_hilo, SCRAM_FONT_SMALL, 0);
+        lv_obj_set_style_text_color(lbl_hilo, col_muted, 0);
+        lv_obj_set_style_text_align(lbl_hilo, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(lbl_hilo, LV_ALIGN_CENTER, 0, 100);
+    }
 
     /* --- Location --- */
     lv_obj_t *lbl_loc = lv_label_create(parent);
-    lv_label_set_text(lbl_loc, data->location_name);
+    lv_label_set_text(lbl_loc, loaded ? data->location_name : "Loading...");
     lv_obj_set_style_text_font(lbl_loc, SCRAM_FONT_SMALL, 0);
     lv_obj_set_style_text_color(lbl_loc, col_orange, 0);
     lv_obj_set_style_text_align(lbl_loc, LV_TEXT_ALIGN_CENTER, 0);

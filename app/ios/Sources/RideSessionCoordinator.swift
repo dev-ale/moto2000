@@ -128,54 +128,15 @@ final class RideSessionCoordinator {
     private func buildRealDependencies() -> RideSessionDependencies {
         let locationProvider = RealLocationProvider()
         let motionProvider = RealMotionProvider()
-
         let clock = try? WallClock(speedMultiplier: 1)
 
-        // Weather provider — uses the stub WeatherKitClient until the
-        // real integration lands. RealWeatherProvider swallows the
-        // .notImplemented error and simply never emits snapshots.
-        var weatherProvider: (any WeatherProvider)?
-        #if canImport(WeatherKit)
-        weatherProvider = clock.map { clk in
-            RealWeatherProvider(
-                client: WeatherKitClient(),
-                clock: clk,
-                coordinate: .init(latitude: 0, longitude: 0)
-            )
-        }
-        #endif
+        Task { await locationProvider.start() }
 
-        // Music — MediaPlayerNowPlayingClient is a stub for now.
-        let nowPlayingProvider: RealNowPlayingProvider? = clock.map { clk in
-            RealNowPlayingProvider(
-                client: MediaPlayerNowPlayingClient(),
-                clock: clk
-            )
-        }
-
-        // Calendar — EventKitCalendarClient is a stub for now.
-        var calendarProvider: (any CalendarProvider)?
-        #if canImport(EventKit)
-        calendarProvider = clock.map { clk in
-            RealCalendarProvider(
-                client: EventKitCalendarClient(),
-                clock: clk
-            )
-        }
-        #endif
-
-        // Calls — CXCallObserverClient is a stub for now.
+        let weatherProvider = makeWeatherProvider(clock: clock, locationProvider: locationProvider)
+        let nowPlayingProvider = makeNowPlayingProvider(clock: clock)
+        let calendarProvider = makeCalendarProvider(clock: clock)
         let callObserver = RealCallObserver(client: CXCallObserverClient())
-
-        // Speed cameras — loaded from the bundled SQLite database.
-        var speedCameraDB: BundledSpeedCameraDatabase?
-        do {
-            speedCameraDB = try BundledSpeedCameraDatabase()
-        } catch {
-            NSLog("RideSessionCoordinator: speed camera database unavailable: \(error)")
-        }
-
-        // Fuel log — backed by the documents-directory store.
+        let speedCameraDB = loadSpeedCameraDB()
         let fuelLog = FuelLog(store: fuelLogStore)
 
         return RideSessionDependencies(
@@ -188,6 +149,58 @@ final class RideSessionCoordinator {
             speedCameraDatabase: speedCameraDB,
             fuelLog: fuelLog
         )
+    }
+
+    private func makeWeatherProvider(
+        clock: WallClock?,
+        locationProvider: RealLocationProvider
+    ) -> (any WeatherProvider)? {
+        guard let clock else { return nil }
+        let realWeather = RealWeatherProvider(client: OpenMeteoClient(), clock: clock)
+        // Feed the latest GPS fix into the weather provider on a light
+        // tick. We read `latestSample` instead of iterating `samples`
+        // because that AsyncStream is single-consumer.
+        Task { [weak locationProvider, weak realWeather] in
+            while !Task.isCancelled {
+                if let sample = locationProvider?.latestSample {
+                    realWeather?.updateCoordinate(
+                        .init(latitude: sample.latitude, longitude: sample.longitude)
+                    )
+                }
+                try? await Task.sleep(nanoseconds: 30 * 1_000_000_000)
+            }
+        }
+        Task { await realWeather.start() }
+        return realWeather
+    }
+
+    private func makeNowPlayingProvider(clock: WallClock?) -> RealNowPlayingProvider? {
+        clock.map { clk in
+            RealNowPlayingProvider(client: MediaPlayerNowPlayingClient(), clock: clk)
+        }
+    }
+
+    private func makeCalendarProvider(clock: WallClock?) -> (any CalendarProvider)? {
+        #if canImport(EventKit)
+        guard let clock else { return nil }
+        let provider = RealCalendarProvider(
+            client: EventKitCalendarClient(),
+            clock: clock
+        )
+        Task { await provider.start() }
+        return provider
+        #else
+        return nil
+        #endif
+    }
+
+    private func loadSpeedCameraDB() -> BundledSpeedCameraDatabase? {
+        do {
+            return try BundledSpeedCameraDatabase()
+        } catch {
+            NSLog("RideSessionCoordinator: speed camera database unavailable: \(error)")
+            return nil
+        }
     }
 
     // MARK: - Trip persistence

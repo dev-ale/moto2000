@@ -67,9 +67,13 @@ public struct TripStatsAccumulator: Sendable, Equatable {
                 next.distanceMeters += distance
             }
 
-            // Time — positive deltas only.
+            // Time — positive deltas only, AND only when the rider is
+            // actually moving. Sitting parked with the BLE link up
+            // shouldn't inflate the ride duration. Use the same speed
+            // threshold as the distance gate above so the two stay in
+            // sync.
             let dt = sample.scenarioTime - previous.scenarioTime
-            if dt > 0 {
+            if dt > 0 && sample.speedMps > 1.0 {
                 let added = next.rideTimeSeconds &+ UInt32(min(max(dt, 0), Double(UInt32.max)))
                 next.rideTimeSeconds = added
             }

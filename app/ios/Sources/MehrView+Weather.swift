@@ -1,49 +1,61 @@
 import CoreLocation
+import RideSimulatorKit
 import ScramCore
 import SwiftUI
-#if canImport(WeatherKit)
-import RideSimulatorKit
-#endif
 
 // MARK: - Weather tile
 
 extension MehrView {
     var weatherSection: some View {
-        Group {
-            if let weatherText {
-                settingsRow(
-                    icon: weatherIcon,
-                    title: weatherText
-                )
-            }
-        }
+        settingsRow(
+            icon: weatherIcon,
+            title: weatherText ?? "Weather: waiting for GPS…"
+        )
     }
 
     func fetchWeather() async {
-        #if canImport(WeatherKit)
-        let locManager = CLLocationManager()
-        guard let location = locManager.location else { return }
-        let client = WeatherKitClient()
+        let manager = CLLocationManager()
+        let auth = manager.authorizationStatus
+        guard auth == .authorizedWhenInUse || auth == .authorizedAlways else {
+            weatherIcon = "location.slash"
+            weatherText = "Location not authorized"
+            return
+        }
+
+        guard let location = manager.location else {
+            // CLLocationManager.location is populated once CoreLocation
+            // has a fix. Surface the missing-fix state so the user can
+            // tell whether the failure is GPS or weather.
+            weatherIcon = "location.magnifyingglass"
+            weatherText = "Waiting for GPS fix…"
+            return
+        }
+
+        weatherIcon = "cloud.fill"
+        weatherText = "Fetching weather…"
+
+        let client = OpenMeteoClient()
         do {
             let response = try await client.fetchCurrentWeather(
                 latitude: location.coordinate.latitude,
                 longitude: location.coordinate.longitude
             )
-            let geocoder = CLGeocoder()
-            let placemarks = try? await geocoder.reverseGeocodeLocation(location)
-            let city = placemarks?.first?.locality ?? ""
             let tempStr = useCelsius
                 ? String(format: "%.0f°C", response.temperatureCelsius)
                 : String(format: "%.0f°F", response.temperatureCelsius * 9 / 5 + 32)
             weatherIcon = weatherSFSymbol(for: response.condition)
-            weatherText = city.isEmpty ? tempStr : "\(city) · \(tempStr)"
+            let city = response.locationName.isEmpty
+                ? String(format: "%.4f, %.4f",
+                         location.coordinate.latitude,
+                         location.coordinate.longitude)
+                : response.locationName
+            weatherText = "\(city) · \(tempStr)"
         } catch {
-            // WeatherKit not available — skip
+            weatherIcon = "exclamationmark.triangle"
+            weatherText = "Weather error: \(error.localizedDescription)"
         }
-        #endif
     }
 
-    #if canImport(WeatherKit)
     func weatherSFSymbol(
         for condition: RideSimulatorKit.WeatherCondition
     ) -> String {
@@ -56,5 +68,4 @@ extension MehrView {
         case .thunderstorm: "cloud.bolt.fill"
         }
     }
-    #endif
 }

@@ -120,7 +120,7 @@ void screen_speed_create(lv_obj_t *parent, const ble_speed_heading_data_t *data,
 
     /* --- Heading with cardinal direction --- */
     char heading_buf[16];
-    snprintf(heading_buf, sizeof(heading_buf), "%s %03u\xC2\xB0",
+    snprintf(heading_buf, sizeof(heading_buf), "%s %03u",
              heading_to_cardinal(data->heading_deg_x10), (unsigned)heading_deg);
 
     lv_obj_t *lbl_heading = lv_label_create(parent);
@@ -149,25 +149,8 @@ void screen_speed_create(lv_obj_t *parent, const ble_speed_heading_data_t *data,
     lv_obj_clear_flag(dot_alt, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align(dot_alt, LV_ALIGN_CENTER, -95, 130);
 
-    /* --- Temperature (bottom-right) --- */
-    char temp_buf[16];
-    snprintf(temp_buf, sizeof(temp_buf),
-             "%d\xC2\xB0"
-             "C",
-             (int)temp_whole);
-
-    lv_obj_t *lbl_temp = lv_label_create(parent);
-    lv_label_set_text(lbl_temp, temp_buf);
-    lv_obj_set_style_text_font(lbl_temp, &lv_font_montserrat_24, 0);
-    lv_obj_set_style_text_color(lbl_temp, col_muted, 0);
-    lv_obj_align(lbl_temp, LV_ALIGN_CENTER, 95, 150);
-
-    lv_obj_t *dot_temp = lv_obj_create(parent);
-    lv_obj_set_size(dot_temp, 8, 8);
-    lv_obj_set_style_radius(dot_temp, 4, 0);
-    lv_obj_set_style_bg_color(dot_temp, col_muted, 0);
-    lv_obj_set_style_bg_opa(dot_temp, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(dot_temp, 0, 0);
-    lv_obj_clear_flag(dot_temp, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_align(dot_temp, LV_ALIGN_CENTER, 95, 130);
+    /* Temperature row removed: there's no thermal source on iOS yet, so
+     * the field always carries 0 — showing "0 C" was misleading. Re-add
+     * once a real provider lands. */
+    (void)temp_whole;
 }

@@ -94,7 +94,11 @@ static void draw_profile(lv_obj_t *parent, const ble_altitude_profile_data_t *da
                          lv_color_t col_traveled, lv_color_t col_future, lv_color_t col_dot)
 {
     uint8_t n = data->sample_count;
-    if (n == 0)
+    /* Need at least 3 samples AND some elevation variation before a
+     * line graph means anything. With just 1-2 stationary samples the
+     * profile renders as a flat line across the whole display, which
+     * looks broken. */
+    if (n < 3)
         return;
     if (n > BLE_ALTITUDE_MAX_SAMPLES)
         n = BLE_ALTITUDE_MAX_SAMPLES;

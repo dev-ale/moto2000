@@ -68,11 +68,25 @@ public struct MKDirectionsRouteEngine: RouteEngine {
             )
         }
 
-        return NavigationRoute(
+        let nav = NavigationRoute(
             steps: steps,
             totalDistanceMeters: route.distance,
             expectedTravelTimeSeconds: route.expectedTravelTime
         )
+
+        // Verbose route dump so the rider can verify routing in console
+        // (Console.app or Xcode device log filtered by [NAV]).
+        NSLog("[NAV] route: %.0f m, %.0f s, %d steps",
+              route.distance, route.expectedTravelTime, steps.count)
+        for (i, step) in steps.enumerated() {
+            NSLog("[NAV]   %2d: %@ — %.0f m — %@",
+                  i,
+                  String(describing: step.maneuver),
+                  step.distanceMeters,
+                  step.streetName.isEmpty ? "(no street)" : step.streetName)
+        }
+
+        return nav
     }
 
     // MARK: - Heuristics

@@ -508,6 +508,21 @@ void screen_navigation_create(lv_obj_t *parent, const ble_nav_data_t *nav, uint8
     lv_obj_set_style_pad_all(parent, 0, 0);
     lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
 
+    /* If no real navigation is active (placeholder/idle state — no
+     * street, no remaining distance), show an instructional message
+     * instead of a misleading "0m" hero. */
+    bool active = (nav->street_name[0] != '\0') || (nav->remaining_km_x10 != 0) ||
+                  (nav->distance_to_maneuver_m != 0);
+    if (!active) {
+        lv_obj_t *lbl_idle = lv_label_create(parent);
+        lv_label_set_text(lbl_idle, "Start navigation\nfrom phone");
+        lv_obj_set_style_text_font(lbl_idle, SCRAM_FONT_VALUE, 0);
+        lv_obj_set_style_text_color(lbl_idle, col_muted, 0);
+        lv_obj_set_style_text_align(lbl_idle, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(lbl_idle, LV_ALIGN_CENTER, 0, 0);
+        return;
+    }
+
     /* --- Hero turn arrow --- */
     nav_arrow_t shape = maneuver_to_arrow(nav->maneuver);
     draw_arrow(parent, shape, col_accent);

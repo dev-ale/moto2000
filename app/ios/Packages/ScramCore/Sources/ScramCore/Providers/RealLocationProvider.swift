@@ -17,6 +17,19 @@ public final class RealLocationProvider: LocationProvider, @unchecked Sendable {
     private let startTime: Date
     public let samples: AsyncStream<LocationSample>
 
+    private let latestLock = NSLock()
+    private var _latestSample: LocationSample?
+
+    /// Most recent fix delivered by CoreLocation, or nil if none yet.
+    /// Safe to read from any thread. Provided for consumers that need an
+    /// occasional snapshot rather than a continuous stream — the
+    /// `samples` AsyncStream is single-consumer and shouldn't be split.
+    public var latestSample: LocationSample? {
+        latestLock.lock()
+        defer { latestLock.unlock() }
+        return _latestSample
+    }
+
     /// Adapter-delegate shim. Holds a weak back-reference to the provider
     /// so CoreLocation callbacks resolve the provider through this
     /// intermediate. A separate class keeps the adapter's `delegate`
@@ -67,6 +80,9 @@ public final class RealLocationProvider: LocationProvider, @unchecked Sendable {
 
     #if canImport(CoreLocation)
     /// Convenience initializer that wires up a fresh ``CLLocationManagerAdapter``.
+    /// `CLLocationManager` must be created on a thread with a run loop,
+    /// hence the `@MainActor` requirement.
+    @MainActor
     public convenience init() {
         self.init(manager: CLLocationManagerAdapter())
     }
@@ -88,7 +104,11 @@ public final class RealLocationProvider: LocationProvider, @unchecked Sendable {
 
     fileprivate func handle(fixes: [LocationManagingFix]) {
         for fix in fixes {
-            channel.emit(convert(fix))
+            let sample = convert(fix)
+            latestLock.lock()
+            _latestSample = sample
+            latestLock.unlock()
+            channel.emit(sample)
         }
     }
 

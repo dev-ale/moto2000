@@ -12,9 +12,13 @@
  * ESP-IDF compatible: pure LVGL + ble_protocol, no SDL dependencies.
  */
 #include "screens/screen_clock.h"
+#include "common/screen_manager.h"
 #include "theme/scram_colors.h"
 #include "theme/scram_fonts.h"
 #include "theme/scram_theme.h"
+
+#include "ble_protocol.h"
+#include "screen_ids.h"
 
 #include <stdio.h>
 
@@ -99,14 +103,12 @@ static void format_date(const ble_clock_data_t *data, char *buf, size_t cap)
 
 void screen_clock_create(lv_obj_t *parent, const ble_clock_data_t *data, uint8_t flags)
 {
+    (void)flags;
     bool night = scram_theme_is_night_mode();
 
     lv_color_t col_text = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_WHITE;
     lv_color_t col_muted = night ? SCRAM_COLOR_NIGHT_MUTED : SCRAM_COLOR_MUTED;
-    lv_color_t col_green = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_GREEN;
-    lv_color_t col_blue = night ? SCRAM_COLOR_NIGHT_TEXT : SCRAM_COLOR_BLUE;
 
-    /* Remove padding/scrollbar from parent screen. */
     lv_obj_set_style_pad_all(parent, 0, 0);
     lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
 
@@ -116,12 +118,17 @@ void screen_clock_create(lv_obj_t *parent, const ble_clock_data_t *data, uint8_t
 
     lv_obj_t *lbl_date = lv_label_create(parent);
     lv_label_set_text(lbl_date, date_buf);
-    lv_obj_set_style_text_font(lbl_date, SCRAM_FONT_LABEL, 0);
+    lv_obj_set_style_text_font(lbl_date, SCRAM_FONT_VALUE, 0);
     lv_obj_set_style_text_color(lbl_date, col_muted, 0);
     lv_obj_set_style_text_align(lbl_date, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_date, LV_ALIGN_TOP_MID, 0, 120);
+    lv_obj_align(lbl_date, LV_ALIGN_TOP_MID, 0, 110);
 
-    /* --- Hero time --- */
+    /* --- Hero time ---
+     *
+     * Max built-in Montserrat is 48 px. For motorcycle glance-ability on
+     * the 466 px AMOLED we scale the label via transform_scale (256 is
+     * 1.0x) to get effective ~96 px digits. Montserrat 48 is bold enough
+     * that 2x nearest-neighbour stays legible. */
     char time_buf[16];
     format_time(data, time_buf, sizeof(time_buf));
 
@@ -130,49 +137,38 @@ void screen_clock_create(lv_obj_t *parent, const ble_clock_data_t *data, uint8_t
     lv_obj_set_style_text_font(lbl_time, SCRAM_FONT_HERO, 0);
     lv_obj_set_style_text_color(lbl_time, col_text, 0);
     lv_obj_set_style_text_align(lbl_time, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_time, LV_ALIGN_CENTER, 0, -10);
+    lv_obj_set_style_transform_pivot_x(lbl_time, LV_PCT(50), 0);
+    lv_obj_set_style_transform_pivot_y(lbl_time, LV_PCT(50), 0);
+    lv_obj_set_style_transform_scale(lbl_time, 512, 0); /* 2.0x */
+    lv_obj_align(lbl_time, LV_ALIGN_CENTER, 0, 0);
 
-    /* --- Location + temperature --- */
-    /* The mockup shows "Basel — 18°C". The clock payload doesn't carry
-       location or temp, so we show a placeholder. When the screen is
-       driven from a real composite payload this will be populated. */
-    lv_obj_t *lbl_loc = lv_label_create(parent);
-    lv_label_set_text(lbl_loc, "- - -");
-    lv_obj_set_style_text_font(lbl_loc, SCRAM_FONT_LABEL, 0);
-    lv_obj_set_style_text_color(lbl_loc, col_muted, 0);
-    lv_obj_set_style_text_align(lbl_loc, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_loc, LV_ALIGN_CENTER, 0, 50);
+    /* --- Location + temperature ---
+     *
+     * Pull the most recent weather payload from the screen-manager cache
+     * (iOS streams it on its own cadence, ~10 min). If nothing is cached
+     * yet — first boot, no GPS fix, no network — render nothing rather
+     * than a placeholder, so the clock screen stays clean. */
+    uint8_t weather_buf[BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_WEATHER_BODY_SIZE];
+    size_t weather_len = 0;
+    if (screen_manager_get_cached(BLE_SCREEN_WEATHER, weather_buf, sizeof(weather_buf),
+                                  &weather_len)) {
+        ble_weather_data_t w;
+        uint8_t wflags = 0;
+        if (ble_decode_weather(weather_buf, weather_len, &wflags, &w) == BLE_OK &&
+            w.location_name[0] != '\0') {
+            char ws[48];
+            int t =
+                (int)((w.temperature_celsius_x10 + (w.temperature_celsius_x10 >= 0 ? 5 : -5)) / 10);
+            /* Use ASCII-safe degree marker: Montserrat doesn't include
+             * the U+00B0 ° glyph and renders a missing-glyph box. */
+            snprintf(ws, sizeof(ws), "%s  %d C", w.location_name, t);
 
-    /* --- Status dots --- */
-    /* BLE dot (green) */
-    lv_obj_t *dot_ble = lv_obj_create(parent);
-    lv_obj_set_size(dot_ble, 10, 10);
-    lv_obj_set_style_radius(dot_ble, 5, 0);
-    lv_obj_set_style_bg_color(dot_ble, col_green, 0);
-    lv_obj_set_style_bg_opa(dot_ble, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(dot_ble, 0, 0);
-    lv_obj_clear_flag(dot_ble, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_align(dot_ble, LV_ALIGN_CENTER, -45, 90);
-
-    lv_obj_t *lbl_ble = lv_label_create(parent);
-    lv_label_set_text(lbl_ble, "BLE");
-    lv_obj_set_style_text_font(lbl_ble, SCRAM_FONT_SMALL, 0);
-    lv_obj_set_style_text_color(lbl_ble, col_muted, 0);
-    lv_obj_align(lbl_ble, LV_ALIGN_CENTER, -20, 90);
-
-    /* WiFi dot (blue) */
-    lv_obj_t *dot_wifi = lv_obj_create(parent);
-    lv_obj_set_size(dot_wifi, 10, 10);
-    lv_obj_set_style_radius(dot_wifi, 5, 0);
-    lv_obj_set_style_bg_color(dot_wifi, col_blue, 0);
-    lv_obj_set_style_bg_opa(dot_wifi, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(dot_wifi, 0, 0);
-    lv_obj_clear_flag(dot_wifi, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_align(dot_wifi, LV_ALIGN_CENTER, 20, 90);
-
-    lv_obj_t *lbl_wifi = lv_label_create(parent);
-    lv_label_set_text(lbl_wifi, "WiFi");
-    lv_obj_set_style_text_font(lbl_wifi, SCRAM_FONT_SMALL, 0);
-    lv_obj_set_style_text_color(lbl_wifi, col_muted, 0);
-    lv_obj_align(lbl_wifi, LV_ALIGN_CENTER, 48, 90);
+            lv_obj_t *lbl_w = lv_label_create(parent);
+            lv_label_set_text(lbl_w, ws);
+            lv_obj_set_style_text_font(lbl_w, SCRAM_FONT_VALUE, 0);
+            lv_obj_set_style_text_color(lbl_w, col_muted, 0);
+            lv_obj_set_style_text_align(lbl_w, LV_TEXT_ALIGN_CENTER, 0);
+            lv_obj_align(lbl_w, LV_ALIGN_BOTTOM_MID, 0, -110);
+        }
+    }
 }

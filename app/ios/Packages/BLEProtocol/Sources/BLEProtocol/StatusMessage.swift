@@ -16,11 +16,15 @@ import Foundation
 public enum StatusMessage: Equatable, Sendable {
     /// The ESP32 switched to a different screen.
     case screenChanged(ScreenID)
+    /// The firmware reported its current major.minor.patch version on
+    /// connect. Used by the iOS More tab and the OTA update flow.
+    case firmwareVersion(major: UInt8, minor: UInt8, patch: UInt8)
 
     /// Numeric type byte as documented in `docs/ble-protocol.md`.
     public var typeByte: UInt8 {
         switch self {
         case .screenChanged: return 0x01
+        case .firmwareVersion: return 0x02
         }
     }
 
@@ -32,6 +36,10 @@ public enum StatusMessage: Equatable, Sendable {
         switch self {
         case .screenChanged(let id):
             writer.writeUInt8(id.rawValue)
+        case .firmwareVersion(let maj, let min, let pat):
+            writer.writeUInt8(maj)
+            writer.writeUInt8(min)
+            writer.writeUInt8(pat)
         }
         return writer.data
     }
@@ -55,6 +63,14 @@ public enum StatusMessage: Equatable, Sendable {
                 throw BLEProtocolError.unknownScreenId(raw)
             }
             return .screenChanged(screen)
+        case 0x02:
+            guard data.count >= 5 else {
+                throw BLEProtocolError.truncatedHeader
+            }
+            let maj = try reader.readUInt8()
+            let min = try reader.readUInt8()
+            let pat = try reader.readUInt8()
+            return .firmwareVersion(major: maj, minor: min, patch: pat)
         default:
             throw BLEProtocolError.unknownStatusType(type)
         }

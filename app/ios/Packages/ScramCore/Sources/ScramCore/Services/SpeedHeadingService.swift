@@ -30,6 +30,7 @@ public final class SpeedHeadingService: PayloadService, @unchecked Sendable {
 
     private var forwardingTask: Task<Void, Never>?
     private var lastHeadingDegX10: UInt16 = 0
+    private var smoothedSpeedKmh: Double?
 
     public init(provider: any LocationProvider) {
         self.provider = provider
@@ -64,10 +65,19 @@ public final class SpeedHeadingService: PayloadService, @unchecked Sendable {
     func encode(_ sample: LocationSample) -> Data? {
         let speedKmhX10: UInt16
         if sample.speedMps < 0 {
-            speedKmhX10 = 0
+            // CoreLocation has no valid speed yet — keep the last
+            // smoothed value rather than snapping to 0.
+            let kmh = smoothedSpeedKmh ?? 0
+            speedKmhX10 = UInt16(min(max((kmh * 10.0).rounded(), 0), 3000))
         } else {
-            let raw = (sample.speedMps * 3.6 * 10.0).rounded()
-            speedKmhX10 = UInt16(min(max(raw, 0), 3000))
+            let rawKmh = sample.speedMps * 3.6
+            // Light exponential moving average (alpha = 0.5) to absorb
+            // GPS jitter without lagging real acceleration noticeably.
+            let alpha = 0.5
+            let smoothed = (smoothedSpeedKmh.map { $0 * (1 - alpha) + rawKmh * alpha }) ?? rawKmh
+            smoothedSpeedKmh = smoothed
+            let scaled = (smoothed * 10.0).rounded()
+            speedKmhX10 = UInt16(min(max(scaled, 0), 3000))
         }
 
         let headingDegX10: UInt16

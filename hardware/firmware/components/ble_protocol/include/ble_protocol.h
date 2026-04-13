@@ -383,11 +383,16 @@ ble_result_t ble_encode_blitzer(const ble_blitzer_data_t *in, uint8_t flags, uin
 
 typedef enum {
     BLE_STATUS_SCREEN_CHANGED = 0x01,
+    /* Firmware version broadcast. Body: major.minor.patch (3 bytes). */
+    BLE_STATUS_FIRMWARE_VERSION = 0x02,
 } ble_status_type_t;
 
 typedef struct {
     ble_status_type_t type;
     uint8_t screen_id; /* For SCREEN_CHANGED. */
+    uint8_t fw_major;  /* For FIRMWARE_VERSION. */
+    uint8_t fw_minor;
+    uint8_t fw_patch;
 } ble_status_payload_t;
 
 /*

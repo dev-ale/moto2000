@@ -300,7 +300,7 @@ void screen_compass_create(lv_obj_t *parent, const ble_compass_data_t *data, uin
 
     /* --- Digital heading readout --- */
     char heading_buf[8];
-    snprintf(heading_buf, sizeof(heading_buf), "%03u\xC2\xB0", (unsigned)deg);
+    snprintf(heading_buf, sizeof(heading_buf), "%03u deg", (unsigned)deg);
 
     lv_obj_t *lbl_heading = lv_label_create(parent);
     lv_label_set_text(lbl_heading, heading_buf);

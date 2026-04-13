@@ -1,4 +1,5 @@
 import BLECentralClient
+import BLEProtocol
 import Observation
 import RideSimulatorKit
 import ScramCore
@@ -23,6 +24,18 @@ final class ConnectionViewModel {
     func startObserving() {
         accessoryManager.activate()
 
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("scramFirmwareVersion"),
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let info = note.userInfo,
+                  let maj = info["major"] as? UInt8,
+                  let min = info["minor"] as? UInt8,
+                  let pat = info["patch"] as? UInt8 else { return }
+            self?.firmwareVersion = FirmwareVersion(major: maj, minor: min, patch: pat)
+        }
+
         guard observeTask == nil else { return }
         observeTask = Task { [weak self] in
             await self?.runStateLoop()
@@ -30,6 +43,14 @@ final class ConnectionViewModel {
         Task { [weak self] in
             await self?.runAutoConnectLoop()
         }
+    }
+
+    /// Called by ``RideSessionCoordinator`` after ``RideSession``
+    /// decodes a `firmwareVersion` status message off the BLE status
+    /// characteristic. Single subscriber pattern — see RideSession's
+    /// status loop for why we don't subscribe here directly.
+    func setFirmwareVersion(_ version: FirmwareVersion) {
+        firmwareVersion = version
     }
 
     private func runStateLoop() async {
@@ -72,7 +93,14 @@ final class ConnectionViewModel {
         case .idle:
             return true
         case .disconnected(let reason):
-            return reason != .userInitiated
+            // Skip reasons that need user action — we can't recover them
+            // by re-calling connect() and would just spam the radio.
+            switch reason {
+            case .userInitiated, .bluetoothOff, .unauthorized:
+                return false
+            case .linkLost, .unknown:
+                return true
+            }
         default:
             return false
         }
@@ -107,6 +135,19 @@ final class ConnectionViewModel {
     func unpair() {
         accessoryManager.removeAccessory()
         Task { await coordinator.client.disconnect() }
+    }
+
+    /// Send a SET_BRIGHTNESS command to the firmware. Silently no-ops
+    /// when not connected — UI just updates the slider locally.
+    func setBrightness(_ percent: UInt8) {
+        let cmd = ControlCommand.setBrightness(percent).encode()
+        Task { try? await coordinator.client.sendControl(cmd) }
+    }
+
+    /// Forward one OTA frame to the firmware's `ota_data` characteristic.
+    /// Used by ``OTAUpdateView`` via the injected sendOTA closure.
+    func sendOTA(_ data: Data) async throws {
+        try await coordinator.client.sendOTA(data)
     }
 
     var isConnected: Bool {

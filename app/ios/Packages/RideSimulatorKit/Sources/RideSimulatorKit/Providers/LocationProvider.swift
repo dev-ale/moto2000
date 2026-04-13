@@ -49,9 +49,18 @@ public protocol LocationProvider: Sendable {
     /// own copy.
     var samples: AsyncStream<LocationSample> { get }
 
+    /// Most recent sample, or nil if none yet. Lets callers that just
+    /// need a one-shot fix avoid contending with stream consumers.
+    /// Default impl returns nil for backwards compat with mock providers.
+    var latestSample: LocationSample? { get }
+
     /// Starts delivering samples. Idempotent.
     func start() async
 
     /// Stops delivering samples. Idempotent.
     func stop() async
+}
+
+extension LocationProvider {
+    public var latestSample: LocationSample? { nil }
 }

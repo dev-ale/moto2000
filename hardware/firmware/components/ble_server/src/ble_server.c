@@ -53,6 +53,14 @@ static const ble_uuid128_t s_control_uuid = BLE_UUID128_INIT(
 static const ble_uuid128_t s_status_uuid = BLE_UUID128_INIT(
     0x69, 0xd9, 0x89, 0xf7, 0x0d, 0x50, 0x48, 0x96, 0x74, 0x4e, 0x96, 0xd8, 0x36, 0x6d, 0x06, 0xb7);
 
+/* ota_data: c8e9f3a4-1b2c-4d5e-9f8a-6b7c8d9e0f1a — receives framed
+ * firmware-update payloads from iOS. Each write is one frame:
+ *   byte 0    : frame type (0x01=BEGIN, 0x02=CHUNK, 0x03=COMMIT, 0x04=ABORT)
+ *   bytes 1.. : type-specific body (see ota_receiver.c)
+ */
+static const ble_uuid128_t s_ota_data_uuid = BLE_UUID128_INIT(
+    0x1a, 0x0f, 0x9e, 0x8d, 0x7c, 0x6b, 0x8a, 0x9f, 0x5e, 0x4d, 0x2c, 0x1b, 0xa4, 0xf3, 0xe9, 0xc8);
+
 /* ----------------------------------------------------------------------- */
 /* Module state                                                             */
 /* ----------------------------------------------------------------------- */
@@ -61,6 +69,14 @@ static ble_server_callbacks_t s_callbacks;
 static uint16_t s_conn_handle;
 static bool s_connected;
 static uint16_t s_status_val_handle;
+
+/* Soft-loss watchdog: tear the link down if iOS stops sending
+ * screen_data even though the BLE link is still parked. Without this
+ * the rider sees a frozen clock or speed forever when the iOS app is
+ * suspended out of background time. */
+#define BLE_STALE_LIMIT_US ((int64_t)30 * 1000 * 1000)
+static int64_t s_last_payload_us;
+static esp_timer_handle_t s_watchdog_timer;
 
 /* ----------------------------------------------------------------------- */
 /* GATT access callbacks                                                    */
@@ -88,12 +104,32 @@ static int prv_screen_data_access(uint16_t conn_handle, uint16_t attr_handle,
         return BLE_ATT_ERR_UNLIKELY;
     }
 
+    s_last_payload_us = esp_timer_get_time();
+
     ESP_LOGI(TAG, "screen_data rx: %u bytes", om_len);
     if (s_callbacks.on_screen_data) {
         s_callbacks.on_screen_data(buf, om_len);
     }
 
     return 0;
+}
+
+/* Watchdog tick: runs from esp_timer (high-prio task). If the link is
+ * up but no payload has arrived for BLE_STALE_LIMIT_US, force a clean
+ * disconnect so the firmware drops to the waiting screen and iOS
+ * notices the link is gone, triggering the normal autoconnect dance. */
+static void prv_watchdog_tick(void *arg)
+{
+    (void)arg;
+    if (!s_connected) {
+        return;
+    }
+    int64_t now = esp_timer_get_time();
+    if (s_last_payload_us != 0 && (now - s_last_payload_us) > BLE_STALE_LIMIT_US) {
+        ESP_LOGW(TAG, "payload watchdog: no data for >%llds, terminating",
+                 (long long)(BLE_STALE_LIMIT_US / 1000000));
+        ble_gap_terminate(s_conn_handle, BLE_ERR_REM_USER_CONN_TERM);
+    }
 }
 
 static int prv_control_access(uint16_t conn_handle, uint16_t attr_handle,
@@ -140,6 +176,39 @@ static int prv_status_access(uint16_t conn_handle, uint16_t attr_handle,
     return BLE_ATT_ERR_UNLIKELY;
 }
 
+static int prv_ota_data_access(uint16_t conn_handle, uint16_t attr_handle,
+                               struct ble_gatt_access_ctxt *ctxt, void *arg)
+{
+    (void)conn_handle;
+    (void)attr_handle;
+    (void)arg;
+
+    if (ctxt->op != BLE_GATT_ACCESS_OP_WRITE_CHR) {
+        return BLE_ATT_ERR_UNLIKELY;
+    }
+
+    /* Up to one full ATT MTU per write. With our negotiated MTU=256
+     * the practical max is ~244 bytes after the ATT header. */
+    uint16_t om_len = OS_MBUF_PKTLEN(ctxt->om);
+    static uint8_t s_ota_buf[512];
+    if (om_len > sizeof(s_ota_buf)) {
+        return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+    }
+    int rc = ble_hs_mbuf_to_flat(ctxt->om, s_ota_buf, om_len, NULL);
+    if (rc != 0) {
+        return BLE_ATT_ERR_UNLIKELY;
+    }
+
+    /* The OTA payload is "real traffic" too — keep the soft-loss
+     * watchdog happy so it doesn't tear the link down mid-update. */
+    s_last_payload_us = esp_timer_get_time();
+
+    if (s_callbacks.on_ota_data) {
+        s_callbacks.on_ota_data(s_ota_buf, om_len);
+    }
+    return 0;
+}
+
 /* ----------------------------------------------------------------------- */
 /* Static GATT table                                                        */
 /* ----------------------------------------------------------------------- */
@@ -158,11 +227,20 @@ static const struct ble_gatt_chr_def s_chr_defs[] = {
         .flags = BLE_GATT_CHR_F_WRITE,
     },
     {
-        /* status: notify + read */
+        /* status: notify + read, encryption required so AccessorySetupKit
+         * triggers SMP pairing on first read. Without this, iOS connects
+         * but never initiates encryption, and the picker hangs forever. */
         .uuid = &s_status_uuid.u,
         .access_cb = prv_status_access,
         .val_handle = &s_status_val_handle,
-        .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_NOTIFY,
+        .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_READ_ENC | BLE_GATT_CHR_F_NOTIFY,
+    },
+    {
+        /* ota_data: write-without-response. iOS streams firmware
+         * update frames here; the receiver is wired in scramscreen_main. */
+        .uuid = &s_ota_data_uuid.u,
+        .access_cb = prv_ota_data_access,
+        .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_WRITE_NO_RSP,
     },
     { 0 } /* sentinel */
 };
@@ -193,14 +271,17 @@ static int prv_gap_event(struct ble_gap_event *event, void *arg)
         if (event->connect.status == 0) {
             s_connected = true;
             s_conn_handle = event->connect.conn_handle;
+            s_last_payload_us = esp_timer_get_time();
             if (s_callbacks.on_connection_change) {
                 s_callbacks.on_connection_change(true);
             }
-            /* If there's a stored bond with this peer, iOS will resume
-             * encryption automatically and BLE_GAP_EVENT_ENC_CHANGE will
-             * fire with status=0. If there's no stored bond, iOS will
-             * initiate SMP pairing. Either way we start AMS/ANCS
-             * discovery on enc_change, not here. */
+            /* Actively request encryption. If a bond already exists for
+             * this peer, iOS resumes it; otherwise iOS starts SMP
+             * pairing. Without this call iOS has no reason to pair
+             * during AccessorySetupKit setup (none of our characteristics
+             * get read during verification) and the picker hangs. */
+            int sec_rc = ble_gap_security_initiate(event->connect.conn_handle);
+            ESP_LOGI(TAG, "security_initiate rc=%d", sec_rc);
         } else {
             /* Connection attempt failed — restart advertising. */
             ble_server_start_advertising();
@@ -249,13 +330,31 @@ static int prv_gap_event(struct ble_gap_event *event, void *arg)
         break;
     }
 
+    case BLE_GAP_EVENT_REPEAT_PAIRING: {
+        /* Peer wants to re-pair but we already have a bond for it. This
+         * happens when the user forgets the device on iOS (iOS loses its
+         * LTK) but our NVS still has the old one. Delete the stale bond
+         * and let NimBLE re-try — pairing will then succeed cleanly. */
+        struct ble_gap_conn_desc desc;
+        int rc = ble_gap_conn_find(event->repeat_pairing.conn_handle, &desc);
+        if (rc == 0) {
+            ble_store_util_delete_peer(&desc.peer_id_addr);
+            ESP_LOGW(TAG, "repeat pairing: deleted stale bond");
+        }
+        return BLE_GAP_REPEAT_PAIRING_RETRY;
+    }
+
     case BLE_GAP_EVENT_MTU:
         ESP_LOGI(TAG, "mtu update; conn=%d mtu=%d", event->mtu.conn_handle, event->mtu.value);
         break;
 
     case BLE_GAP_EVENT_SUBSCRIBE:
-        ESP_LOGI(TAG, "subscribe; conn=%d attr=%d", event->subscribe.conn_handle,
-                 event->subscribe.attr_handle);
+        ESP_LOGI(TAG, "subscribe; conn=%d attr=%d cur_notify=%d", event->subscribe.conn_handle,
+                 event->subscribe.attr_handle, event->subscribe.cur_notify);
+        if (event->subscribe.attr_handle == s_status_val_handle && event->subscribe.cur_notify &&
+            s_callbacks.on_status_subscribed) {
+            s_callbacks.on_status_subscribed();
+        }
         break;
 
     default:
@@ -355,6 +454,16 @@ int ble_server_init(const ble_server_callbacks_t *callbacks)
 
     /* Start the NimBLE host task. */
     nimble_port_freertos_init(prv_nimble_host_task);
+
+    /* Soft-loss watchdog: ticks every 5 s, terminates the link if iOS
+     * has stopped sending payloads for >30 s. */
+    const esp_timer_create_args_t wd_args = {
+        .callback = prv_watchdog_tick,
+        .name = "ble_payload_wd",
+    };
+    if (esp_timer_create(&wd_args, &s_watchdog_timer) == ESP_OK) {
+        esp_timer_start_periodic(s_watchdog_timer, 5 * 1000 * 1000);
+    }
 
     return 0;
 }

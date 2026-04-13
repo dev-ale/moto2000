@@ -14,6 +14,7 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
     private static let screenDataUUID = CBUUID(string: "3aa9d5d0-1d70-4edf-b2cc-bf1d84dc545b")
     private static let controlUUID = CBUUID(string: "160c1f54-82ec-45e2-8339-1680f16c1a94")
     private static let statusUUID = CBUUID(string: "b7066d36-d896-4e74-9648-500df789d969")
+    private static let otaDataUUID = CBUUID(string: "c8e9f3a4-1b2c-4d5e-9f8a-6b7c8d9e0f1a")
 
     // MARK: - State
 
@@ -39,6 +40,7 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
     private var screenDataChar: CBCharacteristic?
     private var controlChar: CBCharacteristic?
     private var statusChar: CBCharacteristic?
+    private var otaDataChar: CBCharacteristic?
 
     // MARK: - Init
 
@@ -107,18 +109,27 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
             return
         }
 
-        setState(.scanning)
-
         let cm = ensureCentralManager()
         print("[BLE] connect() called, cmState=\(cm.state.rawValue)")
 
         guard cm.state == .poweredOn else {
-            print("[BLE] CM not powered on yet (\(cm.state.rawValue)), will scan on poweredOn")
+            /* Don't claim "scanning" — Bluetooth is off or unauthorized.
+             * Reflect the real reason so the UI doesn't lie. The
+             * powered-on transition will retry via handleCentralStateUpdate. */
+            print("[BLE] CM not powered on yet (\(cm.state.rawValue))")
+            switch cm.state {
+            case .poweredOff:
+                setState(.disconnected(reason: .bluetoothOff))
+            case .unauthorized:
+                setState(.disconnected(reason: .unauthorized))
+            default:
+                setState(.disconnected(reason: .unknown))
+            }
             return
         }
 
-        // FAST PATH #1: system may already hold a live connection to a
-        // peripheral advertising our service UUID. Reuse it — no scan.
+        // FAST PATH #1: system already has a live connection from a
+        // previous app session. Reuse it — no scan, no pairing.
         let connected = cm.retrieveConnectedPeripherals(withServices: [Self.serviceUUID])
         if let existing = connected.first {
             print("[BLE] reusing already-connected peripheral \(existing.identifier)")
@@ -129,11 +140,28 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
             return
         }
 
-        /* No retrieve-by-identifier fast path: cm.connect() on a
-         * retrieved peripheral queues a pending connection with NO
-         * timeout, which silently hangs when the peripheral has
-         * rebooted. Active scanning recovers reliably. */
+        // FAST PATH #2: we know the peripheral identifier from
+        // AccessorySetupKit. Queue a *pending* connect that iOS
+        // resolves whenever the peripheral comes back into range —
+        // even if our app is force-quit. This is the **only** way
+        // background autoreconnect works.
+        if let peripheralIdentifier,
+           let known = cm.retrievePeripherals(withIdentifiers: [peripheralIdentifier]).first {
+            print("[BLE] queueing pending connect to \(known.identifier)")
+            self.peripheral = known
+            known.delegate = delegate
+            setState(.connecting)
+            cm.connect(known, options: [
+                CBConnectPeripheralOptionNotifyOnConnectionKey: true,
+                CBConnectPeripheralOptionNotifyOnDisconnectionKey: true,
+            ])
+            return
+        }
+
+        // Last resort: active scan. Used for the very first pairing
+        // before AccessorySetupKit has produced an identifier.
         print("[BLE] scanning for service UUID...")
+        setState(.scanning)
         cm.scanForPeripherals(
             withServices: [Self.serviceUUID],
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
@@ -147,6 +175,24 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         }
         print("[BLE] send \(bytes.count) bytes")
         peripheral.writeValue(bytes, for: screenDataChar, type: .withoutResponse)
+    }
+
+    public func sendControl(_ bytes: Data) throws {
+        guard case .connected = state, let peripheral, let controlChar else {
+            print("[BLE] sendControl() failed: not connected or no control char")
+            throw BLECentralClientError.notConnected
+        }
+        print("[BLE] sendControl \(bytes.count) bytes")
+        peripheral.writeValue(bytes, for: controlChar, type: .withResponse)
+    }
+
+    public func sendOTA(_ bytes: Data) throws {
+        guard case .connected = state, let peripheral, let otaDataChar else {
+            throw BLECentralClientError.notConnected
+        }
+        // Use write-without-response to maximise throughput. iOS will
+        // backpressure us via the BLE host queue.
+        peripheral.writeValue(bytes, for: otaDataChar, type: .withoutResponse)
     }
 
     public func disconnect() {
@@ -172,6 +218,7 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         screenDataChar = nil
         controlChar = nil
         statusChar = nil
+        otaDataChar = nil
     }
 
     // MARK: - Delegate callbacks (called from Delegate on actor)
@@ -180,21 +227,36 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         print("[BLE] centralState changed: \(central.state.rawValue)")
         switch central.state {
         case .poweredOn:
+            // Whenever Bluetooth comes up (cold start, BT toggle on,
+            // background relaunch) — kick off the autoconnect flow if
+            // the link isn't already up.
+            if case .connected = state { return }
+            if case .connecting = state { return }
+            // Try system-held connection, then pending connect by
+            // identifier, then scan. Same precedence as connect().
+            let connected = central.retrieveConnectedPeripherals(
+                withServices: [Self.serviceUUID])
+            if let existing = connected.first {
+                print("[BLE] poweredOn: reusing system-connected peripheral \(existing.identifier)")
+                self.peripheral = existing
+                existing.delegate = delegate
+                setState(.connecting)
+                central.connect(existing, options: nil)
+                return
+            }
+            if let peripheralIdentifier,
+               let known = central.retrievePeripherals(withIdentifiers: [peripheralIdentifier]).first {
+                print("[BLE] poweredOn: queueing pending connect to \(known.identifier)")
+                self.peripheral = known
+                known.delegate = delegate
+                setState(.connecting)
+                central.connect(known, options: [
+                    CBConnectPeripheralOptionNotifyOnConnectionKey: true,
+                    CBConnectPeripheralOptionNotifyOnDisconnectionKey: true,
+                ])
+                return
+            }
             if case .scanning = state {
-                /* FAST PATH: if iOS already has a live connection at
-                 * the system level (from a prior app session), reuse
-                 * it instead of scanning. This fixes the "app stuck
-                 * in scanning while display is connected" case. */
-                let connected = central.retrieveConnectedPeripherals(
-                    withServices: [Self.serviceUUID])
-                if let existing = connected.first {
-                    print("[BLE] poweredOn: reusing system-connected peripheral \(existing.identifier)")
-                    self.peripheral = existing
-                    existing.delegate = delegate
-                    setState(.connecting)
-                    central.connect(existing, options: nil)
-                    return
-                }
                 print("[BLE] poweredOn while scanning, starting scan for service UUID")
                 central.scanForPeripherals(
                     withServices: [Self.serviceUUID],
@@ -248,6 +310,11 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
     fileprivate func handleDisconnected(_ error: (any Error)?) {
         print("[BLE] disconnected: \(error?.localizedDescription ?? "no error")")
         cleanup()
+        /* Preserve a user-initiated disconnect — otherwise the auto-connect
+         * loop would immediately reconnect because .linkLost is recoverable. */
+        if case .disconnected(.userInitiated) = state {
+            return
+        }
         setState(.disconnected(reason: .linkLost))
     }
 
@@ -271,6 +338,8 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
             case Self.statusUUID:
                 statusChar = char
                 peripheral.setNotifyValue(true, for: char)
+            case Self.otaDataUUID:
+                otaDataChar = char
             default:
                 break
             }
@@ -278,7 +347,7 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
 
         // Connected once we have the service — screen_data is for writing,
         // we can proceed even if characteristic discovery is partial.
-        print("[BLE] screenData=\(screenDataChar != nil), control=\(controlChar != nil), status=\(statusChar != nil)")
+        print("[BLE] screenData=\(screenDataChar != nil), control=\(controlChar != nil), status=\(statusChar != nil), ota=\(otaDataChar != nil)")
         print("[BLE] >>> calling setState(.connected)")
         setState(.connected)
         print("[BLE] >>> setState(.connected) done")

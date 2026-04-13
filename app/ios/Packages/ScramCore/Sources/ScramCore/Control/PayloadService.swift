@@ -75,6 +75,18 @@ public enum ServiceRegistry {
         ServiceRegistration(name: "altitude") { deps in
             deps.locationProvider.map { AltitudeService(provider: $0) }
         },
+        ServiceRegistration(name: "navigation") { deps in
+            #if canImport(MapKit)
+            return deps.locationProvider.map { loc in
+                NavigationService(
+                    routeEngine: MKDirectionsRouteEngine(),
+                    locationProvider: loc
+                )
+            }
+            #else
+            return nil
+            #endif
+        },
 
         // Multi-provider services
         ServiceRegistration(name: "fuel") { deps in

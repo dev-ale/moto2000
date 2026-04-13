@@ -23,6 +23,7 @@ idf_component_register(
                  "../lvgl-sim/common"
                  "../lvgl-sim/theme"
     REQUIRES
+        esp_app_format
         esp_common
         esp_timer
         log
@@ -37,4 +38,5 @@ idf_component_register(
         screen_order
         ams_client
         ancs_client
+        ota_receiver
 )

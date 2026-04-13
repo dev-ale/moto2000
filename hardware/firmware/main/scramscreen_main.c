@@ -9,6 +9,7 @@
  * LVGL API calls.
  */
 
+#include "esp_app_desc.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "nvs_flash.h"
@@ -31,6 +32,7 @@
 #include "ble_protocol.h"
 #include "ams_client.h"
 #include "ancs_client.h"
+#include "ota_receiver.h"
 
 /* Screen includes — compiled from lvgl-sim/ into the ESP-IDF firmware. */
 #include "screens/screen_clock.h"
@@ -156,6 +158,20 @@ static void on_screen_data(const uint8_t *payload, size_t len)
 
 static void on_control(const uint8_t *payload, size_t len)
 {
+    /* Decode here so we can act on commands the FSM doesn't handle —
+     * specifically SET_BRIGHTNESS, which talks to the BSP. */
+    ble_control_payload_t ctrl;
+    if (ble_decode_control(payload, len, &ctrl) == BLE_OK &&
+        ctrl.command == BLE_CONTROL_CMD_SET_BRIGHTNESS) {
+        int pct = (int)ctrl.brightness;
+        if (pct < 0)
+            pct = 0;
+        if (pct > 100)
+            pct = 100;
+        ESP_LOGI(TAG, "control: set brightness to %d%%", pct);
+        bsp_display_brightness_set(pct);
+    }
+
     ble_server_handle_control(payload, len, &s_screen_fsm);
 
     /*
@@ -194,6 +210,36 @@ static void on_connection_change(bool connected)
      * will render them on the proper code path. Calling show_current from
      * here races with the LVGL task and crashes the renderer. */
     ESP_LOGI(TAG, "BLE connected — waiting for first iOS payload");
+}
+
+static void on_ota_data(const uint8_t *payload, size_t len)
+{
+    ota_receiver_handle_frame(payload, len);
+}
+
+/* Fired by ble_server when iOS enables notifications on the status
+ * characteristic. This is the earliest moment iOS will actually receive
+ * anything we notify, so we send the firmware version here. */
+static void on_status_subscribed(void)
+{
+    const esp_app_desc_t *desc = esp_app_get_description();
+    if (desc == NULL) {
+        return;
+    }
+    unsigned maj = 0, min = 0, pat = 0;
+    (void)sscanf(desc->version, "%u.%u.%u", &maj, &min, &pat);
+    ble_status_payload_t status = {
+        .type = BLE_STATUS_FIRMWARE_VERSION,
+        .fw_major = (uint8_t)maj,
+        .fw_minor = (uint8_t)min,
+        .fw_patch = (uint8_t)pat,
+    };
+    uint8_t buf[8];
+    size_t written = 0;
+    if (ble_encode_status(&status, buf, sizeof(buf), &written) == BLE_OK) {
+        ble_server_notify_status(buf, written);
+        ESP_LOGI(TAG, "announced fw version %u.%u.%u", maj, min, pat);
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -299,7 +345,10 @@ void app_main(void)
         .on_screen_data = on_screen_data,
         .on_control = on_control,
         .on_connection_change = on_connection_change,
+        .on_ota_data = on_ota_data,
+        .on_status_subscribed = on_status_subscribed,
     };
+    ota_receiver_init();
     int ble_rc = ble_server_init(&ble_cbs);
     if (ble_rc != 0) {
         ESP_LOGE(TAG, "ble_server_init failed: %d", ble_rc);

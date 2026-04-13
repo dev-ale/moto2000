@@ -17,9 +17,13 @@
 
 #include "lvgl.h"
 
+/* Sizes bumped for motorcycle glance-distance readability. The hero
+ * label stays at the largest pre-rendered Montserrat (48 px) and is
+ * scaled per-screen via lv_obj_set_style_transform_scale; everything
+ * smaller than the hero just got promoted one tier. */
 #define SCRAM_FONT_HERO  (&lv_font_montserrat_48)
-#define SCRAM_FONT_VALUE (&lv_font_montserrat_24)
-#define SCRAM_FONT_LABEL (&lv_font_montserrat_16)
-#define SCRAM_FONT_SMALL (&lv_font_montserrat_12)
+#define SCRAM_FONT_VALUE (&lv_font_montserrat_36)
+#define SCRAM_FONT_LABEL (&lv_font_montserrat_24)
+#define SCRAM_FONT_SMALL (&lv_font_montserrat_20)
 
 #endif /* SCRAM_FONTS_H */

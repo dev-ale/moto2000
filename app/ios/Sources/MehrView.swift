@@ -15,8 +15,6 @@ struct MehrView: View {
     private var alertSounds = true
     @AppStorage("scramscreen.display.brightness")
     private var brightness: Double = 80
-    @AppStorage("scramscreen.display.nightMode")
-    private var nightModePreference = NightModePreference.automatisch.rawValue
     @AppStorage("scramscreen.fuel.tankCapacityLiters")
     private var tankCapacityLiters: Double = 15
 
@@ -122,7 +120,10 @@ struct MehrView: View {
                 OTAUpdateView(
                     currentVersion: connection.firmwareVersion,
                     update: update,
-                    onStartUpdate: {}
+                    onStartUpdate: {},
+                    sendOTA: { [connection] data in
+                        try await connection.sendOTA(data)
+                    }
                 )
             }
         }
@@ -205,6 +206,9 @@ struct MehrView: View {
                         .foregroundStyle(Color.scramTextTertiary)
                     Slider(value: $brightness, in: 10...100, step: 5)
                         .tint(Color.scramGreen)
+                        .onChange(of: brightness) { _, newValue in
+                            connection.setBrightness(UInt8(newValue))
+                        }
                     Image(systemName: "sun.max")
                         .foregroundStyle(Color.scramTextTertiary)
                     Text("\(Int(brightness))%")
@@ -214,8 +218,6 @@ struct MehrView: View {
                 }
             }
             .padding(ScramSpacing.lg)
-
-            nightModeRow
         }
     }
 
@@ -311,37 +313,6 @@ struct MehrView: View {
                 chevron: true
             )
         }
-    }
-
-    // MARK: - Night mode
-
-    private var nightModeRow: some View {
-        HStack(spacing: ScramSpacing.md) {
-            Image(systemName: "moon.stars")
-                .font(.system(size: 16))
-                .foregroundStyle(Color.scramGreen)
-                .frame(width: 24)
-
-            Text("Night Mode")
-                .font(.scramBody)
-                .foregroundStyle(Color.scramTextPrimary)
-
-            Spacer()
-
-            HStack(spacing: 0) {
-                ForEach(NightModePreference.allCases, id: \.rawValue) { pref in
-                    unitButton(
-                        pref.label,
-                        selected: nightModePreference == pref.rawValue
-                    ) {
-                        nightModePreference = pref.rawValue
-                    }
-                }
-            }
-            .background(Color.scramSurfaceElevated)
-            .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
-        }
-        .padding(ScramSpacing.lg)
     }
 
     // MARK: - Firmware row

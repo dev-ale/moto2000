@@ -8,29 +8,29 @@ import Foundation
 /// imports CoreLocation. Everything else routes through the
 /// ``LocationManaging`` protocol so tests stay hermetic.
 ///
-/// Thread safety: `CLLocationManager` requires its delegate callbacks on
-/// the thread where the manager was initialized. We mirror that contract:
-/// callers should construct the adapter on the main actor, and the
-/// internal CoreLocation delegate forwards to our
-/// ``LocationManagingDelegate`` on the same queue.
+/// **Threading**: `CLLocationManager` will only deliver delegate
+/// callbacks on a thread that has an active run loop. Creating it from
+/// a background `Task` (like RideSessionCoordinator does) silently
+/// produces no fixes. The adapter therefore hops to the main actor for
+/// init and start so CoreLocation always has a real run loop to call
+/// back on.
 public final class CLLocationManagerAdapter: NSObject, LocationManaging, @unchecked Sendable {
     private let manager: CLLocationManager
     public weak var delegate: (any LocationManagingDelegate)?
 
+    @MainActor
     public override init() {
         self.manager = CLLocationManager()
         super.init()
         self.manager.delegate = self
         self.manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-        self.manager.activityType = .otherNavigation
+        self.manager.activityType = .automotiveNavigation
+        self.manager.distanceFilter = kCLDistanceFilterNone
         #if os(iOS)
         self.manager.allowsBackgroundLocationUpdates = true
         self.manager.pausesLocationUpdatesAutomatically = false
         self.manager.showsBackgroundLocationIndicator = true
         #endif
-        // 1 Hz-ish: CoreLocation will call back whenever a new fix is
-        // produced; we don't set a distance filter so stationary rides
-        // still get updates.
     }
 
     public var authorizationStatus: LocationAuthorization {
@@ -38,15 +38,23 @@ public final class CLLocationManagerAdapter: NSObject, LocationManaging, @unchec
     }
 
     public func requestWhenInUseAuthorization() {
-        manager.requestWhenInUseAuthorization()
+        // CLLocationManager is not thread-safe. Dispatch to main so the
+        // call lands on the same run loop that created the manager.
+        DispatchQueue.main.async { [manager] in
+            manager.requestWhenInUseAuthorization()
+        }
     }
 
     public func startUpdatingLocation() {
-        manager.startUpdatingLocation()
+        DispatchQueue.main.async { [manager] in
+            manager.startUpdatingLocation()
+        }
     }
 
     public func stopUpdatingLocation() {
-        manager.stopUpdatingLocation()
+        DispatchQueue.main.async { [manager] in
+            manager.stopUpdatingLocation()
+        }
     }
 
     private static func map(_ status: CLAuthorizationStatus) -> LocationAuthorization {
@@ -66,7 +74,13 @@ extension CLLocationManagerAdapter: CLLocationManagerDelegate {
         _ manager: CLLocationManager,
         didUpdateLocations locations: [CLLocation]
     ) {
-        let fixes = locations.map { cl in
+        // Reject fixes CoreLocation already flagged as bad: a negative
+        // horizontalAccuracy means "no fix", and >50 m on a moto is
+        // wide enough to produce noise jumps in km/h.
+        let good = locations.filter { cl in
+            cl.horizontalAccuracy >= 0 && cl.horizontalAccuracy <= 50
+        }
+        let fixes = good.map { cl in
             LocationManagingFix(
                 latitude: cl.coordinate.latitude,
                 longitude: cl.coordinate.longitude,
@@ -77,7 +91,9 @@ extension CLLocationManagerAdapter: CLLocationManagerDelegate {
                 timestamp: cl.timestamp
             )
         }
-        delegate?.locationManager(self, didUpdateLocations: fixes)
+        if !fixes.isEmpty {
+            delegate?.locationManager(self, didUpdateLocations: fixes)
+        }
     }
 
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

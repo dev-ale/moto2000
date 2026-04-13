@@ -27,11 +27,19 @@ extern "C" {
 typedef void (*ble_server_screen_data_cb_t)(const uint8_t *payload, size_t len);
 typedef void (*ble_server_control_cb_t)(const uint8_t *payload, size_t len);
 typedef void (*ble_server_connection_cb_t)(bool connected);
+typedef void (*ble_server_ota_data_cb_t)(const uint8_t *payload, size_t len);
+/* Fired when the central enables notifications on the status
+ * characteristic. The right place to send a one-shot announce
+ * (firmware version, current screen, …) — sending earlier from
+ * connect is racy because the central hasn't subscribed yet. */
+typedef void (*ble_server_status_subscribed_cb_t)(void);
 
 typedef struct {
     ble_server_screen_data_cb_t on_screen_data;
-    ble_server_control_cb_t     on_control;
-    ble_server_connection_cb_t  on_connection_change;
+    ble_server_control_cb_t on_control;
+    ble_server_connection_cb_t on_connection_change;
+    ble_server_ota_data_cb_t on_ota_data;
+    ble_server_status_subscribed_cb_t on_status_subscribed;
 } ble_server_callbacks_t;
 
 /* Initialise NimBLE and register the GATT service table.  Returns 0 on

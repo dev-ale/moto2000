@@ -41,7 +41,10 @@ struct HomeView: View {
                             label: "Brightness"
                         )
                         StatCard(value: "Day", label: "Mode")
-                        StatCard(value: "--", label: "Firmware")
+                        StatCard(
+                            value: connection.firmwareVersion?.versionString ?? "--",
+                            label: "Firmware"
+                        )
                     }
                 }
 
@@ -105,7 +108,43 @@ struct HomeView: View {
 
     // MARK: - Connected/paired card
 
-    private var connectedCard: some View {
+    @ViewBuilder private var connectedCard: some View {
+        if case .connected = connection.state {
+            compactConnectedCard
+        } else {
+            fullConnectedCard
+        }
+    }
+
+    /// Slim row used while the link is up — frees vertical space for
+    /// navigation, screens, and stats below.
+    private var compactConnectedCard: some View {
+        HStack(spacing: ScramSpacing.md) {
+            Image(systemName: connection.statusIcon)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(connection.statusColor)
+            Text(connection.accessoryManager.deviceName)
+                .font(.scramBody)
+                .foregroundStyle(Color.scramTextPrimary)
+            Spacer()
+            Button { connection.disconnect() } label: {
+                Text("Disconnect")
+                    .font(.scramCaption)
+                    .foregroundStyle(Color.scramRed)
+                    .padding(.horizontal, ScramSpacing.md)
+                    .padding(.vertical, ScramSpacing.sm)
+                    .background(Color.scramRedBg)
+                    .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
+            }
+        }
+        .padding(.horizontal, ScramSpacing.lg)
+        .padding(.vertical, ScramSpacing.md)
+        .frame(maxWidth: .infinity)
+        .background(Color.scramSurface)
+        .clipShape(RoundedRectangle(cornerRadius: ScramRadius.card))
+    }
+
+    private var fullConnectedCard: some View {
         VStack(spacing: ScramSpacing.xl) {
             ZStack {
                 Circle()

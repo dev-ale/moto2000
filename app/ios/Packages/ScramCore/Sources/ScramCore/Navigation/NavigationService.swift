@@ -19,15 +19,19 @@ import RideSimulatorKit
 /// This actor is deliberately free of MapKit imports — it only knows
 /// about the pure ``RouteEngine`` protocol. Real MapKit integration lives
 /// in ``MKDirectionsRouteEngine`` behind `#if canImport(MapKit)`.
-public actor NavigationService {
+public actor NavigationService: PayloadService {
     private let routeEngine: any RouteEngine
     private let locationProvider: any LocationProvider
     private let channel: PayloadChannel
     public nonisolated let navDataPayloads: AsyncStream<Data>
 
+    public nonisolated var payloadStream: AsyncStream<Data> { navDataPayloads }
+
     private var consumerTask: Task<Void, Never>?
     private var tracker: RouteTracker?
     private var currentDestination: NavigationRoute.LocationCoordinate?
+    private var startObserver: NSObjectProtocol?
+    private var stopObserver: NSObjectProtocol?
 
     public init(
         routeEngine: any RouteEngine,
@@ -38,6 +42,72 @@ public actor NavigationService {
         let ch = PayloadChannel()
         self.channel = ch
         self.navDataPayloads = ch.makeStream()
+    }
+
+    /// PayloadService no-op start: navigation doesn't begin until a
+    /// destination is set via `scramNavigationStartRequested`. We hook
+    /// the notification here so the registry can manage lifecycle the
+    /// same way as every other service.
+    public func start() async {
+        NSLog("[NAV] NavigationService.start() — installing notification observers")
+        let center = NotificationCenter.default
+        let startName = Notification.Name("scramNavigationStartRequested")
+        let stopName = Notification.Name("scramNavigationStopRequested")
+        startObserver = center.addObserver(
+            forName: startName, object: nil, queue: nil
+        ) { [weak self] note in
+            NSLog("[NAV] received scramNavigationStartRequested")
+            guard let info = note.userInfo,
+                  let lat = info["latitude"] as? Double,
+                  let lon = info["longitude"] as? Double else {
+                NSLog("[NAV] notification missing lat/lon; userInfo=%@",
+                      String(describing: note.userInfo))
+                return
+            }
+            let dest = NavigationRoute.LocationCoordinate(latitude: lat, longitude: lon)
+            Task { [weak self] in
+                do {
+                    try await self?.start(destination: dest)
+                } catch {
+                    NSLog("[NAV] start(destination:) threw: %@",
+                          String(describing: error))
+                }
+            }
+        }
+        stopObserver = center.addObserver(
+            forName: stopName, object: nil, queue: nil
+        ) { [weak self] _ in
+            NSLog("[NAV] received scramNavigationStopRequested")
+            Task { [weak self] in
+                await self?.stopRoute()
+            }
+        }
+    }
+
+    /// Stop the active route but leave the service (and its
+    /// notification observers) running so the next start request still
+    /// works. Distinct from ``stop()`` which is the full PayloadService
+    /// shutdown that ``RideSession`` calls on link drop.
+    public func stopRoute() {
+        consumerTask?.cancel()
+        consumerTask = nil
+        tracker = nil
+        currentDestination = nil
+
+        let idle = NavData(
+            latitudeE7: 0,
+            longitudeE7: 0,
+            speedKmhX10: 0,
+            headingDegX10: 0,
+            distanceToManeuverMeters: 0,
+            maneuver: .none,
+            streetName: "",
+            etaMinutes: 0,
+            remainingKmX10: 0
+        )
+        if let data = try? ScreenPayloadCodec.encode(.navigation(idle, flags: [])) {
+            channel.emit(data)
+        }
     }
 
     /// Compute a route from the first observed location to `destination`
@@ -51,7 +121,12 @@ public actor NavigationService {
     /// When the tracker detects arrival (last step, within tolerance)
     /// the session stops silently — no notification, no splash screen.
     public func start(destination: NavigationRoute.LocationCoordinate) async throws {
-        guard consumerTask == nil else { return }
+        NSLog("[NAV] start(destination: %.5f, %.5f)",
+              destination.latitude, destination.longitude)
+        guard consumerTask == nil else {
+            NSLog("[NAV] start(destination:) skipped — consumer already running")
+            return
+        }
         currentDestination = destination
 
         // Grab the provider's sample stream once and split it into two
@@ -63,29 +138,56 @@ public actor NavigationService {
         let ch = channel
         let dest = destination
 
+        let provider = locationProvider
         let task = Task { [weak self] in
+            // Prefer the provider's cached latest sample so we don't
+            // contend with other consumers iterating the stream (which
+            // can stall the route for minutes when other services are
+            // already draining samples).
             var iterator = stream.makeAsyncIterator()
-            guard let first = await iterator.next() else {
-                ch.finish()
-                return
+            let firstFix: LocationSample
+            if let cached = provider.latestSample {
+                Self.publishStatus("using cached GPS fix")
+                firstFix = cached
+            } else {
+                Self.publishStatus("waiting for first GPS fix…")
+                guard let next = await iterator.next() else {
+                    Self.publishStatus("no GPS fix; aborting")
+                    ch.finish()
+                    return
+                }
+                firstFix = next
             }
             let origin = NavigationRoute.LocationCoordinate(
-                latitude: first.latitude,
-                longitude: first.longitude
+                latitude: firstFix.latitude,
+                longitude: firstFix.longitude
             )
+            Self.publishStatus(String(format: "computing route from %.4f,%.4f",
+                                      firstFix.latitude, firstFix.longitude))
             let route: NavigationRoute
             do {
                 route = try await engine.calculateRoute(from: origin, to: dest)
             } catch {
+                Self.publishStatus("route error: \(error)")
                 ch.finish()
                 return
             }
+            Self.publishStatus(String(
+                format: "route: %.0f m, %.0f s, %d steps",
+                route.totalDistanceMeters,
+                route.expectedTravelTimeSeconds,
+                route.steps.count
+            ))
+            Self.publishRouteSummary(
+                distanceMeters: route.totalDistanceMeters,
+                durationSeconds: route.expectedTravelTimeSeconds
+            )
             let localTracker = RouteTracker(route: route)
             await self?.setTracker(localTracker)
 
             // Emit a payload for the first sample too, so consumers see
             // one state per location sample starting from sample #0.
-            if let data = await Self.encode(sample: first, tracker: localTracker) {
+            if let data = await Self.encode(sample: firstFix, tracker: localTracker) {
                 ch.emit(data)
             }
 
@@ -120,8 +222,15 @@ public actor NavigationService {
     }
 
     public func stop() {
-        consumerTask?.cancel()
-        consumerTask = nil
+        stopRoute()
+        if let s = startObserver {
+            NotificationCenter.default.removeObserver(s)
+            startObserver = nil
+        }
+        if let s = stopObserver {
+            NotificationCenter.default.removeObserver(s)
+            stopObserver = nil
+        }
         channel.finish()
     }
 
@@ -129,6 +238,35 @@ public actor NavigationService {
 
     private func setTracker(_ tracker: RouteTracker) {
         self.tracker = tracker
+    }
+
+    /// Posts a one-line status update on a NotificationCenter channel
+    /// the iOS UI can subscribe to. Keeps the diagnostic loop visible
+    /// without needing an external log stream.
+    private static func publishStatus(_ message: String) {
+        NSLog("[NAV] %@", message)
+        NotificationCenter.default.post(
+            name: Notification.Name("scramNavigationStatusUpdate"),
+            object: nil,
+            userInfo: ["message": message]
+        )
+    }
+
+    /// Publish a structured route summary so the iOS card can show
+    /// distance, duration, and ETA without parsing log strings.
+    private static func publishRouteSummary(
+        distanceMeters: Double,
+        durationSeconds: Double
+    ) {
+        NotificationCenter.default.post(
+            name: Notification.Name("scramNavigationRouteReady"),
+            object: nil,
+            userInfo: [
+                "distanceMeters": distanceMeters,
+                "durationSeconds": durationSeconds,
+                "computedAt": Date(),
+            ]
+        )
     }
 
     private static func encode(

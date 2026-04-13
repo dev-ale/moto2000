@@ -26,17 +26,19 @@ public final class RealWeatherProvider: WeatherProvider, @unchecked Sendable {
 
     private let client: any WeatherServiceClient
     private let clock: any SimulatedClock
-    private let coordinate: Coordinate
     private let refreshInterval: Double
     private let channel = WeatherChannel()
     public let snapshots: AsyncStream<WeatherSnapshot>
+
+    private let lock = NSLock()
+    private var coordinate: Coordinate?
 
     private var pollingTask: Task<Void, Never>?
 
     public init(
         client: any WeatherServiceClient,
         clock: any SimulatedClock,
-        coordinate: Coordinate,
+        coordinate: Coordinate? = nil,
         refreshInterval: Double = 600.0
     ) {
         self.client = client
@@ -44,6 +46,21 @@ public final class RealWeatherProvider: WeatherProvider, @unchecked Sendable {
         self.coordinate = coordinate
         self.refreshInterval = refreshInterval
         self.snapshots = channel.makeStream()
+    }
+
+    /// Update the coordinate the provider polls weather for. The next
+    /// refresh tick will use the latest value. Safe to call from any
+    /// thread (e.g. a CoreLocation delegate forwarding fixes).
+    public func updateCoordinate(_ coord: Coordinate) {
+        lock.lock()
+        coordinate = coord
+        lock.unlock()
+    }
+
+    private func currentCoordinate() -> Coordinate? {
+        lock.lock()
+        defer { lock.unlock() }
+        return coordinate
     }
 
     public func start() async {
@@ -62,10 +79,13 @@ public final class RealWeatherProvider: WeatherProvider, @unchecked Sendable {
     // MARK: - Poll loop
 
     private func pollLoop() async {
-        var nextWakeAt = await clock.nowSeconds
         while !Task.isCancelled {
-            await fetchOnce()
-            nextWakeAt += refreshInterval
+            let didFetch = await fetchOnce()
+            // If we had no coordinate yet (cold start, GPS still
+            // acquiring) retry quickly; otherwise back off to the full
+            // refresh interval.
+            let sleepFor = didFetch ? refreshInterval : 5.0
+            let nextWakeAt = await clock.nowSeconds + sleepFor
             do {
                 try await clock.sleep(until: nextWakeAt)
             } catch {
@@ -74,12 +94,16 @@ public final class RealWeatherProvider: WeatherProvider, @unchecked Sendable {
         }
     }
 
-    private func fetchOnce() async {
+    @discardableResult
+    private func fetchOnce() async -> Bool {
         let now = await clock.nowSeconds
+        guard let coord = currentCoordinate() else {
+            return false
+        }
         do {
             let response = try await client.fetchCurrentWeather(
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude
+                latitude: coord.latitude,
+                longitude: coord.longitude
             )
             let snapshot = WeatherSnapshot(
                 scenarioTime: now,
@@ -93,6 +117,7 @@ public final class RealWeatherProvider: WeatherProvider, @unchecked Sendable {
         } catch {
             // Intentionally swallowed. See class doc comment.
         }
+        return true
     }
 }
 

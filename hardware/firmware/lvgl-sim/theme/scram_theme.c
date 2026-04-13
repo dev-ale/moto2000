@@ -110,16 +110,15 @@ void scram_theme_apply(lv_display_t *disp)
     lv_display_set_theme(disp, &s_theme);
 }
 
+/* Night mode feature removed — these are kept as no-ops so existing
+ * callers (screens, screen_manager) continue to compile while the rest
+ * of the night-mode code is purged in follow-up cleanup. */
 void scram_theme_set_night_mode(bool enabled)
 {
-    if (s_night_mode == enabled) {
-        return;
-    }
-    s_night_mode = enabled;
-    rebuild_styles();
+    (void)enabled;
 }
 
 bool scram_theme_is_night_mode(void)
 {
-    return s_night_mode;
+    return false;
 }

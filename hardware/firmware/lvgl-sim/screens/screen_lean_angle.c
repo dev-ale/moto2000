@@ -7,10 +7,10 @@
  *   - Arc gauge:     180 deg sweep, green zones at moderate angles,
  *                    orange/yellow at extremes
  *   - Needle:        lv_line from center-bottom pivot to current angle
- *   - Digital readout: "24°"         SCRAM_FONT_HERO, white, center
+ *   - Digital readout: "24 deg"         SCRAM_FONT_HERO, white, center
  *   - Direction:     "LEFT"/"RIGHT"  SCRAM_FONT_LABEL, green accent
- *   - Max left:      "MAX 38°"       SCRAM_FONT_SMALL, muted gray
- *   - Max right:     "MAX 35°"       SCRAM_FONT_SMALL, muted gray
+ *   - Max left:      "MAX 38 deg"       SCRAM_FONT_SMALL, muted gray
+ *   - Max right:     "MAX 35 deg"       SCRAM_FONT_SMALL, muted gray
  *
  * Night mode: red palette for arc and accent.
  *
@@ -41,7 +41,7 @@
 static void create_needle(lv_obj_t *parent, int16_t lean_deg_x10, lv_color_t col)
 {
     /* lean_deg_x10: negative = left, positive = right.
-     * Map to angle: 0° lean = straight up from pivot (90° in screen coords).
+     * Map to angle: 0 deg lean = straight up from pivot (90 deg in screen coords).
      * Left lean -> needle rotates CCW, right lean -> CW.
      * Angle from vertical in radians. */
     double angle_deg = (double)lean_deg_x10 / 10.0;
@@ -79,11 +79,11 @@ static void create_needle(lv_obj_t *parent, int16_t lean_deg_x10, lv_color_t col
 /*  Arc gauge tick marks via lv_line                                    */
 /* ------------------------------------------------------------------ */
 
-/* Draw tick marks around the 180° arc from -90° to +90° lean.
- * Green for moderate (0-30°), orange for extreme (30-90°). */
+/* Draw tick marks around the 180 deg arc from -90 deg to +90 deg lean.
+ * Green for moderate (0-30 deg), orange for extreme (30-90 deg). */
 static void create_arc_ticks(lv_obj_t *parent, lv_color_t col_green, lv_color_t col_orange)
 {
-    /* Ticks at every 10° from -90 to +90 = 19 ticks. */
+    /* Ticks at every 10 deg from -90 to +90 = 19 ticks. */
     for (int deg = -90; deg <= 90; deg += 10) {
         double angle_rad = (double)deg * (M_PI / 180.0);
         int abs_deg = deg < 0 ? -deg : deg;
@@ -156,7 +156,7 @@ void screen_lean_angle_create(lv_obj_t *parent, const ble_lean_angle_data_t *dat
 
     /* --- Digital readout --- */
     char readout_buf[16];
-    snprintf(readout_buf, sizeof(readout_buf), "%d\xC2\xB0", (int)abs_lean);
+    snprintf(readout_buf, sizeof(readout_buf), "%d deg", (int)abs_lean);
 
     lv_obj_t *lbl_readout = lv_label_create(parent);
     lv_label_set_text(lbl_readout, readout_buf);
@@ -184,7 +184,7 @@ void screen_lean_angle_create(lv_obj_t *parent, const ble_lean_angle_data_t *dat
 
     /* --- Max left indicator --- */
     char max_left_buf[24];
-    snprintf(max_left_buf, sizeof(max_left_buf), "MAX %u\xC2\xB0", (unsigned)max_left_deg);
+    snprintf(max_left_buf, sizeof(max_left_buf), "MAX %u deg", (unsigned)max_left_deg);
 
     lv_obj_t *lbl_max_left = lv_label_create(parent);
     lv_label_set_text(lbl_max_left, max_left_buf);
@@ -194,7 +194,7 @@ void screen_lean_angle_create(lv_obj_t *parent, const ble_lean_angle_data_t *dat
 
     /* --- Max right indicator --- */
     char max_right_buf[24];
-    snprintf(max_right_buf, sizeof(max_right_buf), "MAX %u\xC2\xB0", (unsigned)max_right_deg);
+    snprintf(max_right_buf, sizeof(max_right_buf), "MAX %u deg", (unsigned)max_right_deg);
 
     lv_obj_t *lbl_max_right = lv_label_create(parent);
     lv_label_set_text(lbl_max_right, max_right_buf);

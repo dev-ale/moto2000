@@ -202,6 +202,15 @@ public actor RideSession {
         switch message {
         case .screenChanged(let screenID):
             scheduler?.activeScreen = screenID
+        case .firmwareVersion(let maj, let min, let pat):
+            // Surface to the iOS UI layer via NotificationCenter so the
+            // More tab can show it. RideSession is the only consumer
+            // of the BLE status stream (single-consumer AsyncStream).
+            NotificationCenter.default.post(
+                name: Notification.Name("scramFirmwareVersion"),
+                object: nil,
+                userInfo: ["major": maj, "minor": min, "patch": pat]
+            )
         }
     }
 

@@ -5,6 +5,10 @@ struct OTAUpdateView: View {
     let currentVersion: FirmwareVersion?
     let update: FirmwareUpdate
     let onStartUpdate: () -> Void
+    /// Closure that writes one OTA frame to the BLE `ota_data`
+    /// characteristic. Injected from the parent so this view stays
+    /// transport-agnostic.
+    let sendOTA: @Sendable (Data) async throws -> Void
 
     @Environment(\.dismiss)
     private var dismiss
@@ -225,23 +229,56 @@ struct OTAUpdateView: View {
         }
     }
 
-    // MARK: - Update flow (stub — real BLE transfer deferred to hardware testing)
+    // MARK: - Update flow
 
     private func startUpdate() {
         onStartUpdate()
         updateState = .downloading(progress: 0)
 
-        // Simulated progress — real implementation will observe OTAStatus from BLE.
+        let url = update.downloadURL
+        let send = sendOTA
         Task {
-            for step in stride(from: 0.0, through: 1.0, by: 0.1) {
-                try? await Task.sleep(for: .milliseconds(300))
-                updateState = .downloading(progress: min(step, 1.0))
+            // 1. Download the .bin from GitHub.
+            let firmware: Data
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                firmware = data
+            } catch {
+                await MainActor.run {
+                    updateState = .failed("Download: \(error.localizedDescription)")
+                }
+                return
             }
-            updateState = .verifying
-            try? await Task.sleep(for: .seconds(1))
-            updateState = .applying
-            try? await Task.sleep(for: .seconds(1))
-            updateState = .success
+
+            // 2. Stream over BLE via OTAUploader, mapping its progress
+            //    state into our local UpdateState enum.
+            let uploader = OTAUploader()
+            do {
+                try await uploader.upload(firmware: firmware, send: send) { state in
+                    Task { @MainActor in
+                        switch state {
+                        case let .uploading(sent, total):
+                            let pct = total > 0 ? Double(sent) / Double(total) : 0
+                            updateState = .downloading(progress: pct)
+                        case .finalizing:
+                            updateState = .verifying
+                        case .completed:
+                            updateState = .applying
+                        case .failed(let reason):
+                            updateState = .failed(reason)
+                        case .idle:
+                            break
+                        }
+                    }
+                }
+                await MainActor.run {
+                    updateState = .success
+                }
+            } catch {
+                await MainActor.run {
+                    updateState = .failed(error.localizedDescription)
+                }
+            }
         }
     }
 }

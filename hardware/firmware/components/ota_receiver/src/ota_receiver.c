@@ -8,9 +8,6 @@
 #include "freertos/task.h"
 #include "mbedtls/sha256.h"
 
-#include "ota_https.h"
-#include "wifi_manager.h"
-
 #include <string.h>
 
 static const char *TAG = "ota_rx";
@@ -195,52 +192,6 @@ static bool prv_handle_commit(void)
     return true; /* unreachable */
 }
 
-/* Persist the SSID half of the WiFi credentials. The password arrives
- * in a separate frame; we hold the SSID here until the password lands
- * and write both at once. Static buffers keep this state across BLE
- * write callbacks. */
-static char s_pending_ssid[64];
-
-static bool prv_handle_wifi_ssid(const uint8_t *body, size_t body_len)
-{
-    if (body_len == 0 || body_len >= sizeof(s_pending_ssid)) {
-        return false;
-    }
-    memcpy(s_pending_ssid, body, body_len);
-    s_pending_ssid[body_len] = '\0';
-    ESP_LOGI(TAG, "wifi: stored ssid (%zu bytes)", body_len);
-    return true;
-}
-
-static bool prv_handle_wifi_pwd(const uint8_t *body, size_t body_len)
-{
-    if (body_len >= 96)
-        return false;
-    char pwd[96];
-    memcpy(pwd, body, body_len);
-    pwd[body_len] = '\0';
-    if (s_pending_ssid[0] == '\0') {
-        ESP_LOGW(TAG, "wifi: password without ssid");
-        return false;
-    }
-    esp_err_t err = wifi_manager_set_credentials(s_pending_ssid, pwd);
-    /* Wipe the pending ssid so a stale value can't be reused. */
-    memset(s_pending_ssid, 0, sizeof(s_pending_ssid));
-    return err == ESP_OK;
-}
-
-static bool prv_handle_https_begin(const uint8_t *body, size_t body_len)
-{
-    if (body_len == 0 || body_len >= 240) {
-        return false;
-    }
-    char url[256];
-    memcpy(url, body, body_len);
-    url[body_len] = '\0';
-    ESP_LOGI(TAG, "https ota: starting (%s)", url);
-    return ota_https_start(url) == ESP_OK;
-}
-
 bool ota_receiver_handle_frame(const uint8_t *data, size_t len)
 {
     if (data == NULL || len < 1) {
@@ -250,16 +201,6 @@ bool ota_receiver_handle_frame(const uint8_t *data, size_t len)
     const uint8_t *body = data + 1;
     size_t body_len = len - 1;
 
-    switch (type) {
-    case OTA_FRAME_WIFI_SSID:
-        return prv_handle_wifi_ssid(body, body_len);
-    case OTA_FRAME_WIFI_PWD:
-        return prv_handle_wifi_pwd(body, body_len);
-    case OTA_FRAME_HTTPS_BEGIN:
-        return prv_handle_https_begin(body, body_len);
-    }
-
-    /* Legacy BLE-pushed OTA frames — unused, kept compiling. */
     switch (type) {
     case OTA_FRAME_BEGIN:
         return prv_handle_begin(body, body_len);

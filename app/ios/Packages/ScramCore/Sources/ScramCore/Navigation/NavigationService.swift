@@ -153,7 +153,6 @@ public actor NavigationService: PayloadService {
                 Self.publishStatus("waiting for first GPS fix…")
                 guard let next = await iterator.next() else {
                     Self.publishStatus("no GPS fix; aborting")
-                    ch.finish()
                     return
                 }
                 firstFix = next
@@ -169,7 +168,6 @@ public actor NavigationService: PayloadService {
                 route = try await engine.calculateRoute(from: origin, to: dest)
             } catch {
                 Self.publishStatus("route error: \(error)")
-                ch.finish()
                 return
             }
             Self.publishStatus(String(
@@ -216,7 +214,11 @@ public actor NavigationService: PayloadService {
                     }
                 }
             }
-            ch.finish()
+            // Loop ended (arrival or task cancellation). Don't finish
+            // the channel here — RideSession is iterating it for the
+            // session lifetime and stopRoute() needs to push a final
+            // synthetic .none payload so the firmware nav screen
+            // returns to the idle text.
         }
         consumerTask = task
     }

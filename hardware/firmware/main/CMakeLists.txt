@@ -39,6 +39,6 @@ idf_component_register(
         ams_client
         ancs_client
         ota_receiver
-        ota_https
-        wifi_manager
+        # ota_https + wifi_manager removed from REQUIRES until we
+        # fix the internal-RAM pressure they cause on link.
 )

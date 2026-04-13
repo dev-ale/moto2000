@@ -32,9 +32,7 @@
 #include "ble_protocol.h"
 #include "ams_client.h"
 #include "ancs_client.h"
-#include "ota_https.h"
 #include "ota_receiver.h"
-#include "wifi_manager.h"
 
 /* Screen includes — compiled from lvgl-sim/ into the ESP-IDF firmware. */
 #include "screens/screen_clock.h"
@@ -145,33 +143,6 @@ static void render_ota_screen(ota_rx_state_t state, uint32_t bytes, uint32_t tot
     lv_obj_align(lbl_bytes, LV_ALIGN_CENTER, 0, 100);
 
     bsp_display_unlock();
-}
-
-static void on_https_ota_progress(ota_https_state_t state, int bytes, int total, const char *msg)
-{
-    /* Map the ota_https states onto the existing render_ota_screen
-     * helper, which already accepts an enum + bytes/total. */
-    ota_rx_state_t mapped;
-    switch (state) {
-    case OTA_HTTPS_CONNECTING_WIFI:
-        mapped = OTA_RX_RECEIVING;
-        break;
-    case OTA_HTTPS_DOWNLOADING:
-        mapped = OTA_RX_RECEIVING;
-        break;
-    case OTA_HTTPS_VERIFYING:
-        mapped = OTA_RX_VERIFYING;
-        break;
-    case OTA_HTTPS_DONE:
-        mapped = OTA_RX_DONE;
-        break;
-    case OTA_HTTPS_FAILED:
-    default:
-        mapped = OTA_RX_FAILED;
-        break;
-    }
-    render_ota_screen(mapped, bytes < 0 ? 0 : (uint32_t)bytes, total < 0 ? 0 : (uint32_t)total);
-    (void)msg;
 }
 
 static void on_ota_progress(ota_rx_state_t state, uint32_t bytes, uint32_t total)
@@ -481,11 +452,6 @@ void app_main(void)
     };
     ota_receiver_init();
     ota_receiver_set_progress_cb(on_ota_progress);
-    /* Don't init WiFi at boot — it conflicts with the running NimBLE
-     * stack on the radio and crashes before BLE comes up. wifi_manager
-     * is initialised lazily inside ota_https_start when the user
-     * actually triggers an update. */
-    ota_https_set_progress_cb(on_https_ota_progress);
     int ble_rc = ble_server_init(&ble_cbs);
     if (ble_rc != 0) {
         ESP_LOGE(TAG, "ble_server_init failed: %d", ble_rc);

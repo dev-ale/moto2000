@@ -484,7 +484,7 @@ static void format_eta_line(uint16_t eta_minutes, uint16_t remaining_km_x10, cha
         }
     }
 
-    snprintf(buf, buf_len, "%s  \xE2\x80\x94  %s", eta_part, rem_part);
+    snprintf(buf, buf_len, "%s  -  %s", eta_part, rem_part);
 }
 
 /* ------------------------------------------------------------------ */
@@ -508,11 +508,11 @@ void screen_navigation_create(lv_obj_t *parent, const ble_nav_data_t *nav, uint8
     lv_obj_set_style_pad_all(parent, 0, 0);
     lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
 
-    /* If no real navigation is active (placeholder/idle state — no
-     * street, no remaining distance), show an instructional message
-     * instead of a misleading "0m" hero. */
-    bool active = (nav->street_name[0] != '\0') || (nav->remaining_km_x10 != 0) ||
-                  (nav->distance_to_maneuver_m != 0);
+    /* If no real navigation is active show an instructional message
+     * instead of a misleading "0m" hero. We treat BLE_MANEUVER_NONE as
+     * "no route" — every active route emits at least a STRAIGHT
+     * maneuver from the very first sample. */
+    bool active = nav->maneuver != BLE_MANEUVER_NONE;
     if (!active) {
         lv_obj_t *lbl_idle = lv_label_create(parent);
         lv_label_set_text(lbl_idle, "Start navigation\nfrom phone");

@@ -111,7 +111,8 @@ public final class RealWeatherProvider: WeatherProvider, @unchecked Sendable {
                 temperatureCelsius: response.temperatureCelsius,
                 highCelsius: response.highCelsius,
                 lowCelsius: response.lowCelsius,
-                locationName: response.locationName
+                locationName: response.locationName,
+                precipMinutesUntil: response.precipMinutesUntil
             )
             channel.emit(snapshot)
         } catch {

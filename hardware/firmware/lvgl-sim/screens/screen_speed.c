@@ -92,10 +92,9 @@ void screen_speed_create(lv_obj_t *parent, const ble_speed_heading_data_t *data,
     lv_obj_set_style_arc_rounded(arc, true, LV_PART_INDICATOR);
 
     /* --- Hero speed digits ---
-     * Largest pre-rendered Montserrat is 48 px. Scale ~1.85x via the
-     * widget transform so digits read at ~88 px tall (≈19 % of the 466 px
-     * display, matching the mock). Pivot is set after layout so the
-     * scaled label stays centered on its alignment point. */
+     * Largest pre-rendered Montserrat is 48 px. Scale ~2.6x via the
+     * widget transform so digits read at ~125 px tall on the 466 px
+     * display — by far the dominant element on the screen. */
     char speed_buf[8];
     snprintf(speed_buf, sizeof(speed_buf), "%u", (unsigned)speed_kmh);
 
@@ -104,53 +103,25 @@ void screen_speed_create(lv_obj_t *parent, const ble_speed_heading_data_t *data,
     lv_obj_set_style_text_font(lbl_speed, SCRAM_FONT_HERO, 0);
     lv_obj_set_style_text_color(lbl_speed, col_text, 0);
     lv_obj_set_style_text_align(lbl_speed, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_speed, LV_ALIGN_CENTER, 0, -55);
+    lv_obj_align(lbl_speed, LV_ALIGN_CENTER, 0, -20);
     lv_obj_update_layout(lbl_speed);
     lv_obj_set_style_transform_pivot_x(lbl_speed, lv_obj_get_width(lbl_speed) / 2, 0);
     lv_obj_set_style_transform_pivot_y(lbl_speed, lv_obj_get_height(lbl_speed) / 2, 0);
-    lv_obj_set_style_transform_scale(lbl_speed, 475, 0);
+    lv_obj_set_style_transform_scale(lbl_speed, 660, 0);
 
-    /* --- Unit label --- */
+    /* --- Unit label (under the digits) --- */
     lv_obj_t *lbl_unit = lv_label_create(parent);
     lv_label_set_text(lbl_unit, "km/h");
-    lv_obj_set_style_text_font(lbl_unit, &lv_font_montserrat_28, 0);
+    lv_obj_set_style_text_font(lbl_unit, &lv_font_montserrat_36, 0);
     lv_obj_set_style_text_color(lbl_unit, col_muted, 0);
     lv_obj_set_style_text_align(lbl_unit, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_unit, LV_ALIGN_CENTER, 0, 20);
+    lv_obj_align(lbl_unit, LV_ALIGN_CENTER, 0, 95);
 
-    /* --- Heading with cardinal direction --- */
-    char heading_buf[16];
-    snprintf(heading_buf, sizeof(heading_buf), "%s %03u",
-             heading_to_cardinal(data->heading_deg_x10), (unsigned)heading_deg);
-
-    lv_obj_t *lbl_heading = lv_label_create(parent);
-    lv_label_set_text(lbl_heading, heading_buf);
-    lv_obj_set_style_text_font(lbl_heading, &lv_font_montserrat_36, 0);
-    lv_obj_set_style_text_color(lbl_heading, col_head, 0);
-    lv_obj_set_style_text_align(lbl_heading, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_heading, LV_ALIGN_CENTER, 0, 80);
-
-    /* --- Altitude (bottom-left) --- */
-    char alt_buf[16];
-    snprintf(alt_buf, sizeof(alt_buf), "%dm", (int)altitude_m);
-
-    lv_obj_t *lbl_alt = lv_label_create(parent);
-    lv_label_set_text(lbl_alt, alt_buf);
-    lv_obj_set_style_text_font(lbl_alt, &lv_font_montserrat_24, 0);
-    lv_obj_set_style_text_color(lbl_alt, col_muted, 0);
-    lv_obj_align(lbl_alt, LV_ALIGN_CENTER, -95, 150);
-
-    lv_obj_t *dot_alt = lv_obj_create(parent);
-    lv_obj_set_size(dot_alt, 8, 8);
-    lv_obj_set_style_radius(dot_alt, 4, 0);
-    lv_obj_set_style_bg_color(dot_alt, col_muted, 0);
-    lv_obj_set_style_bg_opa(dot_alt, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(dot_alt, 0, 0);
-    lv_obj_clear_flag(dot_alt, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_align(dot_alt, LV_ALIGN_CENTER, -95, 130);
-
-    /* Temperature row removed: there's no thermal source on iOS yet, so
-     * the field always carries 0 — showing "0 C" was misleading. Re-add
-     * once a real provider lands. */
+    /* Heading, altitude, temperature removed: irrelevant chrome that
+     * stole real estate from the speed reading. The compass and
+     * altitude screens already render those values when needed. */
+    (void)altitude_m;
     (void)temp_whole;
+    (void)heading_deg;
+    (void)col_head;
 }

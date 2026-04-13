@@ -37,7 +37,13 @@ static const char *condition_to_text(ble_weather_condition_t cond)
     case BLE_WEATHER_FOG:
         return "Fog";
     case BLE_WEATHER_THUNDERSTORM:
-        return "Thunderstorm";
+        return "Storm";
+    case BLE_WEATHER_PARTLY_CLOUDY:
+        return "Partly Cloudy";
+    case BLE_WEATHER_OVERCAST:
+        return "Overcast";
+    case BLE_WEATHER_DRIZZLE:
+        return "Drizzle";
     }
     return "Unknown";
 }
@@ -197,9 +203,14 @@ static void draw_condition_icon(lv_obj_t *parent, int cx, int cy, ble_weather_co
     case BLE_WEATHER_CLEAR:
         draw_icon_clear(parent, cx, cy, col_sun);
         break;
-    case BLE_WEATHER_CLOUDY:
+    case BLE_WEATHER_PARTLY_CLOUDY:
         draw_icon_partly_cloudy(parent, cx, cy, col_sun, col_cloud);
         break;
+    case BLE_WEATHER_CLOUDY:
+    case BLE_WEATHER_OVERCAST:
+        draw_icon_cloud(parent, cx, cy, col_cloud);
+        break;
+    case BLE_WEATHER_DRIZZLE:
     case BLE_WEATHER_RAIN:
         draw_icon_rain(parent, cx, cy, col_cloud, col_rain);
         break;
@@ -237,23 +248,34 @@ void screen_weather_create(lv_obj_t *parent, const ble_weather_data_t *data, uin
     lv_obj_set_style_pad_all(parent, 0, 0);
     lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
 
-    /* If iOS hasn't sent real weather yet (placeholder seed has empty
-     * location), show a "loading" hero instead of a fake 0°. */
+    /* Idle state when iOS hasn't sent real weather yet (placeholder
+     * seed has empty location). Render a centred "Fetching weather…"
+     * panel instead of a fake 0° hero. */
     bool loaded = data->location_name[0] != '\0';
 
-    /* --- Condition icon (upper region) --- */
-    if (loaded) {
-        draw_condition_icon(parent, 233, 130, data->condition, night);
+    if (!loaded) {
+        lv_obj_t *spin = lv_spinner_create(parent);
+        lv_obj_set_size(spin, 56, 56);
+        lv_obj_align(spin, LV_ALIGN_CENTER, 0, -40);
+        lv_obj_set_style_arc_color(spin, col_muted, LV_PART_MAIN);
+        lv_obj_set_style_arc_color(spin, col_orange, LV_PART_INDICATOR);
+
+        lv_obj_t *lbl = lv_label_create(parent);
+        lv_label_set_text(lbl, "Fetching weather...");
+        lv_obj_set_style_text_font(lbl, SCRAM_FONT_VALUE, 0);
+        lv_obj_set_style_text_color(lbl, col_text, 0);
+        lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(lbl, LV_ALIGN_CENTER, 0, 30);
+        return;
     }
+
+    /* --- Condition icon (upper region) --- */
+    draw_condition_icon(parent, 233, 130, data->condition, night);
 
     /* --- Hero temperature --- */
     int16_t temp_whole = data->temperature_celsius_x10 / 10;
     char temp_buf[16];
-    if (loaded) {
-        snprintf(temp_buf, sizeof(temp_buf), "%d C", (int)temp_whole);
-    } else {
-        snprintf(temp_buf, sizeof(temp_buf), "%s", "--");
-    }
+    snprintf(temp_buf, sizeof(temp_buf), "%d C", (int)temp_whole);
 
     lv_obj_t *lbl_temp = lv_label_create(parent);
     lv_label_set_text(lbl_temp, temp_buf);
@@ -276,20 +298,35 @@ void screen_weather_create(lv_obj_t *parent, const ble_weather_data_t *data, uin
     char hilo_buf[32];
     snprintf(hilo_buf, sizeof(hilo_buf), "H: %d C  L: %d C", (int)high_whole, (int)low_whole);
 
-    if (loaded) {
-        lv_obj_t *lbl_hilo = lv_label_create(parent);
-        lv_label_set_text(lbl_hilo, hilo_buf);
-        lv_obj_set_style_text_font(lbl_hilo, SCRAM_FONT_SMALL, 0);
-        lv_obj_set_style_text_color(lbl_hilo, col_muted, 0);
-        lv_obj_set_style_text_align(lbl_hilo, LV_TEXT_ALIGN_CENTER, 0);
-        lv_obj_align(lbl_hilo, LV_ALIGN_CENTER, 0, 100);
+    lv_obj_t *lbl_hilo = lv_label_create(parent);
+    lv_label_set_text(lbl_hilo, hilo_buf);
+    lv_obj_set_style_text_font(lbl_hilo, SCRAM_FONT_SMALL, 0);
+    lv_obj_set_style_text_color(lbl_hilo, col_muted, 0);
+    lv_obj_set_style_text_align(lbl_hilo, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(lbl_hilo, LV_ALIGN_CENTER, 0, 100);
+
+    /* --- Precipitation forecast --- */
+    char precip_buf[32];
+    if (data->precip_minutes_until == BLE_WEATHER_PRECIP_NONE) {
+        snprintf(precip_buf, sizeof(precip_buf), "Dry next 4 h");
+    } else if (data->precip_minutes_until == 0) {
+        snprintf(precip_buf, sizeof(precip_buf), "Raining now");
+    } else {
+        snprintf(precip_buf, sizeof(precip_buf), "Rain in %u min",
+                 (unsigned)data->precip_minutes_until);
     }
+    lv_obj_t *lbl_precip = lv_label_create(parent);
+    lv_label_set_text(lbl_precip, precip_buf);
+    lv_obj_set_style_text_font(lbl_precip, SCRAM_FONT_SMALL, 0);
+    lv_obj_set_style_text_color(lbl_precip, col_blue, 0);
+    lv_obj_set_style_text_align(lbl_precip, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(lbl_precip, LV_ALIGN_CENTER, 0, 125);
 
     /* --- Location --- */
     lv_obj_t *lbl_loc = lv_label_create(parent);
-    lv_label_set_text(lbl_loc, loaded ? data->location_name : "Loading...");
+    lv_label_set_text(lbl_loc, data->location_name);
     lv_obj_set_style_text_font(lbl_loc, SCRAM_FONT_SMALL, 0);
     lv_obj_set_style_text_color(lbl_loc, col_orange, 0);
     lv_obj_set_style_text_align(lbl_loc, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_loc, LV_ALIGN_CENTER, 0, 130);
+    lv_obj_align(lbl_loc, LV_ALIGN_CENTER, 0, 150);
 }

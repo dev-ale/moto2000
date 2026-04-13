@@ -409,6 +409,9 @@ final class LivePreviewSession {
             switch response.condition {
             case .clear: return .clear
             case .cloudy: return .cloudy
+            case .partlyCloudy: return .partlyCloudy
+            case .overcast: return .overcast
+            case .drizzle: return .drizzle
             case .rain: return .rain
             case .snow: return .snow
             case .fog: return .fog

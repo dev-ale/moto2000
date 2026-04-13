@@ -12,7 +12,14 @@ public enum WeatherConditionWire: UInt8, Sendable, CaseIterable, Equatable {
     case snow         = 0x03
     case fog          = 0x04
     case thunderstorm = 0x05
+    case partlyCloudy = 0x06
+    case overcast     = 0x07
+    case drizzle      = 0x08
 }
+
+/// Sentinel for "no precipitation in the forecast horizon" carried in
+/// ``WeatherData/precipMinutesUntil``.
+public let weatherPrecipNone: UInt8 = 0xFF
 
 /// Decoded body for a `weather` screen payload.
 ///
@@ -38,6 +45,9 @@ public struct WeatherData: Equatable, Sendable {
     public static let maxTemperatureX10: Int16 = 600
 
     public var condition: WeatherConditionWire
+    /// 0..240 minutes until the next precipitation, or
+    /// `weatherPrecipNone` when nothing is expected.
+    public var precipMinutesUntil: UInt8
     public var temperatureCelsiusX10: Int16
     public var highCelsiusX10: Int16
     public var lowCelsiusX10: Int16
@@ -46,12 +56,14 @@ public struct WeatherData: Equatable, Sendable {
 
     public init(
         condition: WeatherConditionWire,
+        precipMinutesUntil: UInt8 = weatherPrecipNone,
         temperatureCelsiusX10: Int16,
         highCelsiusX10: Int16,
         lowCelsiusX10: Int16,
         locationName: String
     ) {
         self.condition = condition
+        self.precipMinutesUntil = precipMinutesUntil
         self.temperatureCelsiusX10 = temperatureCelsiusX10
         self.highCelsiusX10 = highCelsiusX10
         self.lowCelsiusX10 = lowCelsiusX10
@@ -68,10 +80,7 @@ public struct WeatherData: Equatable, Sendable {
         }
         var reader = ByteReader(body)
         let conditionRaw = try reader.readUInt8()
-        let reserved = try reader.readUInt8()
-        guard reserved == 0 else {
-            throw BLEProtocolError.nonZeroBodyReserved(field: "weather.reserved")
-        }
+        let precip = try reader.readUInt8()
         guard let condition = WeatherConditionWire(rawValue: conditionRaw) else {
             throw BLEProtocolError.valueOutOfRange(field: "weather.condition")
         }
@@ -86,6 +95,7 @@ public struct WeatherData: Equatable, Sendable {
 
         return WeatherData(
             condition: condition,
+            precipMinutesUntil: precip,
             temperatureCelsiusX10: temp,
             highCelsiusX10: high,
             lowCelsiusX10: low,
@@ -99,7 +109,7 @@ public struct WeatherData: Equatable, Sendable {
         try Self.validateTemperature(lowCelsiusX10, field: "weather.lowCelsiusX10")
         var writer = ByteWriter(capacity: Self.encodedSize)
         writer.writeUInt8(condition.rawValue)
-        writer.writeUInt8(0)
+        writer.writeUInt8(precipMinutesUntil)
         writer.writeInt16(temperatureCelsiusX10)
         writer.writeInt16(highCelsiusX10)
         writer.writeInt16(lowCelsiusX10)

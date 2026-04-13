@@ -7,6 +7,9 @@ public enum WeatherCondition: String, Equatable, Sendable, Codable, CaseIterable
     case snow
     case fog
     case thunderstorm
+    case partlyCloudy
+    case overcast
+    case drizzle
 }
 
 public struct WeatherSnapshot: Equatable, Sendable, Codable {
@@ -16,6 +19,8 @@ public struct WeatherSnapshot: Equatable, Sendable, Codable {
     public var highCelsius: Double
     public var lowCelsius: Double
     public var locationName: String
+    /// Minutes until next precipitation, or nil if none in horizon.
+    public var precipMinutesUntil: Int?
 
     public init(
         scenarioTime: Double,
@@ -23,7 +28,8 @@ public struct WeatherSnapshot: Equatable, Sendable, Codable {
         temperatureCelsius: Double,
         highCelsius: Double,
         lowCelsius: Double,
-        locationName: String
+        locationName: String,
+        precipMinutesUntil: Int? = nil
     ) {
         self.scenarioTime = scenarioTime
         self.condition = condition
@@ -31,6 +37,7 @@ public struct WeatherSnapshot: Equatable, Sendable, Codable {
         self.highCelsius = highCelsius
         self.lowCelsius = lowCelsius
         self.locationName = locationName
+        self.precipMinutesUntil = precipMinutesUntil
     }
 }
 

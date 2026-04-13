@@ -3,7 +3,6 @@ import EventKit
 import ScramCore
 import SwiftUI
 
-// swiftlint:disable file_length
 // swiftlint:disable:next type_body_length
 struct MehrView: View {
     @State var connection: ConnectionViewModel
@@ -16,10 +15,6 @@ struct MehrView: View {
     private var alertSounds = true
     @AppStorage("scramscreen.display.brightness")
     private var brightness: Double = 80
-    @AppStorage("scramscreen.wifi.ssid")
-    var wifiSSID: String = ""
-    @AppStorage("scramscreen.wifi.pwd")
-    var wifiPassword: String = ""
     @AppStorage("scramscreen.fuel.tankCapacityLiters")
     private var tankCapacityLiters: Double = 15
 
@@ -173,7 +168,6 @@ struct MehrView: View {
                 )
 
                 firmwareRow
-                wifiRow
 
                 Button { showUnpairConfirm = true } label: {
                     settingsRow(
@@ -319,41 +313,6 @@ struct MehrView: View {
                 chevron: true
             )
         }
-    }
-
-    // MARK: - WiFi credentials (used by the OTA flow)
-
-    private var wifiRow: some View {
-        VStack(alignment: .leading, spacing: ScramSpacing.sm) {
-            HStack(spacing: ScramSpacing.md) {
-                Image(systemName: "wifi")
-                    .foregroundStyle(Color.scramGreen)
-                    .frame(width: 24)
-                Text("WiFi for updates")
-                    .foregroundStyle(Color.scramTextPrimary)
-                Spacer()
-                Text(wifiSSID.isEmpty ? "Not set" : "Set")
-                    .font(.scramCaption)
-                    .foregroundStyle(Color.scramTextSecondary)
-            }
-            HStack(spacing: ScramSpacing.sm) {
-                TextField("SSID", text: $wifiSSID)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, ScramSpacing.sm)
-                    .padding(.vertical, ScramSpacing.xs)
-                    .background(Color.scramSurfaceElevated)
-                    .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                SecureField("Password", text: $wifiPassword)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, ScramSpacing.sm)
-                    .padding(.vertical, ScramSpacing.xs)
-                    .background(Color.scramSurfaceElevated)
-                    .clipShape(RoundedRectangle(cornerRadius: ScramRadius.button))
-            }
-        }
-        .padding(ScramSpacing.lg)
     }
 
     // MARK: - Firmware row

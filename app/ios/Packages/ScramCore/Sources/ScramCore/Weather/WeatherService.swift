@@ -64,8 +64,15 @@ public final class WeatherService: PayloadService, @unchecked Sendable {
         let high = Self.clampTemperatureX10(snapshot.highCelsius)
         let low = Self.clampTemperatureX10(snapshot.lowCelsius)
         let name = Self.truncateLocationName(snapshot.locationName)
+        let precipByte: UInt8
+        if let mins = snapshot.precipMinutesUntil, mins >= 0, mins < 240 {
+            precipByte = UInt8(mins)
+        } else {
+            precipByte = weatherPrecipNone
+        }
         let data = WeatherData(
             condition: wire,
+            precipMinutesUntil: precipByte,
             temperatureCelsiusX10: temperature,
             highCelsiusX10: high,
             lowCelsiusX10: low,
@@ -89,6 +96,9 @@ public final class WeatherService: PayloadService, @unchecked Sendable {
         case .snow:         return .snow
         case .fog:          return .fog
         case .thunderstorm: return .thunderstorm
+        case .partlyCloudy: return .partlyCloudy
+        case .overcast:     return .overcast
+        case .drizzle:      return .drizzle
         }
     }
 

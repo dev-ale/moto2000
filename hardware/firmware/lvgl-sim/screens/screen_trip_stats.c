@@ -108,7 +108,11 @@ void screen_trip_stats_create(lv_obj_t *parent, const ble_trip_stats_data_t *dat
     lv_obj_set_style_text_font(lbl_dur, SCRAM_FONT_HERO, 0);
     lv_obj_set_style_text_color(lbl_dur, col_text, 0);
     lv_obj_set_style_text_align(lbl_dur, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_dur, LV_ALIGN_CENTER, 0, -55);
+    lv_obj_align(lbl_dur, LV_ALIGN_CENTER, 0, -75);
+    lv_obj_update_layout(lbl_dur);
+    lv_obj_set_style_transform_pivot_x(lbl_dur, lv_obj_get_width(lbl_dur) / 2, 0);
+    lv_obj_set_style_transform_pivot_y(lbl_dur, lv_obj_get_height(lbl_dur) / 2, 0);
+    lv_obj_set_style_transform_scale(lbl_dur, 460, 0); /* ~1.8x */
 
     /* --- "Ride time" subtitle --- */
     lv_obj_t *lbl_sub = lv_label_create(parent);
@@ -116,10 +120,10 @@ void screen_trip_stats_create(lv_obj_t *parent, const ble_trip_stats_data_t *dat
     lv_obj_set_style_text_font(lbl_sub, SCRAM_FONT_SMALL, 0);
     lv_obj_set_style_text_color(lbl_sub, col_muted, 0);
     lv_obj_set_style_text_align(lbl_sub, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_sub, LV_ALIGN_CENTER, 0, -20);
+    lv_obj_align(lbl_sub, LV_ALIGN_CENTER, 0, 5);
 
     /* --- Horizontal divider --- */
-    create_h_divider(parent, 0, col_div);
+    create_h_divider(parent, 25, col_div);
 
     /* --- Distance (left column) --- */
     double dist_km = (double)data->distance_meters / 1000.0;
@@ -135,14 +139,18 @@ void screen_trip_stats_create(lv_obj_t *parent, const ble_trip_stats_data_t *dat
     lv_obj_set_style_text_font(lbl_dist, SCRAM_FONT_VALUE, 0);
     lv_obj_set_style_text_color(lbl_dist, col_text, 0);
     lv_obj_set_style_text_align(lbl_dist, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_dist, LV_ALIGN_CENTER, -80, 30);
+    lv_obj_align(lbl_dist, LV_ALIGN_CENTER, -80, 55);
+    lv_obj_update_layout(lbl_dist);
+    lv_obj_set_style_transform_pivot_x(lbl_dist, lv_obj_get_width(lbl_dist) / 2, 0);
+    lv_obj_set_style_transform_pivot_y(lbl_dist, lv_obj_get_height(lbl_dist) / 2, 0);
+    lv_obj_set_style_transform_scale(lbl_dist, 380, 0);
 
     lv_obj_t *lbl_dist_unit = lv_label_create(parent);
     lv_label_set_text(lbl_dist_unit, "km");
     lv_obj_set_style_text_font(lbl_dist_unit, SCRAM_FONT_SMALL, 0);
     lv_obj_set_style_text_color(lbl_dist_unit, col_muted, 0);
     lv_obj_set_style_text_align(lbl_dist_unit, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_dist_unit, LV_ALIGN_CENTER, -80, 55);
+    lv_obj_align(lbl_dist_unit, LV_ALIGN_CENTER, -80, 90);
 
     /* --- Average speed (right column) --- */
     uint16_t avg_kmh = data->average_speed_kmh_x10 / 10;
@@ -154,17 +162,21 @@ void screen_trip_stats_create(lv_obj_t *parent, const ble_trip_stats_data_t *dat
     lv_obj_set_style_text_font(lbl_avg, SCRAM_FONT_VALUE, 0);
     lv_obj_set_style_text_color(lbl_avg, col_text, 0);
     lv_obj_set_style_text_align(lbl_avg, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_avg, LV_ALIGN_CENTER, 80, 30);
+    lv_obj_align(lbl_avg, LV_ALIGN_CENTER, 80, 55);
+    lv_obj_update_layout(lbl_avg);
+    lv_obj_set_style_transform_pivot_x(lbl_avg, lv_obj_get_width(lbl_avg) / 2, 0);
+    lv_obj_set_style_transform_pivot_y(lbl_avg, lv_obj_get_height(lbl_avg) / 2, 0);
+    lv_obj_set_style_transform_scale(lbl_avg, 380, 0);
 
     lv_obj_t *lbl_avg_unit = lv_label_create(parent);
     lv_label_set_text(lbl_avg_unit, "avg km/h");
     lv_obj_set_style_text_font(lbl_avg_unit, SCRAM_FONT_SMALL, 0);
     lv_obj_set_style_text_color(lbl_avg_unit, col_muted, 0);
     lv_obj_set_style_text_align(lbl_avg_unit, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_avg_unit, LV_ALIGN_CENTER, 80, 55);
+    lv_obj_align(lbl_avg_unit, LV_ALIGN_CENTER, 80, 90);
 
     /* --- Vertical divider between columns --- */
-    create_v_divider(parent, 30, 70, col_div);
+    create_v_divider(parent, 55, 70, col_div);
 
     /* --- Elevation (bottom left, orange) --- */
     char elev_buf[16];
@@ -175,14 +187,14 @@ void screen_trip_stats_create(lv_obj_t *parent, const ble_trip_stats_data_t *dat
     lv_obj_set_style_text_font(lbl_elev, SCRAM_FONT_LABEL, 0);
     lv_obj_set_style_text_color(lbl_elev, col_orange, 0);
     lv_obj_set_style_text_align(lbl_elev, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_elev, LV_ALIGN_CENTER, -80, 90);
+    lv_obj_align(lbl_elev, LV_ALIGN_CENTER, -80, 130);
 
     lv_obj_t *lbl_elev_sub = lv_label_create(parent);
     lv_label_set_text(lbl_elev_sub, "Elevation");
     lv_obj_set_style_text_font(lbl_elev_sub, SCRAM_FONT_SMALL, 0);
     lv_obj_set_style_text_color(lbl_elev_sub, col_muted, 0);
     lv_obj_set_style_text_align(lbl_elev_sub, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_elev_sub, LV_ALIGN_CENTER, -80, 110);
+    lv_obj_align(lbl_elev_sub, LV_ALIGN_CENTER, -80, 155);
 
     /* --- Max speed (bottom right, blue) --- */
     uint16_t max_kmh = data->max_speed_kmh_x10 / 10;
@@ -194,12 +206,12 @@ void screen_trip_stats_create(lv_obj_t *parent, const ble_trip_stats_data_t *dat
     lv_obj_set_style_text_font(lbl_max, SCRAM_FONT_LABEL, 0);
     lv_obj_set_style_text_color(lbl_max, col_blue, 0);
     lv_obj_set_style_text_align(lbl_max, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_max, LV_ALIGN_CENTER, 80, 90);
+    lv_obj_align(lbl_max, LV_ALIGN_CENTER, 80, 130);
 
     lv_obj_t *lbl_max_sub = lv_label_create(parent);
     lv_label_set_text(lbl_max_sub, "max km/h");
     lv_obj_set_style_text_font(lbl_max_sub, SCRAM_FONT_SMALL, 0);
     lv_obj_set_style_text_color(lbl_max_sub, col_muted, 0);
     lv_obj_set_style_text_align(lbl_max_sub, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_max_sub, LV_ALIGN_CENTER, 80, 110);
+    lv_obj_align(lbl_max_sub, LV_ALIGN_CENTER, 80, 155);
 }

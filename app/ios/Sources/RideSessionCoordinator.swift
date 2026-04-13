@@ -167,7 +167,9 @@ final class RideSessionCoordinator {
                         .init(latitude: sample.latitude, longitude: sample.longitude)
                     )
                 }
-                try? await Task.sleep(nanoseconds: 30 * 1_000_000_000)
+                // Tight tick so the first GPS fix reaches the weather
+                // provider in seconds rather than half a minute.
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
             }
         }
         Task { await realWeather.start() }

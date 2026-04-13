@@ -62,6 +62,9 @@ extension MehrView {
         switch condition {
         case .clear: "sun.max.fill"
         case .cloudy: "cloud.fill"
+        case .partlyCloudy: "cloud.sun.fill"
+        case .overcast: "cloud.fill"
+        case .drizzle: "cloud.drizzle.fill"
         case .rain: "cloud.rain.fill"
         case .snow: "cloud.snow.fill"
         case .fog: "cloud.fog.fill"

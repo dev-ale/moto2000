@@ -131,10 +131,20 @@ typedef enum {
     BLE_WEATHER_SNOW = 0x03,
     BLE_WEATHER_FOG = 0x04,
     BLE_WEATHER_THUNDERSTORM = 0x05,
+    BLE_WEATHER_PARTLY_CLOUDY = 0x06,
+    BLE_WEATHER_OVERCAST = 0x07,
+    BLE_WEATHER_DRIZZLE = 0x08,
 } ble_weather_condition_t;
+
+/* Sentinel for "no precipitation in the forecast horizon" carried in
+ * the precip_minutes_until field below. */
+#define BLE_WEATHER_PRECIP_NONE ((uint8_t)0xFFU)
 
 typedef struct {
     ble_weather_condition_t condition;
+    /* Minutes until next precipitation (0..240), or
+     * BLE_WEATHER_PRECIP_NONE when nothing is expected. */
+    uint8_t precip_minutes_until;
     int16_t temperature_celsius_x10;
     int16_t high_celsius_x10;
     int16_t low_celsius_x10;

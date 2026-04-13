@@ -298,16 +298,9 @@ void screen_compass_create(lv_obj_t *parent, const ble_compass_data_t *data, uin
     /* --- Compass needle --- */
     create_needle(parent, heading_x10, col_north, col_needle_s);
 
-    /* --- Digital heading readout --- */
-    char heading_buf[8];
-    snprintf(heading_buf, sizeof(heading_buf), "%03u deg", (unsigned)deg);
-
-    lv_obj_t *lbl_heading = lv_label_create(parent);
-    lv_label_set_text(lbl_heading, heading_buf);
-    lv_obj_set_style_text_font(lbl_heading, SCRAM_FONT_LABEL, 0);
-    lv_obj_set_style_text_color(lbl_heading, col_text, 0);
-    lv_obj_set_style_text_align(lbl_heading, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(lbl_heading, LV_ALIGN_CENTER, 0, -30);
+    /* Digital heading readout removed: noisy and redundant when the
+     * needle and cardinal labels already convey the bearing. */
+    (void)deg;
 
     /* --- MAG / TRU indicator --- */
     bool use_true = (data->compass_flags & BLE_COMPASS_FLAG_USE_TRUE_HEADING) != 0;

@@ -138,6 +138,7 @@ void screen_manager_seed_placeholders(void)
     {
         ble_weather_data_t d = {
             .condition = BLE_WEATHER_CLEAR,
+            .precip_minutes_until = BLE_WEATHER_PRECIP_NONE,
             .temperature_celsius_x10 = 0,
             .high_celsius_x10 = 0,
             .low_celsius_x10 = 0,

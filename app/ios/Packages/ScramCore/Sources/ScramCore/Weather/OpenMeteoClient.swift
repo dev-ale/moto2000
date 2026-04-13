@@ -32,14 +32,34 @@ public final class OpenMeteoClient: WeatherServiceClient, @unchecked Sendable {
         let high = parsed.daily.temperature_2m_max.first ?? parsed.current.temperature_2m
         let low = parsed.daily.temperature_2m_min.first ?? parsed.current.temperature_2m
         let name = await Self.reverseGeocode(latitude: latitude, longitude: longitude)
+        let nextRain = Self.minutesUntilNextPrecipitation(parsed.hourly)
 
         return WeatherServiceResponse(
             condition: condition,
             temperatureCelsius: parsed.current.temperature_2m,
             highCelsius: high,
             lowCelsius: low,
-            locationName: name
+            locationName: name,
+            precipMinutesUntil: nextRain
         )
+    }
+
+    /// Walk the hourly precipitation forecast and return the number of
+    /// minutes until the next hour with > 0.1 mm of precipitation, or
+    /// nil if none in the forecast horizon.
+    private static func minutesUntilNextPrecipitation(_ hourly: OpenMeteoResponse.Hourly?) -> Int? {
+        guard let hourly,
+              let now = ISO8601Format.parse(hourly.time.first) else { return nil }
+        let precipTimes = zip(hourly.time, hourly.precipitation)
+        for (timeString, mm) in precipTimes where mm >= 0.1 {
+            guard let date = ISO8601Format.parse(timeString) else { continue }
+            let secondsAhead = date.timeIntervalSince(now)
+            if secondsAhead <= 0 { continue }
+            let minutes = Int(secondsAhead / 60)
+            if minutes < 240 { return minutes }
+            return nil
+        }
+        return nil
     }
 
     // MARK: - URL
@@ -50,9 +70,10 @@ public final class OpenMeteoClient: WeatherServiceClient, @unchecked Sendable {
             URLQueryItem(name: "latitude", value: String(latitude)),
             URLQueryItem(name: "longitude", value: String(longitude)),
             URLQueryItem(name: "current", value: "temperature_2m,weather_code"),
+            URLQueryItem(name: "hourly", value: "precipitation"),
             URLQueryItem(name: "daily", value: "temperature_2m_max,temperature_2m_min"),
             URLQueryItem(name: "timezone", value: "auto"),
-            URLQueryItem(name: "forecast_days", value: "1"),
+            URLQueryItem(name: "forecast_days", value: "2"),
         ]
         return c?.url
     }
@@ -77,14 +98,34 @@ public final class OpenMeteoClient: WeatherServiceClient, @unchecked Sendable {
     /// https://open-meteo.com/en/docs WMO Weather interpretation codes.
     static func mapCondition(_ code: Int) -> WeatherCondition {
         switch code {
-        case 0, 1: return .clear
-        case 2, 3: return .cloudy
-        case 45, 48: return .fog
-        case 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82: return .rain
-        case 71, 73, 75, 77, 85, 86: return .snow
-        case 95, 96, 99: return .thunderstorm
-        default: return .cloudy
+        case 0:                 return .clear
+        case 1, 2:              return .partlyCloudy
+        case 3:                 return .overcast
+        case 45, 48:            return .fog
+        case 51, 53, 55,
+             56, 57:            return .drizzle
+        case 61, 63, 65,
+             66, 67,
+             80, 81, 82:        return .rain
+        case 71, 73, 75,
+             77, 85, 86:        return .snow
+        case 95, 96, 99:        return .thunderstorm
+        default:                return .cloudy
         }
+    }
+}
+
+private enum ISO8601Format {
+    static let formatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        f.timeZone = TimeZone.current
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+    static func parse(_ value: String?) -> Date? {
+        guard let value else { return nil }
+        return formatter.date(from: value)
     }
 }
 
@@ -93,6 +134,7 @@ public final class OpenMeteoClient: WeatherServiceClient, @unchecked Sendable {
 private struct OpenMeteoResponse: Decodable {
     let current: Current
     let daily: Daily
+    let hourly: Hourly?
 
     struct Current: Decodable {
         let temperature_2m: Double
@@ -102,5 +144,10 @@ private struct OpenMeteoResponse: Decodable {
     struct Daily: Decodable {
         let temperature_2m_max: [Double]
         let temperature_2m_min: [Double]
+    }
+
+    struct Hourly: Decodable {
+        let time: [String]
+        let precipitation: [Double]
     }
 }

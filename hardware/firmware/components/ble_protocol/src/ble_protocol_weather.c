@@ -3,7 +3,7 @@
  *
  * Wire layout (little-endian, 28 bytes total):
  *   offset 0     : uint8  condition       (BLE_WEATHER_*)
- *   offset 1     : uint8  reserved        (must be 0)
+ *   offset 1     : uint8  precip_minutes_until (0..240, 0xFF = none)
  *   offset 2..3  : int16  temperature_x10 (-500..=600)
  *   offset 4..5  : int16  high_x10        (-500..=600)
  *   offset 6..7  : int16  low_x10         (-500..=600)
@@ -25,7 +25,7 @@ static bool ble_weather_temp_in_range(int16_t v)
 
 static bool ble_weather_condition_known(uint8_t c)
 {
-    return c <= BLE_WEATHER_THUNDERSTORM;
+    return c <= BLE_WEATHER_DRIZZLE;
 }
 
 ble_result_t ble_decode_weather(const uint8_t *data, size_t length, uint8_t *out_flags,
@@ -44,10 +44,7 @@ ble_result_t ble_decode_weather(const uint8_t *data, size_t length, uint8_t *out
     }
     const uint8_t *body = header.body;
     const uint8_t cond = body[0];
-    const uint8_t reserved = body[1];
-    if (reserved != 0) {
-        return BLE_ERR_NON_ZERO_BODY_RESERVED;
-    }
+    const uint8_t precip = body[1];
     if (!ble_weather_condition_known(cond)) {
         return BLE_ERR_VALUE_OUT_OF_RANGE;
     }
@@ -73,6 +70,7 @@ ble_result_t ble_decode_weather(const uint8_t *data, size_t length, uint8_t *out
     }
 
     out->condition = (ble_weather_condition_t)cond;
+    out->precip_minutes_until = precip;
     out->temperature_celsius_x10 = temp;
     out->high_celsius_x10 = high;
     out->low_celsius_x10 = low;
@@ -109,7 +107,7 @@ ble_result_t ble_encode_weather(const ble_weather_data_t *in, uint8_t flags, uin
     ble_write_header(out_buf, BLE_SCREEN_WEATHER, flags, (uint16_t)BLE_PROTOCOL_WEATHER_BODY_SIZE);
     uint8_t *body = out_buf + BLE_PROTOCOL_HEADER_SIZE;
     body[0] = (uint8_t)in->condition;
-    body[1] = 0;
+    body[1] = in->precip_minutes_until;
     ble_write_i16_le(&body[2], in->temperature_celsius_x10);
     ble_write_i16_le(&body[4], in->high_celsius_x10);
     ble_write_i16_le(&body[6], in->low_celsius_x10);

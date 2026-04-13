@@ -28,19 +28,23 @@ public struct WeatherServiceResponse: Sendable, Equatable {
     public var highCelsius: Double
     public var lowCelsius: Double
     public var locationName: String
+    /// Minutes until next precipitation, or nil if none expected.
+    public var precipMinutesUntil: Int?
 
     public init(
         condition: WeatherCondition,
         temperatureCelsius: Double,
         highCelsius: Double,
         lowCelsius: Double,
-        locationName: String
+        locationName: String,
+        precipMinutesUntil: Int? = nil
     ) {
         self.condition = condition
         self.temperatureCelsius = temperatureCelsius
         self.highCelsius = highCelsius
         self.lowCelsius = lowCelsius
         self.locationName = locationName
+        self.precipMinutesUntil = precipMinutesUntil
     }
 }
 

@@ -82,69 +82,6 @@ final class RideSessionCoordinator {
         Task { await handleDisconnect() }
     }
 
-    /// Replace the live ride session with one fed by a simulator
-    /// scenario for the duration of `play`. Pushes its services'
-    /// payloads to the connected display via the same BLE client, so
-    /// every screen ticks on simulated data.
-    ///
-    /// Caller awaits this method until playback finishes; the real
-    /// session resumes automatically afterwards (assuming BLE is
-    /// still connected).
-    func runSimulatedScenario(_ scenario: Scenario, speedMultiplier: Double) async {
-        // Tear down the real session first — only one set of payload
-        // services should hold the BLE write characteristic at a time.
-        if rideSession != nil {
-            await handleDisconnect()
-        }
-
-        let env = SimulatorEnvironment()
-        let deps = RideSessionDependencies(
-            locationProvider: env.location,
-            motionProvider: env.motion,
-            weatherProvider: env.weather,
-            nowPlayingProvider: env.nowPlaying,
-            calendarProvider: env.calendar,
-            callObserver: env.calls,
-            speedCameraDatabase: nil,
-            fuelLog: FuelLog(store: fuelLogStore)
-        )
-        let session = RideSession(
-            bleClient: bleClient,
-            preferences: screenPreferences,
-            dependencies: deps
-        )
-        rideSession = session
-        do {
-            try await session.start()
-            isSessionActive = true
-            NSLog("[RSC] simulator session started: \(scenario.name)")
-        } catch {
-            NSLog("[RSC] simulator session start failed: \(error)")
-            rideSession = nil
-            return
-        }
-
-        // Drive the mock providers from the scenario.
-        do {
-            let clock = try WallClock(speedMultiplier: speedMultiplier)
-            let player = ScenarioPlayer(environment: env, clock: clock)
-            await player.play(scenario)
-        } catch {
-            NSLog("[RSC] scenario play failed: \(error)")
-        }
-
-        // Finish the simulator session. handleConnect will rebuild the
-        // real session on the next BLE state event; if BLE is still
-        // up, force one immediately.
-        await session.stop()
-        rideSession = nil
-        isSessionActive = false
-
-        if (try? await bleClient.currentState()) == .connected {
-            await handleConnect()
-        }
-    }
-
     // MARK: - Session lifecycle
 
     private func handleConnect() async {

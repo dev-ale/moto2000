@@ -19,7 +19,7 @@ struct ScramScreenApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(connection: connection, rideCoordinator: rideCoordinator)
+            MainTabView(connection: connection)
                 .onAppear {
                     rideCoordinator.startObserving()
                     SampleTripSeeder.seedIfNeeded()

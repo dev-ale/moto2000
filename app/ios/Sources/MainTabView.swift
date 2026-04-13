@@ -22,7 +22,6 @@ enum ScramTab: String, CaseIterable {
 
 struct MainTabView: View {
     @State var connection: ConnectionViewModel
-    let rideCoordinator: RideSessionCoordinator
     @State private var selectedTab: ScramTab = .home
 
     private let switchToHome = NotificationCenter.default.publisher(
@@ -67,7 +66,7 @@ struct MainTabView: View {
     private func tabContent(for tab: ScramTab) -> some View {
         switch tab {
         case .home:
-            HomeView(connection: connection, rideCoordinator: rideCoordinator)
+            HomeView(connection: connection)
         case .screens:
             ScreensView()
         case .fahrten:

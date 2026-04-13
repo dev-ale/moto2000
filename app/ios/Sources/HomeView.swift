@@ -4,7 +4,6 @@ import SwiftUI
 
 struct HomeView: View {
     @State var connection: ConnectionViewModel
-    let rideCoordinator: RideSessionCoordinator
 
     @State private var showLivePreview = false
     #if DEBUG
@@ -273,7 +272,7 @@ struct HomeView: View {
                     .background(Color.scramSurfaceElevated)
                     .clipShape(RoundedRectangle(cornerRadius: ScramRadius.cardSmall))
                     .sheet(isPresented: $showSimulator) {
-                        ScenarioPickerView(coordinator: rideCoordinator)
+                        ScenarioPickerView()
                     }
 
                 Button("Screen Picker") { showScreenPicker = true }

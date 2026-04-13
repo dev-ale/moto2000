@@ -32,22 +32,6 @@ struct HomeView: View {
 
                 NavigationSearchView()
 
-                // MARK: - Quick stats (only when paired)
-
-                if connection.isPaired {
-                    HStack(spacing: ScramSpacing.sm) {
-                        StatCard(
-                            value: connection.isConnected ? "80%" : "--",
-                            label: "Brightness"
-                        )
-                        StatCard(value: "Day", label: "Mode")
-                        StatCard(
-                            value: connection.firmwareVersion?.versionString ?? "--",
-                            label: "Firmware"
-                        )
-                    }
-                }
-
                 // MARK: - Live Preview
 
                 livePreviewSection

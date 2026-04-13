@@ -30,9 +30,10 @@ public struct ScreenSelection: Equatable, Hashable, Identifiable, Sendable {
         self.previewImageName = previewImageName
     }
 
-    /// Default selections for the screens that already have renderers in
-    /// merged slices (Clock, Compass, Speed+Heading, Navigation). New
-    /// renderers should append themselves here as their slices land.
+    /// User-pickable screens. Alert-only screens (incoming call, blitzer)
+    /// are intentionally excluded — the firmware FSM forces them onto the
+    /// display via the ALERT flag, so they must not appear in the picker
+    /// (manually selecting them renders the seed "no data" body).
     public static let availableScreens: [ScreenSelection] = [
         .init(screenID: .clock,        displayName: "Clock",           iconName: "clock",                                  previewImageName: "screen_clock"),
         .init(screenID: .speedHeading, displayName: "Speed + Heading", iconName: "speedometer",                            previewImageName: "screen_speed"),
@@ -45,7 +46,5 @@ public struct ScreenSelection: Equatable, Hashable, Identifiable, Sendable {
         .init(screenID: .altitude,     displayName: "Altitude",        iconName: "mountain.2",                             previewImageName: "screen_altitude"),
         .init(screenID: .fuelEstimate, displayName: "Fuel",            iconName: "fuelpump",                               previewImageName: "screen_fuel"),
         .init(screenID: .appointment,  displayName: "Calendar",        iconName: "calendar",                               previewImageName: "screen_calendar"),
-        .init(screenID: .incomingCall, displayName: "Incoming Call",   iconName: "phone.arrow.down.left", isEnabled: true, previewImageName: "screen_call"),
-        .init(screenID: .blitzer,      displayName: "Blitzer",         iconName: "exclamationmark.triangle", isEnabled: true, previewImageName: "screen_blitzer"),
     ]
 }

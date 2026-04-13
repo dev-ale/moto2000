@@ -61,7 +61,10 @@ public actor OTAUploader {
         state = .uploading(bytesSent: 0, totalBytes: total)
         progress?(state)
 
-        // CHUNK frames
+        // CHUNK frames. We throttle to ~5 ms per chunk so the firmware's
+        // NimBLE ACL buffer pool has time to drain — sending faster
+        // than that exhausts it within seconds and the link dies
+        // mid-update with "ACL buf alloc failed".
         var offset = 0
         while offset < total {
             let end = min(offset + Self.chunkBodyBytes, total)
@@ -69,13 +72,10 @@ public actor OTAUploader {
             frame.append(0x02)
             frame.append(firmware[offset..<end])
             try await send(frame)
+            try? await Task.sleep(nanoseconds: 5_000_000)
             offset = end
             state = .uploading(bytesSent: offset, totalBytes: total)
             progress?(state)
-            // Yield occasionally so the UI gets a chance to repaint.
-            if offset % (Self.chunkBodyBytes * 16) == 0 {
-                await Task.yield()
-            }
         }
 
         // COMMIT frame — firmware verifies SHA256 and reboots.

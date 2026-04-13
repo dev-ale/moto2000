@@ -190,8 +190,10 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         guard case .connected = state, let peripheral, let otaDataChar else {
             throw BLECentralClientError.notConnected
         }
-        // Use write-without-response to maximise throughput. iOS will
-        // backpressure us via the BLE host queue.
+        // write-without-response. Caller MUST throttle (OTAUploader
+        // sleeps a few ms per chunk) — otherwise iOS pushes faster
+        // than the NimBLE ACL buffer pool can drain and the firmware
+        // logs "ACL buf alloc failed" until the link dies.
         peripheral.writeValue(bytes, for: otaDataChar, type: .withoutResponse)
     }
 

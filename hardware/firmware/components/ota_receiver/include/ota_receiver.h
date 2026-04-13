@@ -39,8 +39,16 @@ typedef enum {
     OTA_RX_DONE,
 } ota_rx_state_t;
 
+/* Progress callback type — fires on every state transition AND every
+ * CHUNK frame so the UI can draw a smooth progress bar. */
+typedef void (*ota_receiver_progress_cb_t)(ota_rx_state_t state, uint32_t bytes_written,
+                                           uint32_t total_size);
+
 /* Initialise the receiver. Idempotent. */
 void ota_receiver_init(void);
+
+/* Set (or clear) the progress callback. Pass NULL to remove. */
+void ota_receiver_set_progress_cb(ota_receiver_progress_cb_t cb);
 
 /* Process one frame. `data[0]` is the frame type; `len` is the full
  * frame length including the type byte. Returns true on success. */

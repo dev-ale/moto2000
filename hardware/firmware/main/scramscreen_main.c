@@ -64,6 +64,102 @@ static ble_payload_cache_t s_payload_cache;
 /* Boot / "waiting for connection" screen                              */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* OTA progress screen — drawn while iOS is streaming a firmware      */
+/* image. Rebuilds the active LVGL screen in place under the BSP      */
+/* display lock so it doesn't race with the LVGL render task.         */
+/* ------------------------------------------------------------------ */
+
+static void render_ota_screen(ota_rx_state_t state, uint32_t bytes, uint32_t total)
+{
+    if (bsp_display_lock(UINT32_MAX) != ESP_OK) {
+        return;
+    }
+    lv_obj_t *scr = lv_screen_active();
+    lv_obj_clean(scr);
+    lv_obj_set_style_bg_color(scr, lv_color_hex(0x0a0a0a), 0);
+    lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
+
+    lv_obj_t *title = lv_label_create(scr);
+    lv_label_set_text(title, "Updating Firmware");
+    lv_obj_set_style_text_color(title, lv_color_hex(0xF5A623), 0);
+    lv_obj_set_style_text_font(title, &lv_font_montserrat_24, 0);
+    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 130);
+
+    int pct = (total > 0) ? (int)((uint64_t)bytes * 100 / total) : 0;
+
+    char status[40];
+    switch (state) {
+    case OTA_RX_RECEIVING:
+        snprintf(status, sizeof(status), "Receiving... %d%%", pct);
+        break;
+    case OTA_RX_VERIFYING:
+        snprintf(status, sizeof(status), "Verifying...");
+        break;
+    case OTA_RX_DONE:
+        snprintf(status, sizeof(status), "Restarting...");
+        break;
+    case OTA_RX_FAILED:
+        snprintf(status, sizeof(status), "Update failed");
+        break;
+    default:
+        snprintf(status, sizeof(status), "Preparing...");
+        break;
+    }
+
+    lv_obj_t *lbl_status = lv_label_create(scr);
+    lv_label_set_text(lbl_status, status);
+    lv_obj_set_style_text_color(lbl_status, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_font(lbl_status, &lv_font_montserrat_28, 0);
+    lv_obj_align(lbl_status, LV_ALIGN_CENTER, 0, 0);
+
+    /* Bar — 320 px wide track + green fill clamped to pct. */
+    lv_obj_t *track = lv_obj_create(scr);
+    lv_obj_set_size(track, 320, 16);
+    lv_obj_set_style_radius(track, 8, 0);
+    lv_obj_set_style_bg_color(track, lv_color_hex(0x222222), 0);
+    lv_obj_set_style_border_width(track, 0, 0);
+    lv_obj_clear_flag(track, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_align(track, LV_ALIGN_CENTER, 0, 60);
+
+    int fill_w = (pct * 320) / 100;
+    if (fill_w < 4)
+        fill_w = 4;
+    lv_obj_t *fill = lv_obj_create(track);
+    lv_obj_set_size(fill, fill_w, 16);
+    lv_obj_set_style_radius(fill, 8, 0);
+    lv_obj_set_style_bg_color(fill, lv_color_hex(0xF5A623), 0);
+    lv_obj_set_style_border_width(fill, 0, 0);
+    lv_obj_clear_flag(fill, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_align(fill, LV_ALIGN_LEFT_MID, 0, 0);
+
+    char bytes_buf[32];
+    snprintf(bytes_buf, sizeof(bytes_buf), "%lu / %lu KB", (unsigned long)(bytes / 1024),
+             (unsigned long)(total / 1024));
+    lv_obj_t *lbl_bytes = lv_label_create(scr);
+    lv_label_set_text(lbl_bytes, bytes_buf);
+    lv_obj_set_style_text_color(lbl_bytes, lv_color_hex(0x666666), 0);
+    lv_obj_set_style_text_font(lbl_bytes, &lv_font_montserrat_16, 0);
+    lv_obj_align(lbl_bytes, LV_ALIGN_CENTER, 0, 100);
+
+    bsp_display_unlock();
+}
+
+static void on_ota_progress(ota_rx_state_t state, uint32_t bytes, uint32_t total)
+{
+    /* Throttle: only redraw on every 4th chunk while receiving so we
+     * don't flood the LVGL task with rebuilds. Always redraw on state
+     * transitions. */
+    static uint32_t last_drawn = 0;
+    static ota_rx_state_t last_state = OTA_RX_IDLE;
+    if (state == OTA_RX_RECEIVING && state == last_state && (bytes - last_drawn) < (240 * 8)) {
+        return;
+    }
+    last_drawn = bytes;
+    last_state = state;
+    render_ota_screen(state, bytes, total);
+}
+
 static void render_waiting_screen(void)
 {
     if (bsp_display_lock(UINT32_MAX) != ESP_OK) {
@@ -349,6 +445,7 @@ void app_main(void)
         .on_status_subscribed = on_status_subscribed,
     };
     ota_receiver_init();
+    ota_receiver_set_progress_cb(on_ota_progress);
     int ble_rc = ble_server_init(&ble_cbs);
     if (ble_rc != 0) {
         ESP_LOGE(TAG, "ble_server_init failed: %d", ble_rc);

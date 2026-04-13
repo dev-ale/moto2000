@@ -361,10 +361,21 @@ struct MehrView: View {
 
     private func checkForFirmwareUpdate() async {
         guard connection.isPaired else { return }
+        // Wipe any stale cache before checking — otherwise the first
+        // check after a new release lands gets the previous "no update"
+        // result for up to 24 hours.
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "scramscreen.ota.cacheTimestamp")
+        defaults.removeObject(forKey: "scramscreen.ota.cachedVersion")
+        defaults.removeObject(forKey: "scramscreen.ota.cachedURL")
+        defaults.removeObject(forKey: "scramscreen.ota.cachedNotes")
+
         let checker = GitHubReleaseChecker()
         let currentVersion = connection.firmwareVersion ?? FirmwareVersion(major: 0, minor: 0, patch: 0)
         do {
             availableUpdate = try await checker.checkForUpdate(currentVersion: currentVersion)
-        } catch {}
+        } catch {
+            NSLog("[OTA] checkForUpdate failed: \(error)")
+        }
     }
 }

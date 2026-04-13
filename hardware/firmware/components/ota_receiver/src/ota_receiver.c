@@ -20,7 +20,20 @@ static struct {
     uint32_t bytes_written;
     uint8_t expected_sha256[32];
     mbedtls_sha256_context sha_ctx;
+    ota_receiver_progress_cb_t progress_cb;
 } s_rx;
+
+static inline void prv_notify(void)
+{
+    if (s_rx.progress_cb) {
+        s_rx.progress_cb(s_rx.state, s_rx.bytes_written, s_rx.total_size);
+    }
+}
+
+void ota_receiver_set_progress_cb(ota_receiver_progress_cb_t cb)
+{
+    s_rx.progress_cb = cb;
+}
 
 static void prv_reset(void)
 {
@@ -95,6 +108,7 @@ static bool prv_handle_begin(const uint8_t *body, size_t body_len)
     s_rx.state = OTA_RX_RECEIVING;
     ESP_LOGI(TAG, "BEGIN: total=%u, partition=%s offset=0x%lx", s_rx.total_size,
              s_rx.partition->label, (unsigned long)s_rx.partition->address);
+    prv_notify();
     return true;
 }
 
@@ -125,6 +139,7 @@ static bool prv_handle_chunk(const uint8_t *body, size_t body_len)
     if ((s_rx.bytes_written & 0x3FFF) == 0) {
         ESP_LOGI(TAG, "CHUNK: %u/%u", s_rx.bytes_written, s_rx.total_size);
     }
+    prv_notify();
     return true;
 }
 
@@ -142,6 +157,7 @@ static bool prv_handle_commit(void)
     }
 
     s_rx.state = OTA_RX_VERIFYING;
+    prv_notify();
     uint8_t actual[32];
     mbedtls_sha256_finish(&s_rx.sha_ctx, actual);
     if (memcmp(actual, s_rx.expected_sha256, 32) != 0) {
@@ -169,6 +185,7 @@ static bool prv_handle_commit(void)
     }
 
     s_rx.state = OTA_RX_DONE;
+    prv_notify();
     ESP_LOGW(TAG, "OTA committed — rebooting in 500 ms");
     vTaskDelay(pdMS_TO_TICKS(500));
     esp_restart();

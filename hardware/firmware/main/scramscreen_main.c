@@ -147,15 +147,21 @@ static void render_ota_screen(ota_rx_state_t state, uint32_t bytes, uint32_t tot
 
 static void on_ota_progress(ota_rx_state_t state, uint32_t bytes, uint32_t total)
 {
-    /* Throttle: only redraw on every 4th chunk while receiving so we
-     * don't flood the LVGL task with rebuilds. Always redraw on state
-     * transitions. */
-    static uint32_t last_drawn = 0;
+    /* This callback runs on the NimBLE host task. Calling
+     * bsp_display_lock here contends with the LVGL render task; if
+     * LVGL is in the middle of a draw the host task blocks, the
+     * NimBLE FROM_LL ACL pool fills up while waiting, and the link
+     * drops mid-update.
+     *
+     * Mitigation: only render on state transitions, never per-chunk.
+     * Inside a state we cache the latest bytes/total in globals and
+     * the LVGL task picks them up on the next state change. The user
+     * sees "Receiving 0%" → "Verifying" → "Restarting" — no smooth
+     * bar but the link survives. */
     static ota_rx_state_t last_state = OTA_RX_IDLE;
-    if (state == OTA_RX_RECEIVING && state == last_state && (bytes - last_drawn) < (240 * 8)) {
+    if (state == last_state && state == OTA_RX_RECEIVING) {
         return;
     }
-    last_drawn = bytes;
     last_state = state;
     render_ota_screen(state, bytes, total);
 }

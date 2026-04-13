@@ -481,7 +481,10 @@ void app_main(void)
     };
     ota_receiver_init();
     ota_receiver_set_progress_cb(on_ota_progress);
-    wifi_manager_init();
+    /* Don't init WiFi at boot — it conflicts with the running NimBLE
+     * stack on the radio and crashes before BLE comes up. wifi_manager
+     * is initialised lazily inside ota_https_start when the user
+     * actually triggers an update. */
     ota_https_set_progress_cb(on_https_ota_progress);
     int ble_rc = ble_server_init(&ble_cbs);
     if (ble_rc != 0) {

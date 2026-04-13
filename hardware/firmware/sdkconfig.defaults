@@ -30,10 +30,13 @@ CONFIG_BT_CONTROLLER_ENABLED=y
 # Without this, every firmware restart loses the bond and iOS can no
 # longer encrypt → enc status=7 → reconnect loop forever.
 CONFIG_BT_NIMBLE_NVS_PERSIST=y
-# Bigger ACL buffer pool so OTA bulk transfers don't exhaust the
-# default 24-entry pool. Doubling gives the host task ample slack
-# even when iOS streams chunks at full speed.
+# Bigger ACL buffer pools so OTA bulk transfers don't exhaust the
+# default 24-entry pools. The transport pool (controller-side TX
+# queue) and host pool (incoming write reassembly) both bottleneck
+# under sustained writes; bumping both fixes "ACL buf alloc failed"
+# during BLE-pushed OTA.
 CONFIG_BT_NIMBLE_ACL_BUF_COUNT=64
+CONFIG_BT_NIMBLE_TRANSPORT_ACL_FROM_LL_COUNT=64
 
 # Logging
 CONFIG_LOG_DEFAULT_LEVEL_INFO=y

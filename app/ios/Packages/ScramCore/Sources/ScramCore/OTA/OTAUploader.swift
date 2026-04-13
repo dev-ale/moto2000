@@ -72,7 +72,10 @@ public actor OTAUploader {
             frame.append(0x02)
             frame.append(firmware[offset..<end])
             try await send(frame)
-            try? await Task.sleep(nanoseconds: 5_000_000)
+            // 20 ms throttle: 1 MB / (240 B / 20 ms) ≈ 88 s. Slower
+            // than 5 ms but well under the firmware's NimBLE buffer
+            // drain rate so we don't exhaust the ACL pools.
+            try? await Task.sleep(nanoseconds: 20_000_000)
             offset = end
             state = .uploading(bytesSent: offset, totalBytes: total)
             progress?(state)

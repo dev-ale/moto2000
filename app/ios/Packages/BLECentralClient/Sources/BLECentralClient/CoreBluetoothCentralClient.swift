@@ -187,8 +187,19 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
     }
 
     public func sendOTA(_ bytes: Data) throws {
-        guard case .connected = state, let peripheral, let otaDataChar else {
-            throw BLECentralClientError.notConnected
+        if case .connected = state {} else {
+            throw BLECentralClientError.writeFailed(message: "state=\(state)")
+        }
+        guard let peripheral else {
+            throw BLECentralClientError.writeFailed(message: "no peripheral")
+        }
+        guard let otaDataChar else {
+            // Most likely: iOS GATT cache from before the firmware flash
+            // didn't include the ota_data characteristic and rediscovery
+            // didn't pick it up.
+            throw BLECentralClientError.writeFailed(
+                message: "ota_data characteristic missing — toggle BT off/on"
+            )
         }
         // write-without-response. Caller MUST throttle (OTAUploader
         // sleeps a few ms per chunk) — otherwise iOS pushes faster

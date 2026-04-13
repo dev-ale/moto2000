@@ -1,3 +1,4 @@
+import BLECentralClient
 import ScramCore
 import SwiftUI
 
@@ -275,10 +276,26 @@ struct OTAUpdateView: View {
                     updateState = .success
                 }
             } catch {
+                let msg = describe(error)
                 await MainActor.run {
-                    updateState = .failed(error.localizedDescription)
+                    updateState = .failed(msg)
                 }
             }
         }
+    }
+
+    /// Render a useful error string instead of "BLECentralClientError error 1".
+    private func describe(_ error: Error) -> String {
+        if let bleError = error as? BLECentralClientError {
+            switch bleError {
+            case .notConnected:
+                return "Display not connected. Reconnect and try again."
+            case .writeFailed(let message):
+                return "BLE write failed: \(message)"
+            case .bluetoothOff:
+                return "Bluetooth is off."
+            }
+        }
+        return error.localizedDescription
     }
 }

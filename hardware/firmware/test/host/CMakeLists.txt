@@ -101,6 +101,28 @@ target_compile_definitions(test_ble_protocol
 add_test(NAME ble_protocol COMMAND test_ble_protocol)
 
 # ------------------------------------------------------------------------- #
+# ams_client / ancs_client — pure C parsers for Apple Media Service and    #
+# Apple Notification Center Service notifications. Both ship as ESP-IDF    #
+# components but the parser sources are platform-free, so we link them     #
+# into the host test harness here.                                          #
+# ------------------------------------------------------------------------- #
+set(AMS_CLIENT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ams_client")
+add_library(ams_parser STATIC "${AMS_CLIENT_ROOT}/src/ams_parser.c")
+target_include_directories(ams_parser PUBLIC "${AMS_CLIENT_ROOT}/include")
+
+add_executable(test_ams_parser test_ams_parser.c)
+target_link_libraries(test_ams_parser PRIVATE unity ams_parser)
+add_test(NAME ams_parser COMMAND test_ams_parser)
+
+set(ANCS_CLIENT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ancs_client")
+add_library(ancs_parser STATIC "${ANCS_CLIENT_ROOT}/src/ancs_parser.c")
+target_include_directories(ancs_parser PUBLIC "${ANCS_CLIENT_ROOT}/include")
+
+add_executable(test_ancs_parser test_ancs_parser.c)
+target_link_libraries(test_ancs_parser PRIVATE unity ancs_parser)
+add_test(NAME ancs_parser COMMAND test_ancs_parser)
+
+# ------------------------------------------------------------------------- #
 # ble_reconnect — Slice 17 FSM + last-known-payload cache                    #
 # ------------------------------------------------------------------------- #
 set(BLE_RECONNECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../components/ble_reconnect")

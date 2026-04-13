@@ -25,22 +25,56 @@ final class ConnectionViewModel {
 
         guard observeTask == nil else { return }
         observeTask = Task { [weak self] in
-            guard let self else { return }
-            for await newState in await self.coordinator.client.stateStream {
-                guard !Task.isCancelled else { break }
-                print("[VM] state: \(newState)")
-                self.state = newState
-                self.healthLevel = self.level(for: newState)
+            await self?.runStateLoop()
+        }
+        Task { [weak self] in
+            await self?.runAutoConnectLoop()
+        }
+    }
 
-                switch newState {
-                case .connected:
-                    await self.coordinator.handle(.didConnect)
-                case .disconnected(let reason):
-                    await self.coordinator.handle(.didDisconnect(reason: reason))
-                default:
-                    break
-                }
+    private func runStateLoop() async {
+        for await newState in await coordinator.client.stateStream {
+            guard !Task.isCancelled else { break }
+            print("[VM] state: \(newState)")
+            state = newState
+            healthLevel = level(for: newState)
+            await forwardToCoordinator(newState)
+        }
+    }
+
+    private func forwardToCoordinator(_ newState: ConnectionState) async {
+        switch newState {
+        case .connected:
+            await coordinator.handle(.didConnect)
+        case .disconnected(let reason):
+            await coordinator.handle(.didDisconnect(reason: reason))
+        default:
+            break
+        }
+    }
+
+    /* Auto-connect loop: every 2 seconds, if the device is paired and the
+     * connection is idle/disconnected (not actively connecting), call
+     * connect(). Handles both first-launch (AccessoryManager needs a
+     * moment to surface its stored accessory) and transient drops. */
+    private func runAutoConnectLoop() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            guard accessoryManager.isPaired else { continue }
+            if shouldAutoConnect(for: state) {
+                connect()
             }
+        }
+    }
+
+    private func shouldAutoConnect(for state: ConnectionState) -> Bool {
+        switch state {
+        case .idle:
+            return true
+        case .disconnected(let reason):
+            return reason != .userInitiated
+        default:
+            return false
         }
     }
 

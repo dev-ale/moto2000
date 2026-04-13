@@ -54,7 +54,14 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
     /// Create the CBCentralManager on demand (first connect() call).
     private func ensureCentralManager() -> CBCentralManager {
         if let cm = centralManager { return cm }
-        let cm = CBCentralManager(delegate: delegate, queue: delegate.queue)
+        /* Use a restore identifier so iOS keeps the CBCentralManager
+         * state (including active connections) across app launches.
+         * This is what makes retrieveConnectedPeripherals actually find
+         * the existing system-held connection on app relaunch. */
+        let options: [String: Any] = [
+            CBCentralManagerOptionRestoreIdentifierKey: "com.alejandro.moto2000.ScramScreen.central",
+        ]
+        let cm = CBCentralManager(delegate: delegate, queue: delegate.queue, options: options)
         delegate.owner = self
         centralManager = cm
         return cm
@@ -105,17 +112,32 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         let cm = ensureCentralManager()
         print("[BLE] connect() called, cmState=\(cm.state.rawValue)")
 
-        // Scan by service UUID. If CM isn't powered on yet,
-        // handleCentralStateUpdate will start the scan.
-        if cm.state == .poweredOn {
-            print("[BLE] scanning for service UUID...")
-            cm.scanForPeripherals(
-                withServices: [Self.serviceUUID],
-                options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
-            )
-        } else {
+        guard cm.state == .poweredOn else {
             print("[BLE] CM not powered on yet (\(cm.state.rawValue)), will scan on poweredOn")
+            return
         }
+
+        // FAST PATH #1: system may already hold a live connection to a
+        // peripheral advertising our service UUID. Reuse it — no scan.
+        let connected = cm.retrieveConnectedPeripherals(withServices: [Self.serviceUUID])
+        if let existing = connected.first {
+            print("[BLE] reusing already-connected peripheral \(existing.identifier)")
+            self.peripheral = existing
+            existing.delegate = delegate
+            setState(.connecting)
+            cm.connect(existing, options: nil)
+            return
+        }
+
+        /* No retrieve-by-identifier fast path: cm.connect() on a
+         * retrieved peripheral queues a pending connection with NO
+         * timeout, which silently hangs when the peripheral has
+         * rebooted. Active scanning recovers reliably. */
+        print("[BLE] scanning for service UUID...")
+        cm.scanForPeripherals(
+            withServices: [Self.serviceUUID],
+            options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
+        )
     }
 
     public func send(_ bytes: Data) throws {
@@ -159,6 +181,20 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         switch central.state {
         case .poweredOn:
             if case .scanning = state {
+                /* FAST PATH: if iOS already has a live connection at
+                 * the system level (from a prior app session), reuse
+                 * it instead of scanning. This fixes the "app stuck
+                 * in scanning while display is connected" case. */
+                let connected = central.retrieveConnectedPeripherals(
+                    withServices: [Self.serviceUUID])
+                if let existing = connected.first {
+                    print("[BLE] poweredOn: reusing system-connected peripheral \(existing.identifier)")
+                    self.peripheral = existing
+                    existing.delegate = delegate
+                    setState(.connecting)
+                    central.connect(existing, options: nil)
+                    return
+                }
                 print("[BLE] poweredOn while scanning, starting scan for service UUID")
                 central.scanForPeripherals(
                     withServices: [Self.serviceUUID],
@@ -182,7 +218,26 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
         self.peripheral = peripheral
         peripheral.delegate = delegate
         setState(.connecting)
-        central.connect(peripheral, options: nil)
+        central.connect(peripheral, options: [CBConnectPeripheralOptionNotifyOnConnectionKey: true])
+
+        /* Bail out after 15 s if the connection hasn't succeeded —
+         * SMP re-encryption after firmware reboot can take several
+         * seconds; a too-aggressive timeout cancels mid-handshake. */
+        let cancelHandle = peripheral
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 15 * 1_000_000_000)
+            guard let self else { return }
+            if case .connecting = await self.currentState() {
+                print("[BLE] connect timeout — cancelling and re-scanning")
+                await self.cancelStaleConnect(cancelHandle)
+            }
+        }
+    }
+
+    fileprivate func cancelStaleConnect(_ peripheral: CBPeripheral) {
+        centralManager?.cancelPeripheralConnection(peripheral)
+        self.peripheral = nil
+        setState(.idle)
     }
 
     fileprivate func handleConnected(_ peripheral: CBPeripheral) {
@@ -232,6 +287,22 @@ public actor CoreBluetoothCentralClient: BLECentralClient {
     fileprivate func handleNotification(_ data: Data) {
         statusContinuation.yield(data)
     }
+
+    fileprivate func handleRestoredPeripheral(_ peripheral: CBPeripheral) {
+        self.peripheral = peripheral
+        peripheral.delegate = delegate
+        switch peripheral.state {
+        case .connected:
+            print("[BLE] restored: already connected, discovering services")
+            setState(.connecting)
+            peripheral.discoverServices([Self.serviceUUID])
+        case .connecting:
+            print("[BLE] restored: still connecting")
+            setState(.connecting)
+        default:
+            break
+        }
+    }
 }
 
 // MARK: - CBCentralManager / CBPeripheral Delegate
@@ -244,6 +315,18 @@ private final class Delegate: NSObject, CBCentralManagerDelegate, CBPeripheralDe
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         Task { await owner?.handleCentralStateUpdate(central) }
+    }
+
+    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
+        /* iOS restored our CBCentralManager state — pick up any
+         * peripherals we were connected/connecting to in the previous
+         * session and re-attach delegates. The actual reconnect happens
+         * in handleCentralStateUpdate when we detect powered-on state. */
+        if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral],
+           let first = peripherals.first {
+            print("[BLE] willRestoreState: restored peripheral \(first.identifier), state=\(first.state.rawValue)")
+            Task { await owner?.handleRestoredPeripheral(first) }
+        }
     }
 
     func centralManager(

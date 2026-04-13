@@ -23,7 +23,11 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 
+#include "ams_client.h"
+#include "ancs_client.h"
+
 #include "esp_log.h"
+#include "esp_timer.h"
 
 #include <string.h>
 
@@ -192,21 +196,58 @@ static int prv_gap_event(struct ble_gap_event *event, void *arg)
             if (s_callbacks.on_connection_change) {
                 s_callbacks.on_connection_change(true);
             }
+            /* If there's a stored bond with this peer, iOS will resume
+             * encryption automatically and BLE_GAP_EVENT_ENC_CHANGE will
+             * fire with status=0. If there's no stored bond, iOS will
+             * initiate SMP pairing. Either way we start AMS/ANCS
+             * discovery on enc_change, not here. */
         } else {
             /* Connection attempt failed — restart advertising. */
             ble_server_start_advertising();
         }
         break;
 
+    case BLE_GAP_EVENT_ENC_CHANGE:
+        ESP_LOGI(TAG, "enc change; status=%d handle=%d", event->enc_change.status,
+                 event->enc_change.conn_handle);
+        if (event->enc_change.status == 0) {
+            /* Encryption is up — discover Apple Media Service and
+             * Apple Notification Center Service exposed by iOS. */
+            ams_client_start_for_connection(event->enc_change.conn_handle);
+            ancs_client_start_for_connection(event->enc_change.conn_handle);
+        }
+        /* On failure we just log. The connection may get disconnected
+         * by iOS but we do NOT clear the bond store — any stale-bond
+         * issue has to be resolved by forgetting the device on iOS
+         * exactly once, not by nuking the firmware state every time. */
+        break;
+
     case BLE_GAP_EVENT_DISCONNECT:
         ESP_LOGI(TAG, "disconnect; reason=%d", event->disconnect.reason);
         s_connected = false;
+        ams_client_handle_disconnect(event->disconnect.conn.conn_handle);
+        ancs_client_handle_disconnect(event->disconnect.conn.conn_handle);
         if (s_callbacks.on_connection_change) {
             s_callbacks.on_connection_change(false);
         }
         /* Auto-restart advertising so the phone can reconnect. */
         ble_server_start_advertising();
         break;
+
+    case BLE_GAP_EVENT_NOTIFY_RX: {
+        /* Notifications from iOS GATT services on the same connection
+         * (AMS / ANCS). Dispatch to the matching client; if neither
+         * recognises the attribute handle, drop it. */
+        const uint8_t *body = event->notify_rx.om->om_data;
+        uint16_t blen = event->notify_rx.om->om_len;
+        if (ams_client_handle_notification(event->notify_rx.conn_handle,
+                                           event->notify_rx.attr_handle, body, blen)) {
+            break;
+        }
+        ancs_client_handle_notification(event->notify_rx.conn_handle, event->notify_rx.attr_handle,
+                                        body, blen);
+        break;
+    }
 
     case BLE_GAP_EVENT_MTU:
         ESP_LOGI(TAG, "mtu update; conn=%d mtu=%d", event->mtu.conn_handle, event->mtu.value);
@@ -236,6 +277,11 @@ static void prv_on_reset(int reason)
 static void prv_on_sync(void)
 {
     ESP_LOGI(TAG, "nimble host synced — starting advertising");
+    /* Do NOT clear the bond store at boot. Doing so would break
+     * autoconnect: iOS keeps its stored bond even across our reflashes,
+     * and would then fail to encrypt when reconnecting because we no
+     * longer recognise it. Keeping the NimBLE store persistent preserves
+     * the LTK symmetry. */
     ble_server_start_advertising();
 }
 
@@ -274,20 +320,26 @@ int ble_server_init(const ble_server_callbacks_t *callbacks)
     ble_hs_cfg.sync_cb = prv_on_sync;
     ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
 
-    /* No pairing required — the GATT characteristics are open.
-     * AccessorySetupKit gates discovery but the actual link runs unencrypted.
-     * Avoids MIC failures from stale bond keys after firmware reflash. */
+    /* Enable LE Secure Connections + bonding so we can access AMS (music)
+     * and ANCS (calls) on iOS. The bond is stored in NVS and persists
+     * across reflashes — we NEVER call ble_store_clear() or erase NVS
+     * from code. The user pairs ONCE via AccessorySetupKit and the
+     * bond is stable from then on. */
     ble_hs_cfg.sm_io_cap = BLE_SM_IO_CAP_NO_IO;
-    ble_hs_cfg.sm_bonding = 0;
-    ble_hs_cfg.sm_sc = 0;
+    ble_hs_cfg.sm_bonding = 1;
+    ble_hs_cfg.sm_sc = 1;
     ble_hs_cfg.sm_mitm = 0;
+    ble_hs_cfg.sm_our_key_dist = BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID;
+    ble_hs_cfg.sm_their_key_dist = BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID;
+
+    /* Register GATT services. ble_svc_gap_init() must run before
+     * ble_svc_gap_device_name_set() so the GAP service exists first and
+     * the name set call targets the right attribute. */
+    ble_svc_gap_init();
+    ble_svc_gatt_init();
 
     /* Set device name. */
     ble_svc_gap_device_name_set("ScramScreen");
-
-    /* Register GATT services. */
-    ble_svc_gap_init();
-    ble_svc_gatt_init();
 
     rc = ble_gatts_count_cfg(s_svc_defs);
     if (rc != 0) {

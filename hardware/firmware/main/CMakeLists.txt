@@ -35,4 +35,6 @@ idf_component_register(
         lvgl__lvgl
         payload_cache
         screen_order
+        ams_client
+        ancs_client
 )

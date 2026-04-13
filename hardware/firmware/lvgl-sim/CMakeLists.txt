@@ -88,6 +88,7 @@ add_library(ble_protocol STATIC
 )
 target_include_directories(ble_protocol
     PUBLIC  "${BLE_PROTOCOL_ROOT}/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../components/screen_ids/include"
     PRIVATE "${BLE_PROTOCOL_ROOT}/src"
 )
 

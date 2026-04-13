@@ -12,5 +12,5 @@ idf_component_register(
     SRCS "src/ble_server.c" "src/ble_server_handlers.c"
     INCLUDE_DIRS "include"
     PRIV_INCLUDE_DIRS "src"
-    REQUIRES bt ble_protocol screen_fsm ble_reconnect
+    REQUIRES bt ble_protocol screen_fsm ble_reconnect ams_client ancs_client
 )

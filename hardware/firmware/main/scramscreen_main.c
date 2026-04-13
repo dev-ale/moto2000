@@ -29,6 +29,8 @@
 #include "screen_fsm.h"
 #include "ble_reconnect.h"
 #include "ble_protocol.h"
+#include "ams_client.h"
+#include "ancs_client.h"
 
 /* Screen includes — compiled from lvgl-sim/ into the ESP-IDF firmware. */
 #include "screens/screen_clock.h"
@@ -195,6 +197,49 @@ static void on_connection_change(bool connected)
 }
 
 /* ------------------------------------------------------------------ */
+/* AMS / ANCS callbacks — receive media + call updates from iOS over  */
+/* the same BLE connection and feed them through the existing screen  */
+/* manager pipeline. Both fire on the NimBLE host task, so we hold    */
+/* the BSP display lock around screen_manager_update_live.            */
+/* ------------------------------------------------------------------ */
+
+static void on_music_update(const ble_music_data_t *music)
+{
+    if (!music) {
+        return;
+    }
+    uint8_t buf[BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_MUSIC_BODY_SIZE];
+    size_t written = 0;
+    ble_result_t rc = ble_encode_music(music, 0, buf, sizeof(buf), &written);
+    if (rc != BLE_OK) {
+        ESP_LOGW(TAG, "music encode failed: %s", ble_result_name(rc));
+        return;
+    }
+    if (bsp_display_lock(UINT32_MAX) == ESP_OK) {
+        screen_manager_update_live(buf, written);
+        bsp_display_unlock();
+    }
+}
+
+static void on_call_event(const ble_incoming_call_data_t *call)
+{
+    if (!call) {
+        return;
+    }
+    uint8_t buf[BLE_PROTOCOL_HEADER_SIZE + BLE_PROTOCOL_INCOMING_CALL_BODY_SIZE];
+    size_t written = 0;
+    ble_result_t rc = ble_encode_incoming_call(call, 0, buf, sizeof(buf), &written);
+    if (rc != BLE_OK) {
+        ESP_LOGW(TAG, "incoming_call encode failed: %s", ble_result_name(rc));
+        return;
+    }
+    if (bsp_display_lock(UINT32_MAX) == ESP_OK) {
+        screen_manager_update_live(buf, written);
+        bsp_display_unlock();
+    }
+}
+
+/* ------------------------------------------------------------------ */
 /* app_main — firmware entry point                                     */
 /* ------------------------------------------------------------------ */
 
@@ -243,7 +288,13 @@ void app_main(void)
     /* 4b. Initialise the BOOT button (GPIO0) for screen cycling. */
     button_init();
 
-    /* 5. Initialise BLE server with callbacks. */
+    /* 5. Initialise the AMS / ANCS GATT clients with their callbacks.
+     *    They start their discovery state machines on BLE_GAP_EVENT_CONNECT
+     *    inside ble_server_init(). */
+    ams_client_init(on_music_update);
+    ancs_client_init(on_call_event);
+
+    /* 6. Initialise BLE server with callbacks. */
     ble_server_callbacks_t ble_cbs = {
         .on_screen_data = on_screen_data,
         .on_control = on_control,

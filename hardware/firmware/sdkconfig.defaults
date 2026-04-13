@@ -26,6 +26,10 @@ CONFIG_FREERTOS_HZ=1000
 CONFIG_BT_ENABLED=y
 CONFIG_BT_NIMBLE_ENABLED=y
 CONFIG_BT_CONTROLLER_ENABLED=y
+# Persist BLE bonds (LTK, IRK) to NVS so pairing survives reboots.
+# Without this, every firmware restart loses the bond and iOS can no
+# longer encrypt → enc status=7 → reconnect loop forever.
+CONFIG_BT_NIMBLE_NVS_PERSIST=y
 
 # Logging
 CONFIG_LOG_DEFAULT_LEVEL_INFO=y

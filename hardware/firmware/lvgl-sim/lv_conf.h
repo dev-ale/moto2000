@@ -34,7 +34,10 @@
    generate custom Inter fonts via lv_font_conv. */
 #define LV_FONT_MONTSERRAT_12 1
 #define LV_FONT_MONTSERRAT_16 1
+#define LV_FONT_MONTSERRAT_20 1
 #define LV_FONT_MONTSERRAT_24 1
+#define LV_FONT_MONTSERRAT_28 1
+#define LV_FONT_MONTSERRAT_36 1
 #define LV_FONT_MONTSERRAT_48 1
 
 /* Default font for LVGL's internal use. */

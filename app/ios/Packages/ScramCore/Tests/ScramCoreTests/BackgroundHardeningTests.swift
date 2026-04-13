@@ -41,6 +41,7 @@ private final class FakeCoreMotionManaging: CoreMotionManaging, @unchecked Senda
 
 final class LocationBackgroundConfigTests: XCTestCase {
     #if canImport(CoreLocation)
+    @MainActor
     func test_CLLocationManagerAdapter_setsBackgroundProperties() {
         let adapter = CLLocationManagerAdapter()
         _ = adapter.authorizationStatus

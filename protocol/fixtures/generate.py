@@ -275,10 +275,13 @@ def encode_weather_body(spec: dict) -> bytes:
     high_x10 = temp_x10("high_celsius")
     low_x10 = temp_x10("low_celsius")
     name = encode_fixed_string(spec.get("location_name", ""), 20)
+    # Byte 1 used to be "reserved (=0)"; it is now precip_minutes_until.
+    # Default sentinel 0xFF == "no precipitation in the forecast horizon".
+    precip = int(spec.get("precip_minutes_until", 0xFF))
     body = struct.pack(
         "<BBhhh",
         condition,
-        0,  # reserved
+        precip,
         temperature_x10,
         high_x10,
         low_x10,

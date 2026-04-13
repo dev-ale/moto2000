@@ -49,6 +49,12 @@ void screen_manager_next_screen(void);
 void screen_manager_prev_screen(void);
 
 /*
+ * Return the currently active screen ID (what the user sees), or 0xFF
+ * if no screens are active yet.
+ */
+uint8_t screen_manager_current_screen_id(void);
+
+/*
  * Re-render the currently selected screen from the cache.
  * No-op if the cache is empty.
  */

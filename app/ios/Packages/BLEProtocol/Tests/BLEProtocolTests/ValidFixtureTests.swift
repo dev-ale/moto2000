@@ -272,8 +272,11 @@ extension WeatherData {
         let high = try doubleValue("high_celsius")
         let low = try doubleValue("low_celsius")
         let name = (body["location_name"] as? String) ?? ""
+        let precip = (body["precip_minutes_until"] as? Int).map { UInt8($0) }
+            ?? weatherPrecipNone
         self.init(
             condition: condition,
+            precipMinutesUntil: precip,
             temperatureCelsiusX10: Int16(Int(round(temp * 10))),
             highCelsiusX10: Int16(Int(round(high * 10))),
             lowCelsiusX10: Int16(Int(round(low * 10))),

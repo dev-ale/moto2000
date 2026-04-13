@@ -49,6 +49,17 @@ ble_result_t ble_encode_status(const ble_status_payload_t *in, uint8_t *out_buf,
             *out_written = 5;
         }
         return BLE_OK;
+    case BLE_STATUS_REQUEST_LEAN_CALIBRATION:
+        if (out_cap < 3) {
+            return BLE_ERR_BUFFER_TOO_SMALL;
+        }
+        out_buf[0] = BLE_PROTOCOL_VERSION;
+        out_buf[1] = (uint8_t)BLE_STATUS_REQUEST_LEAN_CALIBRATION;
+        out_buf[2] = 0;
+        if (out_written != NULL) {
+            *out_written = 3;
+        }
+        return BLE_OK;
     default:
         return BLE_ERR_UNKNOWN_STATUS_TYPE;
     }

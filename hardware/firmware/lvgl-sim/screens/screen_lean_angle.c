@@ -134,6 +134,36 @@ void screen_lean_angle_create(lv_obj_t *parent, const ble_lean_angle_data_t *dat
     lv_obj_set_style_pad_all(parent, 0, 0);
     lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
 
+    /* Pre-calibration prompt: iOS flags confidence=0 until the rider
+     * long-presses BOOT to capture the upright zero. Show a clear
+     * instruction instead of a wobbly readout. */
+    if (data->confidence_percent == 0) {
+        lv_obj_t *lbl_title = lv_label_create(parent);
+        lv_label_set_text(lbl_title, "LEAN");
+        lv_obj_set_style_text_font(lbl_title, SCRAM_FONT_SMALL, 0);
+        lv_obj_set_style_text_color(lbl_title, col_muted, 0);
+        lv_obj_align(lbl_title, LV_ALIGN_TOP_MID, 0, 120);
+
+        lv_obj_t *lbl_icon = lv_label_create(parent);
+        lv_label_set_text(lbl_icon, LV_SYMBOL_SETTINGS);
+        lv_obj_set_style_text_font(lbl_icon, SCRAM_FONT_HERO, 0);
+        lv_obj_set_style_text_color(lbl_icon, col_green, 0);
+        lv_obj_align(lbl_icon, LV_ALIGN_CENTER, 0, -30);
+
+        lv_obj_t *lbl_prompt = lv_label_create(parent);
+        lv_label_set_text(lbl_prompt, "Hold BOOT");
+        lv_obj_set_style_text_font(lbl_prompt, SCRAM_FONT_VALUE, 0);
+        lv_obj_set_style_text_color(lbl_prompt, col_text, 0);
+        lv_obj_align(lbl_prompt, LV_ALIGN_CENTER, 0, 50);
+
+        lv_obj_t *lbl_sub = lv_label_create(parent);
+        lv_label_set_text(lbl_sub, "to calibrate upright");
+        lv_obj_set_style_text_font(lbl_sub, SCRAM_FONT_SMALL, 0);
+        lv_obj_set_style_text_color(lbl_sub, col_muted, 0);
+        lv_obj_align(lbl_sub, LV_ALIGN_CENTER, 0, 100);
+        return;
+    }
+
     /* Derived values. */
     int16_t lean_deg = data->current_lean_deg_x10 / 10;
     int16_t abs_lean = lean_deg < 0 ? -lean_deg : lean_deg;

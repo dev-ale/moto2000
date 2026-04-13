@@ -587,6 +587,14 @@ void screen_manager_prev_screen(void)
     render_current();
 }
 
+uint8_t screen_manager_current_screen_id(void)
+{
+    if (s_active_count == 0 || s_current_idx >= s_active_count) {
+        return 0xFF;
+    }
+    return s_active_ids[s_current_idx];
+}
+
 void screen_manager_toggle_night(void)
 {
     s_night_mode = !s_night_mode;

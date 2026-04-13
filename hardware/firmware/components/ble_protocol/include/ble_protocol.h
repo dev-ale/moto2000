@@ -395,6 +395,8 @@ typedef enum {
     BLE_STATUS_SCREEN_CHANGED = 0x01,
     /* Firmware version broadcast. Body: major.minor.patch (3 bytes). */
     BLE_STATUS_FIRMWARE_VERSION = 0x02,
+    /* Rider held BOOT on the lean-angle screen. Body: empty. */
+    BLE_STATUS_REQUEST_LEAN_CALIBRATION = 0x03,
 } ble_status_type_t;
 
 typedef struct {

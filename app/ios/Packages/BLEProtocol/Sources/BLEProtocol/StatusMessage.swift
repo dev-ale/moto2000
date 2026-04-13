@@ -19,12 +19,16 @@ public enum StatusMessage: Equatable, Sendable {
     /// The firmware reported its current major.minor.patch version on
     /// connect. Used by the iOS More tab and the OTA update flow.
     case firmwareVersion(major: UInt8, minor: UInt8, patch: UInt8)
+    /// The rider held BOOT on the lean-angle screen to capture the
+    /// upright zero-offset. No payload.
+    case requestLeanCalibration
 
     /// Numeric type byte as documented in `docs/ble-protocol.md`.
     public var typeByte: UInt8 {
         switch self {
         case .screenChanged: return 0x01
         case .firmwareVersion: return 0x02
+        case .requestLeanCalibration: return 0x03
         }
     }
 
@@ -40,6 +44,8 @@ public enum StatusMessage: Equatable, Sendable {
             writer.writeUInt8(maj)
             writer.writeUInt8(min)
             writer.writeUInt8(pat)
+        case .requestLeanCalibration:
+            writer.writeUInt8(0)
         }
         return writer.data
     }
@@ -71,6 +77,8 @@ public enum StatusMessage: Equatable, Sendable {
             let min = try reader.readUInt8()
             let pat = try reader.readUInt8()
             return .firmwareVersion(major: maj, minor: min, patch: pat)
+        case 0x03:
+            return .requestLeanCalibration
         default:
             throw BLEProtocolError.unknownStatusType(type)
         }

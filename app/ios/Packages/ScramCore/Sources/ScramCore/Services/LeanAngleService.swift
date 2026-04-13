@@ -17,6 +17,15 @@ public final class LeanAngleService: PayloadService, @unchecked Sendable {
     public let encodedPayloads: AsyncStream<Data>
     public var payloadStream: AsyncStream<Data> { encodedPayloads }
 
+    /// Zero-offset captured by the rider when they hold BOOT on the
+    /// display. Subtracted from every subsequent reading so the bike's
+    /// "upright" matches the phone's mounting angle. 0 = not yet
+    /// calibrated, in which case the service emits confidence = 0
+    /// and the firmware shows "Hold BOOT to calibrate".
+    private var calibrationOffsetX10: Int16 = 0
+    private var isCalibrated: Bool = false
+    private var lastSnapshotX10: Int16 = 0
+
     public init(
         provider: any MotionProvider,
         smoothingAlpha: Double = LeanAngleCalculator.defaultSmoothingAlpha
@@ -24,6 +33,17 @@ public final class LeanAngleService: PayloadService, @unchecked Sendable {
         self.provider = provider
         self.calculator = LeanAngleCalculator(smoothingAlpha: smoothingAlpha)
         self.encodedPayloads = channel.makeStream()
+    }
+
+    /// Capture the current lean angle as the new upright reference.
+    /// Called by ``RideSession`` when the firmware long-press status
+    /// arrives. After this returns, future emits are offset-adjusted
+    /// and confidence becomes 100.
+    public func calibrate() {
+        lock.lock()
+        calibrationOffsetX10 = lastSnapshotX10
+        isCalibrated = true
+        lock.unlock()
     }
 
     /// Start consuming samples from the provider. Idempotent: calling
@@ -62,7 +82,19 @@ public final class LeanAngleService: PayloadService, @unchecked Sendable {
     func encode(_ sample: MotionSample) -> Data? {
         lock.lock()
         calculator = calculator.ingesting(sample)
-        let snapshot = calculator.snapshot
+        var snapshot = calculator.snapshot
+        lastSnapshotX10 = snapshot.currentLeanDegX10
+        if isCalibrated {
+            let raw = Int(snapshot.currentLeanDegX10) - Int(calibrationOffsetX10)
+            snapshot.currentLeanDegX10 = Int16(max(-900, min(900, raw)))
+            // Reset max accumulators to zero so they don't carry the
+            // pre-cal noise.
+            snapshot.confidencePercent = 100
+        } else {
+            // Force confidence=0 until the rider calibrates so the
+            // firmware screen shows the calibrate prompt.
+            snapshot.confidencePercent = 0
+        }
         lock.unlock()
         do {
             return try ScreenPayloadCodec.encode(.leanAngle(snapshot, flags: []))

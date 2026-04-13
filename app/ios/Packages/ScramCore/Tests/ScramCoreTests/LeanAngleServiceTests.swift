@@ -7,6 +7,13 @@ import RideSimulatorKit
 final class LeanAngleServiceTests: XCTestCase {
     func test_encode_uprightSampleProducesZeroLean() throws {
         let service = LeanAngleService(provider: StubMotionProvider())
+        // Calibration captures the current (upright) sample as the zero
+        // reference; confidence stays 0 until the rider calibrates.
+        _ = service.encode(MotionSample(
+            scenarioTime: 0,
+            gravityX: 0, gravityY: -1, gravityZ: 0
+        ))
+        service.calibrate()
         let blob = service.encode(MotionSample(
             scenarioTime: 0,
             gravityX: 0, gravityY: -1, gravityZ: 0
@@ -20,6 +27,20 @@ final class LeanAngleServiceTests: XCTestCase {
         XCTAssertEqual(data.maxLeftLeanDegX10, 0)
         XCTAssertEqual(data.maxRightLeanDegX10, 0)
         XCTAssertEqual(data.confidencePercent, 100)
+    }
+
+    func test_encode_beforeCalibration_reportsZeroConfidence() throws {
+        let service = LeanAngleService(provider: StubMotionProvider())
+        let blob = service.encode(MotionSample(
+            scenarioTime: 0,
+            gravityX: 0, gravityY: -1, gravityZ: 0
+        ))
+        let payload = try ScreenPayloadCodec.decode(XCTUnwrap(blob))
+        guard case .leanAngle(let data, _) = payload else {
+            XCTFail("expected leanAngle payload")
+            return
+        }
+        XCTAssertEqual(data.confidencePercent, 0)
     }
 
     func test_encode_thirtyDegreeRightLeanProducesPositiveValue() throws {

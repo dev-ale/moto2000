@@ -201,6 +201,9 @@ final class LivePreviewWeatherTests: XCTestCase {
             case .snow: return .snow
             case .fog: return .fog
             case .thunderstorm: return .thunderstorm
+            case .partlyCloudy: return .partlyCloudy
+            case .overcast: return .overcast
+            case .drizzle: return .drizzle
             }
         }()
 
@@ -288,6 +291,9 @@ final class LivePreviewWeatherTests: XCTestCase {
                 case .snow: return .snow
                 case .fog: return .fog
                 case .thunderstorm: return .thunderstorm
+                case .partlyCloudy: return .partlyCloudy
+                case .overcast: return .overcast
+                case .drizzle: return .drizzle
                 }
             }()
             XCTAssertEqual(wire, expectedWire, "condition \(domain) should map to \(expectedWire)")

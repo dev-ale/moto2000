@@ -76,6 +76,9 @@ public actor RideSession {
     // Typed reference for queryable state (TripStatsService.currentSnapshot).
     private var tripStatsService: TripStatsService?
 
+    // Typed reference so the display button can trigger calibration.
+    private var leanAngleService: LeanAngleService?
+
     /// Whether the session is currently running.
     public private(set) var isRunning = false
 
@@ -164,6 +167,7 @@ public actor RideSession {
         }
         activeServices.removeAll()
         tripStatsService = nil
+        leanAngleService = nil
         scheduler = nil
     }
 
@@ -181,6 +185,9 @@ public actor RideSession {
             // Capture typed references for queryable services.
             if let trip = service as? TripStatsService {
                 tripStatsService = trip
+            }
+            if let lean = service as? LeanAngleService {
+                leanAngleService = lean
             }
 
             await service.start()
@@ -211,6 +218,8 @@ public actor RideSession {
                 object: nil,
                 userInfo: ["major": maj, "minor": min, "patch": pat]
             )
+        case .requestLeanCalibration:
+            leanAngleService?.calibrate()
         }
     }
 

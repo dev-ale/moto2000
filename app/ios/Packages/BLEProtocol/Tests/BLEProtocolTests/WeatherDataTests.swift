@@ -16,8 +16,8 @@ final class WeatherDataTests: XCTestCase {
     }
 
     func test_encode_littleEndianLayout() throws {
-        // condition=0x02 (rain), reserved=0, temp=145(0x91), high=170(0xAA),
-        // low=110(0x6E), location="Paris"
+        // condition=0x02 (rain), precip=0xFF (none), temp=145(0x91),
+        // high=170(0xAA), low=110(0x6E), location="Paris"
         let data = WeatherData(
             condition: .rain,
             temperatureCelsiusX10: 145,
@@ -28,7 +28,7 @@ final class WeatherDataTests: XCTestCase {
         let bytes = try data.encode()
         var expected: [UInt8] = [
             0x02,        // condition
-            0x00,        // reserved
+            0xFF,        // precip_minutes_until (none)
             0x91, 0x00,  // temp 145 LE
             0xAA, 0x00,  // high 170 LE
             0x6E, 0x00,  // low 110 LE
@@ -169,16 +169,14 @@ final class WeatherDataTests: XCTestCase {
         }
     }
 
-    func test_decode_rejectsNonZeroReservedByte() {
+    func test_decode_acceptsAnyPrecipValue() throws {
+        // Byte 1 used to be "reserved (=0)"; it now carries
+        // precip_minutes_until, so any value is valid.
         var bytes = [UInt8](repeating: 0, count: WeatherData.encodedSize)
-        bytes[0] = 0x00
-        bytes[1] = 0x01
-        XCTAssertThrowsError(try WeatherData.decode(Data(bytes))) { error in
-            XCTAssertEqual(
-                error as? BLEProtocolError,
-                .nonZeroBodyReserved(field: "weather.reserved")
-            )
-        }
+        bytes[0] = 0x00   // condition = clear
+        bytes[1] = 0x2A   // 42 minutes until rain
+        let decoded = try WeatherData.decode(Data(bytes))
+        XCTAssertEqual(decoded.precipMinutesUntil, 42)
     }
 
     func test_screenPayloadCodec_roundTripsWeather() throws {

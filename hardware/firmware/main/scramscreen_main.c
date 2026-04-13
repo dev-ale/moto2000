@@ -201,25 +201,61 @@ static void render_waiting_screen(void)
 /* screen the user navigated to.                                      */
 /* ------------------------------------------------------------------ */
 
+/* Threshold separating a short tap (next screen) from a long hold
+ * (context action, e.g. lean-angle calibration). */
+#define BUTTON_LONG_PRESS_MS 800
+
+static void send_lean_calibration_request(void)
+{
+    ble_status_payload_t status = {
+        .type = BLE_STATUS_REQUEST_LEAN_CALIBRATION,
+    };
+    uint8_t buf[8];
+    size_t written = 0;
+    if (ble_encode_status(&status, buf, sizeof(buf), &written) == BLE_OK) {
+        ble_server_notify_status(buf, written);
+        ESP_LOGI(TAG, "lean calibration request sent");
+    }
+}
+
 static void button_task(void *arg)
 {
     (void)arg;
     bool last = true; /* released (pull-up) */
+    uint32_t press_start_ms = 0;
+    bool long_fired = false;
     while (1) {
         bool pressed = gpio_get_level(BUTTON_GPIO) == 0;
+        uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+
         if (pressed && last) {
-            ESP_LOGI(TAG, "button → next screen");
-            if (bsp_display_lock(UINT32_MAX) == ESP_OK) {
-                screen_manager_next_screen();
-                bsp_display_unlock();
-            }
-            /* Wait for release. */
-            while (gpio_get_level(BUTTON_GPIO) == 0) {
-                vTaskDelay(pdMS_TO_TICKS(20));
-            }
-            /* Cooldown so LVGL flushes the new screen before another press. */
-            vTaskDelay(pdMS_TO_TICKS(300));
+            press_start_ms = now_ms;
+            long_fired = false;
         }
+
+        if (pressed && !long_fired && (now_ms - press_start_ms) >= BUTTON_LONG_PRESS_MS) {
+            /* Long press while still holding: context action on the
+             * current screen. For lean angle this is "capture zero". */
+            long_fired = true;
+            if (screen_manager_current_screen_id() == BLE_SCREEN_LEAN_ANGLE) {
+                ESP_LOGI(TAG, "long press on lean angle → calibrate");
+                send_lean_calibration_request();
+            }
+        }
+
+        if (!pressed && !last) {
+            /* Release: if it was a short press, advance screen.
+             * Long press already fired its action. */
+            if (!long_fired) {
+                ESP_LOGI(TAG, "button → next screen");
+                if (bsp_display_lock(UINT32_MAX) == ESP_OK) {
+                    screen_manager_next_screen();
+                    bsp_display_unlock();
+                }
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+        }
+
         last = !pressed;
         vTaskDelay(pdMS_TO_TICKS(20));
     }

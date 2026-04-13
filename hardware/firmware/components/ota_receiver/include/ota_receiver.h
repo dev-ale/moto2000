@@ -26,10 +26,23 @@
 extern "C" {
 #endif
 
+/* Legacy BLE-pushed OTA frames — no longer used (kept for ABI). */
 #define OTA_FRAME_BEGIN  0x01
 #define OTA_FRAME_CHUNK  0x02
 #define OTA_FRAME_COMMIT 0x03
 #define OTA_FRAME_ABORT  0x04
+
+/* WiFi-OTA frames — send these from iOS via the ota_data char.
+ * Each frame is one BLE write, no length prefix (frame length = BLE
+ * write length).
+ *
+ *   0x20 SET_SSID         body = ssid bytes (no NUL)
+ *   0x21 SET_PASSWORD     body = password bytes (no NUL)
+ *   0x22 START_HTTPS_OTA  body = HTTPS URL to the .bin
+ */
+#define OTA_FRAME_WIFI_SSID   0x20
+#define OTA_FRAME_WIFI_PWD    0x21
+#define OTA_FRAME_HTTPS_BEGIN 0x22
 
 typedef enum {
     OTA_RX_IDLE = 0,

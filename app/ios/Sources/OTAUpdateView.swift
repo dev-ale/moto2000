@@ -11,6 +11,11 @@ struct OTAUpdateView: View {
     /// transport-agnostic.
     let sendOTA: @Sendable (Data) async throws -> Void
 
+    @AppStorage("scramscreen.wifi.ssid")
+    private var wifiSSID: String = ""
+    @AppStorage("scramscreen.wifi.pwd")
+    private var wifiPassword: String = ""
+
     @Environment(\.dismiss)
     private var dismiss
     @State private var updateState: UpdateState = .ready
@@ -233,47 +238,31 @@ struct OTAUpdateView: View {
     // MARK: - Update flow
 
     private func startUpdate() {
+        guard !wifiSSID.isEmpty else {
+            updateState = .failed("Set WiFi credentials in More tab first.")
+            return
+        }
         onStartUpdate()
         updateState = .downloading(progress: 0)
 
         let url = update.downloadURL
+        let ssid = wifiSSID
+        let password = wifiPassword
         let send = sendOTA
         Task {
-            // 1. Download the .bin from GitHub.
-            let firmware: Data
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                firmware = data
-            } catch {
-                await MainActor.run {
-                    updateState = .failed("Download: \(error.localizedDescription)")
-                }
-                return
-            }
-
-            // 2. Stream over BLE via OTAUploader, mapping its progress
-            //    state into our local UpdateState enum.
             let uploader = OTAUploader()
             do {
-                try await uploader.upload(firmware: firmware, send: send) { state in
-                    Task { @MainActor in
-                        switch state {
-                        case let .uploading(sent, total):
-                            let pct = total > 0 ? Double(sent) / Double(total) : 0
-                            updateState = .downloading(progress: pct)
-                        case .finalizing:
-                            updateState = .verifying
-                        case .completed:
-                            updateState = .applying
-                        case .failed(let reason):
-                            updateState = .failed(reason)
-                        case .idle:
-                            break
-                        }
-                    }
-                }
+                try await uploader.startWifiOTA(
+                    ssid: ssid,
+                    password: password,
+                    url: url,
+                    send: send
+                )
+                // The firmware now owns the rest of the flow. Show
+                // "applying" until the BLE link drops on reboot — at
+                // which point ConnectionViewModel will surface it.
                 await MainActor.run {
-                    updateState = .success
+                    updateState = .applying
                 }
             } catch {
                 let msg = describe(error)

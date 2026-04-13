@@ -1,15 +1,17 @@
 import CryptoKit
 import Foundation
 
-/// Streams a firmware image to the ESP32 over the BLE `ota_data`
-/// characteristic via a caller-provided send closure.
+/// Triggers a WiFi-HTTPS OTA on the firmware by writing three small
+/// frames to the BLE `ota_data` characteristic:
 ///
-/// Wire format mirrors `components/ota_receiver` on the firmware side:
+///   0x20 SET_SSID   body = ssid bytes
+///   0x21 SET_PWD    body = password bytes
+///   0x22 BEGIN_OTA  body = URL bytes
 ///
-///   BEGIN  : [0x01][size:4 LE][sha256:32]
-///   CHUNK  : [0x02][bytes…]
-///   COMMIT : [0x03]
-///   ABORT  : [0x04]
+/// The firmware stores the credentials in NVS, connects to WiFi,
+/// downloads the firmware from the URL, applies it, and reboots.
+/// Progress is reported back over the BLE status characteristic and
+/// also rendered directly on the display.
 ///
 /// Decoupled from `BLECentralClient` so ScramCore stays transport-agnostic
 /// — the caller passes a `send` closure that wraps `client.sendOTA(_:)`.
@@ -33,74 +35,46 @@ public actor OTAUploader {
 
     public init() {}
 
-    /// Run the full upload flow. Returns when COMMIT has been sent
-    /// (the firmware reboots after that).
-    public func upload(
-        firmware: Data,
+    /// Send the WiFi credentials + the firmware download URL to the
+    /// firmware. Returns immediately after the URL frame is acked —
+    /// the actual download + flash + reboot happen on the firmware side
+    /// over WiFi and progress is reported via the BLE status channel.
+    public func startWifiOTA(
+        ssid: String,
+        password: String,
+        url: URL,
         send: SendBlock,
         progress: ProgressBlock? = nil
     ) async throws {
-        guard !firmware.isEmpty else {
-            state = .failed(reason: "empty firmware")
-            throw UploadError.emptyFirmware
+        guard !ssid.isEmpty else {
+            state = .failed(reason: "missing WiFi SSID")
+            throw UploadError.missingCredentials
         }
 
-        let total = firmware.count
-        let digest = SHA256.hash(data: firmware)
-        let hashBytes = Data(digest)
+        // Each frame is one BLE write to the ota_data characteristic.
+        // Body bytes are raw (no length prefix — frame length = body
+        // length + 1 type byte).
+        let ssidFrame = Data([0x20]) + Data(ssid.utf8)
+        let pwdFrame = Data([0x21]) + Data(password.utf8)
+        let urlFrame = Data([0x22]) + Data(url.absoluteString.utf8)
 
-        // BEGIN frame
-        var begin = Data()
-        begin.append(0x01)
-        var size32 = UInt32(total).littleEndian
-        withUnsafeBytes(of: &size32) { begin.append(contentsOf: $0) }
-        begin.append(hashBytes)
-        try await send(begin)
-
-        // Initial progress update
-        state = .uploading(bytesSent: 0, totalBytes: total)
+        state = .uploading(bytesSent: 0, totalBytes: 3)
         progress?(state)
+        try await send(ssidFrame)
 
-        // CHUNK frames. We throttle to ~5 ms per chunk so the firmware's
-        // NimBLE ACL buffer pool has time to drain — sending faster
-        // than that exhausts it within seconds and the link dies
-        // mid-update with "ACL buf alloc failed".
-        var offset = 0
-        while offset < total {
-            let end = min(offset + Self.chunkBodyBytes, total)
-            var frame = Data(capacity: end - offset + 1)
-            frame.append(0x02)
-            frame.append(firmware[offset..<end])
-            try await send(frame)
-            // 20 ms throttle: 1 MB / (240 B / 20 ms) ≈ 88 s. Slower
-            // than 5 ms but well under the firmware's NimBLE buffer
-            // drain rate so we don't exhaust the ACL pools.
-            try? await Task.sleep(nanoseconds: 20_000_000)
-            offset = end
-            state = .uploading(bytesSent: offset, totalBytes: total)
-            progress?(state)
-        }
+        state = .uploading(bytesSent: 1, totalBytes: 3)
+        progress?(state)
+        try await send(pwdFrame)
 
-        // COMMIT frame — firmware verifies SHA256 and reboots.
+        state = .uploading(bytesSent: 2, totalBytes: 3)
+        progress?(state)
+        try await send(urlFrame)
+
         state = .finalizing
         progress?(state)
-        var commit = Data()
-        commit.append(0x03)
-        try await send(commit)
-
-        state = .completed
-        progress?(state)
-    }
-
-    /// Send an ABORT frame. Use if the user cancels mid-flight.
-    public func abort(send: SendBlock) async {
-        var frame = Data()
-        frame.append(0x04)
-        _ = try? await send(frame)
-        state = .idle
     }
 
     public enum UploadError: Error, Sendable, Equatable {
-        case emptyFirmware
+        case missingCredentials
     }
 }

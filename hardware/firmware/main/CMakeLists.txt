@@ -39,4 +39,6 @@ idf_component_register(
         ams_client
         ancs_client
         ota_receiver
+        ota_https
+        wifi_manager
 )
